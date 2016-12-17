@@ -23,14 +23,28 @@
 	</build>
 
 	<modules>
-		<module>namelessmcplugin-api</module>
+		<module>namelessapi-bungee</module>
+		<module>namelessapi-spigot</module>
+		<module>namelessapi</module>
 	</modules>
-
+	
 	<licenses>
 		<license>
 			<name>MIT</name>
 			<url>https://opensource.org/licenses/MIT</url>
 		</license>
 	</licenses>
+	
+	
+	<repositories>
+		<repository>
+			<id>spigot-repo</id>
+			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+		</repository>
+		<repository>
+			<id>bungee-repo</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+		</repository>
+	</repositories>
 
 </project>
