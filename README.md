@@ -1,5 +1,5 @@
 # Nameless-Plugin-API
-Public API Library for namelessmc software.
+The official Java library for interacting with a NamelessMC Website
 Used in the official NamelessMC Plugin
 
 # Contributors
