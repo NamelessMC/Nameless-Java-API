@@ -15,7 +15,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.namelessmc.NamelessAPI.NamelessException;
 
-public class RequestUtil {
+public class NamelessRequestUtil {
 
 	/**
 	 * @param url Full URL with / at the end

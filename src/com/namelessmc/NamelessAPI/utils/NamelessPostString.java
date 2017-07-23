@@ -3,7 +3,7 @@ package com.namelessmc.NamelessAPI.utils;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-public class PostString {
+public class NamelessPostString {
 	
 	public static String urlEncodeString(String string) {
 		try {

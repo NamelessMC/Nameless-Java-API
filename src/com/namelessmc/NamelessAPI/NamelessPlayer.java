@@ -6,9 +6,9 @@ import java.util.UUID;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.namelessmc.NamelessAPI.utils.PostString;
-import com.namelessmc.NamelessAPI.utils.RequestUtil;
-import com.namelessmc.NamelessAPI.utils.RequestUtil.Request;
+import com.namelessmc.NamelessAPI.utils.NamelessPostString;
+import com.namelessmc.NamelessAPI.utils.NamelessRequestUtil;
+import com.namelessmc.NamelessAPI.utils.NamelessRequestUtil.Request;
 
 public class NamelessPlayer {
 
@@ -29,7 +29,7 @@ public class NamelessPlayer {
 	public NamelessPlayer(UUID uuid, URL baseUrl) {	
 		this.baseUrl = baseUrl;
 		
-		Request request = RequestUtil.sendPostRequest(baseUrl, "get", "uuid=" + PostString.urlEncodeString(uuid.toString()));
+		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "get", "uuid=" + NamelessPostString.urlEncodeString(uuid.toString()));
 		
 		parser = new JsonParser();
 		JsonObject response = request.getResponse();
@@ -124,8 +124,8 @@ public class NamelessPlayer {
 	}
 	
 	public int getAlertCount() throws NamelessException {
-		String postString = "uuid=" + PostString.urlEncodeString(uuid.toString());
-		Request request = RequestUtil.sendPostRequest(baseUrl, "getNotifications", postString);
+		String postString = "uuid=" + NamelessPostString.urlEncodeString(uuid.toString());
+		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "getNotifications", postString);
 		
 		if (!request.hasSucceeded()) {
 			throw new NamelessException(request.getException());
@@ -137,8 +137,8 @@ public class NamelessPlayer {
 	}
 	
 	public int getMessageCount() throws NamelessException {
-		String postString = "uuid=" + PostString.urlEncodeString(uuid.toString());
-		Request request = RequestUtil.sendPostRequest(baseUrl, "getNotifications", postString);
+		String postString = "uuid=" + NamelessPostString.urlEncodeString(uuid.toString());
+		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "getNotifications", postString);
 		
 		if (!request.hasSucceeded()) {
 			throw new NamelessException(request.getException());
@@ -150,7 +150,7 @@ public class NamelessPlayer {
 	}
 	
 	public void setGroup(int groupId) throws NamelessException {
-		Request request = RequestUtil.sendPostRequest(baseUrl, "setGroup", "uuid=" + PostString.urlEncodeString(uuid.toString()) + "?group_id=");
+		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "setGroup", "uuid=" + NamelessPostString.urlEncodeString(uuid.toString()) + "?group_id=");
 		
 		if (!request.hasSucceeded()) {
 			throw new NamelessException(request.getException());
@@ -158,11 +158,11 @@ public class NamelessPlayer {
 	}
 
 	public void updateUsername(String newUserName) throws NamelessException {
-		String encodedUuid = PostString.urlEncodeString(uuid.toString());
-		String encodedName = PostString.urlEncodeString(newUserName);
+		String encodedUuid = NamelessPostString.urlEncodeString(uuid.toString());
+		String encodedName = NamelessPostString.urlEncodeString(newUserName);
 		String postString = "id=" + encodedUuid + "?new_username=" + encodedName;
 		
-		Request request = RequestUtil.sendPostRequest(baseUrl, "updateUsername", postString);
+		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "updateUsername", postString);
 		
 		if (!request.hasSucceeded()) {
 			throw new NamelessException(request.getException());
@@ -170,13 +170,13 @@ public class NamelessPlayer {
 	}
 	
 	public void register(String minecraftName, String email) throws NamelessException {
-		String encodedUuid = PostString.urlEncodeString(uuid.toString());
-		String encodedName = PostString.urlEncodeString(minecraftName);
-		String encodedEmail = PostString.urlEncodeString(email);
+		String encodedUuid = NamelessPostString.urlEncodeString(uuid.toString());
+		String encodedName = NamelessPostString.urlEncodeString(minecraftName);
+		String encodedEmail = NamelessPostString.urlEncodeString(email);
 		
 		String postString = String.format("username=%s&uuid=%s&email=%s", encodedUuid, encodedName, encodedEmail);
 
-		Request request = RequestUtil.sendPostRequest(baseUrl, "register", postString);
+		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "register", postString);
 
 		if (!request.hasSucceeded()) {
 			String errorMessage = request.getException().getMessage();
@@ -189,15 +189,15 @@ public class NamelessPlayer {
 	}
 
 	public void reportPlayer(UUID reportedUuid, String reportedUsername, String reason) throws NamelessException {
-		String encodedReporterUuid = PostString.urlEncodeString(uuid.toString());
-		String encodedReportedUuid = PostString.urlEncodeString(reportedUuid.toString());
-		String encodedName = PostString.urlEncodeString(reportedUsername);
-		String encodedReason = PostString.urlEncodeString(reason);
+		String encodedReporterUuid = NamelessPostString.urlEncodeString(uuid.toString());
+		String encodedReportedUuid = NamelessPostString.urlEncodeString(reportedUuid.toString());
+		String encodedName = NamelessPostString.urlEncodeString(reportedUsername);
+		String encodedReason = NamelessPostString.urlEncodeString(reason);
 		
 		String postString = String.format("reporter_uuid=%s?reported_uuid=%s?reported_username=%s?content=%s", 
 				encodedReporterUuid, encodedReportedUuid, encodedName, encodedReason);
 		
-		Request request = RequestUtil.sendPostRequest(baseUrl, "createReport", postString);
+		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "createReport", postString);
 		
 		if (!request.hasSucceeded()) {
 			throw new NamelessException(request.getException());
