@@ -1,5 +1,8 @@
 package com.namelessmc.NamelessAPI;
 
+/**
+ * Generic exeptions thrown by many methods in the Nameless API
+ */
 public class NamelessException extends Exception {
 
 	private static final long serialVersionUID = 6127505087276545949L;
