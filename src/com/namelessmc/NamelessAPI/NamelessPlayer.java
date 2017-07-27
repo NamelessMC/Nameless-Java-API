@@ -14,7 +14,7 @@ public class NamelessPlayer {
 
 	private String userName;
 	private String displayName;
-	private String uuid;
+	private UUID uuid;
 	private int groupID;
 	private int reputation;
 	private Date registeredDate;
@@ -32,6 +32,7 @@ public class NamelessPlayer {
 	 * @param baseUrl Base API url: <i>http(s)://yoursite.com/api/v1/API_KEY<i>
 	 */
 	public NamelessPlayer(UUID uuid, URL baseUrl) {	
+		this.uuid = uuid;
 		this.baseUrl = baseUrl;
 		
 		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "get", "uuid=" + NamelessPostString.urlEncodeString(uuid.toString()));
@@ -56,7 +57,6 @@ public class NamelessPlayer {
 		// Display get user.
 		userName = message.get("username").getAsString();
 		displayName = message.get("displayname").getAsString();
-		uuid = UUID.fromString(message.get("uuid").getAsString());
 		groupID = message.get("group_id").getAsInt();
 		registeredDate = registered;
 		reputation = message.get("reputation").getAsInt();
@@ -87,12 +87,12 @@ public class NamelessPlayer {
 		
 		return displayName;
 	}
-
+	
 	/**
 	 * @return Minecraft UUID of this player.
 	 * @see #getUsername()
 	 */
-	public String getUUID() {
+	public UUID getUniqueId() {
 		return uuid;
 	}
 
