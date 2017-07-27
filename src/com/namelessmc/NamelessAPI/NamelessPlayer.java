@@ -63,6 +63,39 @@ public class NamelessPlayer {
 		validated = message.get("validated").getAsString().equals("1");
 		banned = message.get("banned").getAsString().equals("1");
 	}
+	
+	public NamelessPlayer(String username, URL baseUrl) {	
+		this.baseUrl = baseUrl;
+		
+		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "get", "username=" + NamelessPostString.urlEncodeString(username));
+		
+		parser = new JsonParser();
+		JsonObject response = request.getResponse();
+		
+		if (!request.hasSucceeded()) {
+			exists = false;
+			return;
+		}
+
+		//No errors, parse response
+		
+		JsonObject message = parser.parse(response.get("message").getAsString()).getAsJsonObject();
+
+		exists = true;
+
+		// Convert UNIX timestamp to date
+		Date registered = new Date(Long.parseLong(message.get("registered").toString().replaceAll("^\"|\"$", "")) * 1000);
+
+		// Display get user.
+		userName = message.get("username").getAsString();
+		displayName = message.get("displayname").getAsString();
+		uuid = UUID.fromString(message.get("uuid").getAsString());
+		groupID = message.get("group_id").getAsInt();
+		registeredDate = registered;
+		reputation = message.get("reputation").getAsInt();
+		validated = message.get("validated").getAsString().equals("1");
+		banned = message.get("banned").getAsString().equals("1");
+	}
 
 	/**
 	 * @return The Minecraft username associated with the provided UUID. This is not always the name displayed on the website.
