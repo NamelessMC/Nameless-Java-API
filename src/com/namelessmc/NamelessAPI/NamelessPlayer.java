@@ -36,39 +36,17 @@ public class NamelessPlayer {
 		this.baseUrl = baseUrl;
 		
 		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "get", "uuid=" + NamelessPostString.urlEncodeString(uuid.toString()));
-		
-		parser = new JsonParser();
-		JsonObject response = request.getResponse();
-		
-		if (!request.hasSucceeded()) {
-			exists = false;
-			return;
-		}
-
-		//No errors, parse response
-		
-		JsonObject message = parser.parse(response.get("message").getAsString()).getAsJsonObject();
-
-		exists = true;
-
-		// Convert UNIX timestamp to date
-		Date registered = new Date(Long.parseLong(message.get("registered").toString().replaceAll("^\"|\"$", "")) * 1000);
-
-		// Display get user.
-		userName = message.get("username").getAsString();
-		displayName = message.get("displayname").getAsString();
-		groupID = message.get("group_id").getAsInt();
-		registeredDate = registered;
-		reputation = message.get("reputation").getAsInt();
-		validated = message.get("validated").getAsString().equals("1");
-		banned = message.get("banned").getAsString().equals("1");
+		init(request);
 	}
 	
 	public NamelessPlayer(String username, URL baseUrl) {	
 		this.baseUrl = baseUrl;
 		
 		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "get", "username=" + NamelessPostString.urlEncodeString(username));
-		
+		init(request);
+	}
+	
+	private void init(Request request) {
 		parser = new JsonParser();
 		JsonObject response = request.getResponse();
 		
@@ -78,7 +56,6 @@ public class NamelessPlayer {
 		}
 
 		//No errors, parse response
-		
 		JsonObject message = parser.parse(response.get("message").getAsString()).getAsJsonObject();
 
 		exists = true;
