@@ -30,6 +30,7 @@ public class NamelessPlayer {
 	 * Creates a new NamelessPlayer object. This constructor should not be called in the main server thread.
 	 * @param uuid
 	 * @param baseUrl Base API url: <i>http(s)://yoursite.com/api/v1/API_KEY<i>
+	 * @see #NamelessPlayer(String, URL)
 	 */
 	public NamelessPlayer(UUID uuid, URL baseUrl) {	
 		this.uuid = uuid;
@@ -39,6 +40,12 @@ public class NamelessPlayer {
 		init(request);
 	}
 	
+	/**
+	 * Creates a new NamelessPlayer object. This constructor should not be called in the main server thread.
+	 * @param username
+	 * @param baseUrl
+	 * @see #NamelessPlayer(UUID, URL)
+	 */
 	public NamelessPlayer(String username, URL baseUrl) {	
 		this.baseUrl = baseUrl;
 		
