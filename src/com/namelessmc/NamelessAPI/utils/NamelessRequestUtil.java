@@ -69,13 +69,13 @@ public class NamelessRequestUtil {
 			}
 					
 
-			// Initialise output stream
+			// Initialize output stream
 			DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
 
 			// Write request
 			outputStream.writeBytes(postString);
 
-			// Initialise input stream
+			// Initialize input stream
 			InputStream inputStream = connection.getInputStream();
 
 			// Handle response

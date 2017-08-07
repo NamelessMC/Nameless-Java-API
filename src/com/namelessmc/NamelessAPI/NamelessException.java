@@ -1,7 +1,7 @@
 package com.namelessmc.NamelessAPI;
 
 /**
- * Generic exeption thrown by many methods in the Nameless API
+ * Generic exception thrown by many methods in the Nameless API
  */
 public class NamelessException extends Exception {
 

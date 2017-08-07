@@ -29,7 +29,7 @@ public class NamelessPlayer {
 	/**
 	 * Creates a new NamelessPlayer object. This constructor should not be called in the main server thread.
 	 * @param uuid
-	 * @param baseUrl Base API url: <i>http(s)://yoursite.com/api/v1/API_KEY<i>
+	 * @param baseUrl Base API URL: <i>http(s)://yoursite.com/api/v1/API_KEY<i>
 	 * @see #NamelessPlayer(String, URL)
 	 */
 	public NamelessPlayer(UUID uuid, URL baseUrl) {	
@@ -244,7 +244,7 @@ public class NamelessPlayer {
 	/**
 	 * Registers a new account. The player will be sent an email to set a password.
 	 * @param minecraftName In-game name for this player
-	 * @param email Email adress
+	 * @param email Email address
 	 * @throws NamelessException
 	 */
 	public void register(String minecraftName, String email) throws NamelessException {

@@ -43,12 +43,12 @@ public class NamelessAPI {
 			connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
 
 
-			// Initialise output stream
+			// Initialize output stream
 			DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
 			// Write request
 			outputStream.writeBytes("");
 
-			// Initialise input stream
+			// Initialize input stream
 			InputStream inputStream = connection.getInputStream();
 
 			// Handle response
