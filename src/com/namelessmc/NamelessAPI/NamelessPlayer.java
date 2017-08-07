@@ -33,7 +33,7 @@ public class NamelessPlayer {
 	 * @see #NamelessPlayer(String, URL)
 	 */
 	public NamelessPlayer(UUID uuid, URL baseUrl) {	
-		this.uuid = uuid;
+		parser = new JsonParser();
 		this.baseUrl = baseUrl;
 		
 		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "get", "uuid=" + NamelessPostString.urlEncodeString(uuid.toString()));
@@ -47,22 +47,21 @@ public class NamelessPlayer {
 	 * @see #NamelessPlayer(UUID, URL)
 	 */
 	public NamelessPlayer(String username, URL baseUrl) {	
+		this.parser = new JsonParser();
 		this.baseUrl = baseUrl;
 		
 		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "get", "username=" + NamelessPostString.urlEncodeString(username));
 		init(request);
 	}
 	
-	private void init(Request request) {
-		parser = new JsonParser();
-		JsonObject response = request.getResponse();
-		
+	private void init(Request request) {	
 		if (!request.hasSucceeded()) {
 			exists = false;
 			return;
 		}
-
+		
 		//No errors, parse response
+		JsonObject response = request.getResponse();
 		JsonObject message = parser.parse(response.get("message").getAsString()).getAsJsonObject();
 
 		exists = true;
