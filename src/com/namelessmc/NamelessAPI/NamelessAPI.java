@@ -63,38 +63,25 @@ public class NamelessAPI {
 			JsonParser parser = new JsonParser();
 
 			response = parser.parse(responseBuilder.toString()).getAsJsonObject();
-
-			String errorMessage;
 			
-			if (response.has("success")
-					|| response.get("message").getAsString().equalsIgnoreCase("Invalid API method")) {
-				errorMessage = null;
-			} else if (response.has("error")) {
-				errorMessage = response.get("message").getAsString();
-			} else {
-				errorMessage = "Unknown error";
-			}
-
-			// Close output/input stream
 			outputStream.flush();
 			outputStream.close();
 			inputStream.close();
 
-			// Disconnect
 			if (https) {
 				((HttpsURLConnection) connection).disconnect();
 			} else {
 				((HttpURLConnection) connection).disconnect();
 			}
 			
-			if (errorMessage == null) {
-				//Error message == null - connection successful
+			if (response.has("success")
+					|| response.get("message").getAsString().equalsIgnoreCase("Invalid API method")) {
 				return null;
+			} else if (response.has("error")) {
+				return new NamelessException(response.get("message").getAsString());
 			} else {
-				//Connection unsuccessful
-				return new NamelessException(errorMessage);
+				return new NamelessException();
 			}
-
 		} catch (Exception e) {
 			return new NamelessException(e);
 		}

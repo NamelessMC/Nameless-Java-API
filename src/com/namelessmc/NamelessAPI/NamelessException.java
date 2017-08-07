@@ -18,6 +18,10 @@ public class NamelessException extends Exception {
 		this.initCause(cause);
 	}
 
+	public NamelessException() {
+		this.message = "";
+	}
+
 	public String getMessage() {
 		return message;
 	}
