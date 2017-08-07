@@ -10,15 +10,22 @@ import com.namelessmc.NamelessAPI.utils.NamelessPostString;
 import com.namelessmc.NamelessAPI.utils.NamelessRequestUtil;
 import com.namelessmc.NamelessAPI.utils.NamelessRequestUtil.Request;
 
+import xyz.derkades.derkutils.caching.Cache;
+
+/**
+ * Represents a NamelessMC user that may or may not be registered.
+ * <br>
+ * The result of getters is cached for 1 minute.
+ */
 public class NamelessPlayer {
 
-	private String userName;
+	private String username;
 	private String displayName;
 	private UUID uuid;
 	private int groupID;
 	private int reputation;
 	private Date registeredDate;
-	private boolean exists;
+	private boolean exists = true;
 	private boolean validated;
 	private boolean banned;
 	
@@ -33,11 +40,31 @@ public class NamelessPlayer {
 	 * @see #NamelessPlayer(String, URL)
 	 */
 	public NamelessPlayer(UUID uuid, URL baseUrl) {	
-		this.uuid = uuid;
 		this.baseUrl = baseUrl;
+		this.parser = new JsonParser();
 		
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "get", "uuid=" + NamelessPostString.urlEncodeString(uuid.toString()));
-		init(request);
+		JsonObject message;
+		
+		Object cache = Cache.getCachedObject("nlmc-player-" + uuid);
+		if (cache == null) {
+			//Data is not cached, request data
+			Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "get", "uuid=" + NamelessPostString.urlEncodeString(uuid.toString()));
+			
+			if (!request.hasSucceeded()) {
+				exists = false;
+				return;
+			}
+			
+			//No errors, parse response
+			JsonObject response = request.getResponse();
+			message = parser.parse(response.get("message").getAsString()).getAsJsonObject();
+			
+			Cache.addCachedObject("nlmc-player-" + uuid, message, 60); //Add to cache for 1 minute
+		} else {
+			message = (JsonObject) cache;
+		}
+
+		init(message);
 	}
 	
 	/**
@@ -48,30 +75,38 @@ public class NamelessPlayer {
 	 */
 	public NamelessPlayer(String username, URL baseUrl) {	
 		this.baseUrl = baseUrl;
+		this.parser = new JsonParser();
 		
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "get", "username=" + NamelessPostString.urlEncodeString(username));
-		init(request);
-	}
-	
-	private void init(Request request) {
-		parser = new JsonParser();
-		JsonObject response = request.getResponse();
+		JsonObject message;
 		
-		if (!request.hasSucceeded()) {
-			exists = false;
-			return;
+		Object cache = Cache.getCachedObject("nlmc-player-" + username);
+		if (cache == null) {
+			//Data is not cached, request data
+			Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "get", "username=" + NamelessPostString.urlEncodeString(username));
+			
+			if (!request.hasSucceeded()) {
+				exists = false;
+				return;
+			}
+			
+			//No errors, parse response
+			JsonObject response = request.getResponse();
+			message = parser.parse(response.get("message").getAsString()).getAsJsonObject();
+			
+			Cache.addCachedObject("nlmc-player-" + username, message, 60); //Add to cache for 1 minute
+		} else {
+			message = (JsonObject) cache;
 		}
 
-		//No errors, parse response
-		JsonObject message = parser.parse(response.get("message").getAsString()).getAsJsonObject();
-
-		exists = true;
-
+		init(message);
+	}
+	
+	private void init(JsonObject message) {
 		// Convert UNIX timestamp to date
 		Date registered = new Date(Long.parseLong(message.get("registered").toString().replaceAll("^\"|\"$", "")) * 1000);
 
 		// Display get user.
-		userName = message.get("username").getAsString();
+		username = message.get("username").getAsString();
 		displayName = message.get("displayname").getAsString();
 		uuid = UUID.fromString(message.get("uuid").getAsString());
 		groupID = message.get("group_id").getAsInt();
@@ -90,7 +125,7 @@ public class NamelessPlayer {
 			throw new UnsupportedOperationException("This player does not exist.");
 		}
 		
-		return userName;
+		return username;
 	}
 
 	/**
@@ -177,39 +212,63 @@ public class NamelessPlayer {
 	}
 	
 	/**
-	 * @return Number of alerts
+	 * @return Number of alerts.
 	 * @see #getMessageCount()
 	 * @throws NamelessException
 	 */
 	public int getAlertCount() throws NamelessException {
-		String postString = "uuid=" + NamelessPostString.urlEncodeString(uuid.toString());
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "getNotifications", postString);
+		int alerts;
 		
-		if (!request.hasSucceeded()) {
-			throw new NamelessException(request.getException());
+		Object cache = Cache.getCachedObject("nlmc-player-alerts-" + uuid);
+		
+		if (cache == null) {
+			String postString = "uuid=" + NamelessPostString.urlEncodeString(uuid.toString());
+			Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "getNotifications", postString);
+			
+			if (!request.hasSucceeded()) {
+				throw new NamelessException(request.getException());
+			}
+			
+			JsonObject response = request.getResponse();
+			JsonObject message = parser.parse(response.get("message").getAsString()).getAsJsonObject();
+			alerts =  message.get("alerts").getAsInt();
+			
+			Cache.addCachedObject("nlmc-player-alerts-" + uuid, alerts, 60);
+		} else {
+			alerts = (int) cache;
 		}
 		
-		JsonObject response = request.getResponse();
-		JsonObject message = parser.parse(response.get("message").getAsString()).getAsJsonObject();
-		return message.get("alerts").getAsInt();
+		return alerts;
 	}
 	
 	/**
-	 * @return Number of unread private messages
+	 * @return Number of unread private messages.
 	 * @see #getAlertCount()
 	 * @throws NamelessException
 	 */
 	public int getMessageCount() throws NamelessException {
-		String postString = "uuid=" + NamelessPostString.urlEncodeString(uuid.toString());
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "getNotifications", postString);
+		int messages;
 		
-		if (!request.hasSucceeded()) {
-			throw new NamelessException(request.getException());
+		Object cache = Cache.getCachedObject("nlmc-player-messages-" + uuid);
+		
+		if (cache == null) {
+			String postString = "uuid=" + NamelessPostString.urlEncodeString(uuid.toString());
+			Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "getNotifications", postString);
+			
+			if (!request.hasSucceeded()) {
+				throw new NamelessException(request.getException());
+			}
+			
+			JsonObject response = request.getResponse();
+			JsonObject message = parser.parse(response.get("message").getAsString()).getAsJsonObject();
+			messages =  message.get("messages").getAsInt();
+			
+			Cache.addCachedObject("nlmc-player-messages-" + uuid, messages, 60);
+		} else {
+			messages = (int) cache;
 		}
 		
-		JsonObject response = request.getResponse();
-		JsonObject message = parser.parse(response.get("message").getAsString()).getAsJsonObject();
-		return message.get("messages").getAsInt();
+		return messages;
 	}
 	
 	/**
