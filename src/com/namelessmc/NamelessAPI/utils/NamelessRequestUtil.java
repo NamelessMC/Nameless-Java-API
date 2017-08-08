@@ -30,7 +30,7 @@ public class NamelessRequestUtil {
 		}
 			
 		if (postString == null) {
-			throw new IllegalArgumentException("Post string must not be null");
+			postString = "";
 		}
 		
 		String baseUrlString = appendCharacter(baseUrl.toString(), '/');
