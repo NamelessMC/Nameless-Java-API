@@ -1,19 +1,11 @@
 package com.namelessmc.NamelessAPI;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 
-import javax.net.ssl.HttpsURLConnection;
-
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.namelessmc.NamelessAPI.utils.NamelessRequestUtil;
+import com.namelessmc.NamelessAPI.utils.NamelessRequestUtil.Request;
 
 public class NamelessAPI {
 
@@ -21,8 +13,15 @@ public class NamelessAPI {
 	 * Checks if a web API connection can be established
 	 * @return An exception if the connection was unsuccessful, null if the connection was successful.
 	 */
-	public static NamelessException checkWebAPIConnection(URL url) {
-		try {
+	public static Exception checkWebAPIConnection(URL url) {
+		Request request = NamelessRequestUtil.sendPostRequest(url, "checkConnection", null);
+		if (request.hasSucceeded()) {
+			return null;
+		} else {
+			return request.getException();
+		}
+		
+		/* try {
 			boolean https = url.toString().startsWith("https");
 			
 			URL apiConnection = new URL(url + "/checkConnection");
@@ -86,7 +85,7 @@ public class NamelessAPI {
 			}
 		} catch (Exception e) {
 			return new NamelessException(e);
-		}
+		}*/
 	}
 	
 	protected static String urlEncodeString(String string) {
