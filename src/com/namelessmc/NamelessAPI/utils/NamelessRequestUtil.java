@@ -23,9 +23,9 @@ public class NamelessRequestUtil {
 	 * @param https
 	 * @return
 	 */
-	public static Request sendPostRequest(URL url, String action, String postString) {
+	public static Request sendPostRequest(URL baseUrl, String action, String postString) {
 
-		if (url == null) {
+		if (baseUrl == null) {
 			throw new IllegalArgumentException("URL must not be null");
 		}
 			
@@ -33,8 +33,12 @@ public class NamelessRequestUtil {
 			throw new IllegalArgumentException("Post string must not be null");
 		}
 		
+		String baseUrlString = appendCharacter(baseUrl.toString(), '/');
+		
+		URL url;
+		
 		try {
-			url = new URL(url.toString() + action);
+			url = new URL(baseUrlString + action);
 		} catch (MalformedURLException e1) {
 			throw new IllegalArgumentException("URL or action is malformed (" + e1.getMessage() + ")");
 		}
@@ -115,6 +119,14 @@ public class NamelessRequestUtil {
 		}
 			
 		return new Request(exception, response);
+	}
+	
+	private static String appendCharacter(String string, char c) {
+		if (string.endsWith(c + "")) {
+			return string;
+		} else {
+			return string + c;
+		}
 	}
 	
 	public static class Request {
