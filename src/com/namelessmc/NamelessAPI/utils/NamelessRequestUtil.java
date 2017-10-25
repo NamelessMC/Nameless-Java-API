@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -44,36 +43,25 @@ public final class NamelessRequestUtil {
 		} catch (MalformedURLException e1) {
 			throw new IllegalArgumentException("URL or action is malformed (" + e1.getMessage() + ")");
 		}
-			
+
+		if(url.toString().startsWith("https")){
+			return httpsRequest(url, postString);
+		}else {
+			return httpRequest(url, postString);
+		}
+	}
+	
+	private static Request httpsRequest(URL url, String postString) {
 		Exception exception;
 		JsonObject response;
 		try {
-			URLConnection connection;
-			
-			boolean https = url.toString().startsWith("https");
-				
-			if (https) {
-				HttpsURLConnection httpsConnection = (HttpsURLConnection) url.openConnection();
-					
-				httpsConnection.setRequestMethod("POST");
-				httpsConnection.setRequestProperty("Content-Length", Integer.toString(postString.length()));
-				httpsConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-				httpsConnection.setDoOutput(true);
-				httpsConnection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
-					
-				connection = httpsConnection;
-			} else {
-				HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
-					
-				httpConnection.setRequestMethod("POST");
-				httpConnection.setRequestProperty("Content-Length", Integer.toString(postString.length()));
-				httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-				httpConnection.setDoOutput(true);
-				httpConnection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
-					
-				connection = httpConnection;
-			}
-					
+			HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+			connection.setRequestMethod("POST");
+			connection.setRequestProperty("Content-Length", Integer.toString(postString.length()));
+			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			connection.setDoOutput(true);
+			connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
 
 			// Initialize output stream
 			DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
@@ -108,18 +96,70 @@ public final class NamelessRequestUtil {
 			inputStream.close();
 
 			// Disconnect
-			if (https) {
-				((HttpsURLConnection) connection).disconnect();
-			} else {
-				((HttpURLConnection) connection).disconnect();
-			}
+			connection.disconnect();
 
 			exception = null;
 		} catch (Exception e) {
 			exception = e;
 			response = null;
 		}
-			
+
+		return new Request(exception, response);
+	}
+	
+	private static Request httpRequest(URL url, String postString) {
+		Exception exception;
+		JsonObject response;
+		try {
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+			connection.setRequestMethod("POST");
+			connection.setRequestProperty("Content-Length", Integer.toString(postString.length()));
+			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			connection.setDoOutput(true);
+			connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
+
+			// Initialize output stream
+			DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+
+			// Write request
+			outputStream.writeBytes(postString);
+
+			// Initialize input stream
+			InputStream inputStream = connection.getInputStream();
+
+			// Handle response
+			BufferedReader streamReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+			StringBuilder responseBuilder = new StringBuilder();
+
+			String responseString;
+			while ((responseString = streamReader.readLine()) != null)
+				responseBuilder.append(responseString);
+
+			JsonParser parser = new JsonParser();
+
+			response = parser.parse(responseBuilder.toString()).getAsJsonObject();
+
+			if (response.has("error")) {
+				// Error with request
+				String errorMessage = response.get("message").getAsString();
+				exception = new NamelessException(errorMessage);
+			}
+
+			// Close output/input stream
+			outputStream.flush();
+			outputStream.close();
+			inputStream.close();
+
+			// Disconnect
+			connection.disconnect();
+
+			exception = null;
+		} catch (Exception e) {
+			exception = e;
+			response = null;
+		}
+
 		return new Request(exception, response);
 	}
 	
