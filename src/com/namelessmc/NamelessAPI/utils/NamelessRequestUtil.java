@@ -19,7 +19,7 @@ public final class NamelessRequestUtil {
 	private NamelessRequestUtil() {}
 	
 	/**
-	 * @param url Full URL with / at the end
+	 * @param url Base API URL with key
 	 * @param postString
 	 * @param https
 	 * @return
@@ -40,13 +40,13 @@ public final class NamelessRequestUtil {
 		
 		try {
 			url = new URL(baseUrlString + action);
-		} catch (MalformedURLException e1) {
-			throw new IllegalArgumentException("URL or action is malformed (" + e1.getMessage() + ")");
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException("URL or action is malformed (" + e.getMessage() + ")");
 		}
 
-		if(url.toString().startsWith("https")){
+		if (url.toString().startsWith("https://")){
 			return httpsRequest(url, postString);
-		}else {
+		} else {
 			return httpRequest(url, postString);
 		}
 	}
