@@ -178,6 +178,7 @@ public final class NamelessRequestUtil {
 		
 		public Request(Exception exception, JsonObject response) {
 			this.exception = exception;
+			this.response = response;
 		}
 		
 		public Exception getException() {
