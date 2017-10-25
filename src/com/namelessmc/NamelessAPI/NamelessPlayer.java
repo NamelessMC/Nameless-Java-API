@@ -9,7 +9,7 @@ import com.google.gson.JsonParser;
 import com.namelessmc.NamelessAPI.utils.NamelessRequestUtil;
 import com.namelessmc.NamelessAPI.utils.NamelessRequestUtil.Request;
 
-public class NamelessPlayer {
+public final class NamelessPlayer {
 
 	private String userName;
 	private String displayName;

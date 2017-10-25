@@ -7,8 +7,10 @@ import java.net.URLEncoder;
 import com.namelessmc.NamelessAPI.utils.NamelessRequestUtil;
 import com.namelessmc.NamelessAPI.utils.NamelessRequestUtil.Request;
 
-public class NamelessAPI {
+public final class NamelessAPI {
 
+	private NamelessAPI() {}
+	
 	/**
 	 * Checks if a web API connection can be established
 	 * @return An exception if the connection was unsuccessful, null if the connection was successful.
@@ -88,7 +90,7 @@ public class NamelessAPI {
 		}*/
 	}
 	
-	protected static String urlEncodeString(String string) {
+	static String urlEncodeString(String string) {
 		try {
 			return URLEncoder.encode(string, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
