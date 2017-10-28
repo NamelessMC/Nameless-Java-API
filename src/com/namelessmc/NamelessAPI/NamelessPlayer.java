@@ -71,7 +71,7 @@ public final class NamelessPlayer {
 		// Display get user.
 		userName = message.get("username").getAsString();
 		displayName = message.get("displayname").getAsString();
-		uuid = UUID.fromString(message.get("uuid").getAsString());
+		uuid = UUID.fromString(addDashesToUUID(message.get("uuid").getAsString()));
 		groupID = message.get("group_id").getAsInt();
 		registeredDate = registered;
 		reputation = message.get("reputation").getAsInt();
@@ -79,6 +79,23 @@ public final class NamelessPlayer {
 		banned = message.get("banned").getAsString().equals("1");
 	}
 
+	public static String addDashesToUUID(String uuid) {
+		// https://bukkit.org/threads/java-adding-dashes-back-to-minecrafts-uuids.272746/
+		StringBuffer sb = new StringBuffer(uuid);
+		sb.insert(8, "-");
+		 
+		sb = new StringBuffer(sb.toString());
+		sb.insert(13, "-");
+		 
+		sb = new StringBuffer(sb.toString());
+		sb.insert(18, "-");
+		 
+		sb = new StringBuffer(sb.toString());
+		sb.insert(23, "-");
+		 
+		return sb.toString();
+	}
+	
 	/**
 	 * @return The Minecraft username associated with the provided UUID. This is not always the name displayed on the website.
 	 * @see #getDisplayName()
