@@ -233,7 +233,7 @@ public final class NamelessPlayer {
 	 * @throws NamelessException
 	 */
 	public void setGroup(int groupId) throws NamelessException {
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "setGroup", "uuid=" + NamelessAPI.urlEncodeString(uuid.toString()) + "?group_id=");
+		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "setGroup", "uuid=" + NamelessAPI.urlEncodeString(uuid.toString()) + "&group_id=");
 		
 		if (!request.hasSucceeded()) {
 			throw new NamelessException(request.getException());
@@ -295,7 +295,7 @@ public final class NamelessPlayer {
 		String encodedName = NamelessAPI.urlEncodeString(reportedUsername);
 		String encodedReason = NamelessAPI.urlEncodeString(reason);
 		
-		String postString = String.format("reporter_uuid=%s?reported_uuid=%s?reported_username=%s?content=%s", 
+		String postString = String.format("reporter_uuid=%s&reported_uuid=%s&reported_username=%s&content=%s", 
 				encodedReporterUuid, encodedReportedUuid, encodedName, encodedReason);
 		
 		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "createReport", postString);
