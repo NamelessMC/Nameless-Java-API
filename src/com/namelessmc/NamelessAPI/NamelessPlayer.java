@@ -35,7 +35,7 @@ public final class NamelessPlayer {
 		parser = new JsonParser();
 		this.baseUrl = baseUrl;
 		
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "get", "uuid=" + NamelessAPI.urlEncodeString(uuid.toString()));
+		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "get", "uuid=" + NamelessAPI.encode(uuid));
 		init(request);
 	}
 	
@@ -49,7 +49,7 @@ public final class NamelessPlayer {
 		this.parser = new JsonParser();
 		this.baseUrl = baseUrl;
 		
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "get", "username=" + NamelessAPI.urlEncodeString(username));
+		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "get", "username=" + NamelessAPI.encode(username));
 		init(request);
 	}
 	
@@ -197,7 +197,7 @@ public final class NamelessPlayer {
 	 * @throws NamelessException
 	 */
 	public int getAlertCount() throws NamelessException {
-		String postString = "uuid=" + NamelessAPI.urlEncodeString(uuid.toString());
+		String postString = "uuid=" + NamelessAPI.encode(uuid);
 		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "getNotifications", postString);
 		
 		if (!request.hasSucceeded()) {
@@ -215,7 +215,7 @@ public final class NamelessPlayer {
 	 * @throws NamelessException
 	 */
 	public int getMessageCount() throws NamelessException {
-		String postString = "uuid=" + NamelessAPI.urlEncodeString(uuid.toString());
+		String postString = "uuid=" + NamelessAPI.encode(uuid);
 		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "getNotifications", postString);
 		
 		if (!request.hasSucceeded()) {
@@ -233,7 +233,7 @@ public final class NamelessPlayer {
 	 * @throws NamelessException
 	 */
 	public void setGroup(int groupId) throws NamelessException {
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "setGroup", "uuid=" + NamelessAPI.urlEncodeString(uuid.toString()) + "&group_id=");
+		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "setGroup", "uuid=" + NamelessAPI.encode(uuid) + "&group_id=");
 		
 		if (!request.hasSucceeded()) {
 			throw new NamelessException(request.getException());
@@ -246,8 +246,8 @@ public final class NamelessPlayer {
 	 * @throws NamelessException
 	 */
 	public void updateUsername(String newUserName) throws NamelessException {
-		String encodedUuid = NamelessAPI.urlEncodeString(uuid.toString());
-		String encodedName = NamelessAPI.urlEncodeString(newUserName);
+		String encodedUuid = NamelessAPI.encode(uuid);
+		String encodedName = NamelessAPI.encode(newUserName);
 		String postString = "id=" + encodedUuid + "?new_username=" + encodedName;
 		
 		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "updateUsername", postString);
@@ -264,9 +264,9 @@ public final class NamelessPlayer {
 	 * @throws NamelessException
 	 */
 	public void register(String minecraftName, String email) throws NamelessException {
-		String encodedUuid = NamelessAPI.urlEncodeString(uuid.toString());
-		String encodedName = NamelessAPI.urlEncodeString(minecraftName);
-		String encodedEmail = NamelessAPI.urlEncodeString(email);
+		String encodedUuid = NamelessAPI.encode(uuid);
+		String encodedName = NamelessAPI.encode(minecraftName);
+		String encodedEmail = NamelessAPI.encode(email);
 		
 		String postString = String.format("username=%s&uuid=%s&email=%s", encodedUuid, encodedName, encodedEmail);
 
@@ -290,10 +290,10 @@ public final class NamelessPlayer {
 	 * @throws NamelessException
 	 */
 	public void reportPlayer(UUID reportedUuid, String reportedUsername, String reason) throws NamelessException {
-		String encodedReporterUuid = NamelessAPI.urlEncodeString(uuid.toString());
-		String encodedReportedUuid = NamelessAPI.urlEncodeString(reportedUuid.toString());
-		String encodedName = NamelessAPI.urlEncodeString(reportedUsername);
-		String encodedReason = NamelessAPI.urlEncodeString(reason);
+		String encodedReporterUuid = NamelessAPI.encode(uuid);
+		String encodedReportedUuid = NamelessAPI.encode(reportedUuid);
+		String encodedName = NamelessAPI.encode(reportedUsername);
+		String encodedReason = NamelessAPI.encode(reason);
 		
 		String postString = String.format("reporter_uuid=%s&reported_uuid=%s&reported_username=%s&content=%s", 
 				encodedReporterUuid, encodedReportedUuid, encodedName, encodedReason);

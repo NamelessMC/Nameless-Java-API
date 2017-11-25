@@ -24,9 +24,9 @@ public final class NamelessAPI {
 		}
 	}
 	
-	static String urlEncodeString(String string) {
+	static String encode(Object object) {
 		try {
-			return URLEncoder.encode(string, "UTF-8");
+			return URLEncoder.encode(object.toString(), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e.getMessage());
 		}
