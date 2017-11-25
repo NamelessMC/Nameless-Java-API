@@ -14,6 +14,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.namelessmc.NamelessAPI.NamelessException;
 
+@Deprecated
 public final class NamelessRequestUtil {
 
 	private NamelessRequestUtil() {}
