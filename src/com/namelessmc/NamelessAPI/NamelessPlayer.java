@@ -28,14 +28,14 @@ public final class NamelessPlayer {
 	/**
 	 * Creates a new NamelessPlayer object. This constructor should not be called in the main server thread.
 	 * @param uuid
-	 * @param baseUrl Base API URL: <i>http(s)://yoursite.com/api/v1/API_KEY<i>
+	 * @param baseUrl Base API URL: <i>http(s)://yoursite.com/api/v2/API_KEY<i>
 	 * @see #NamelessPlayer(String, URL)
 	 */
 	public NamelessPlayer(UUID uuid, URL baseUrl) {	
 		parser = new JsonParser();
 		this.baseUrl = baseUrl;
 		
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "get", "uuid=" + NamelessAPI.encode(uuid));
+		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "userinfo", "uuid=" + NamelessAPI.encode(uuid));
 		init(request);
 	}
 	
@@ -49,7 +49,7 @@ public final class NamelessPlayer {
 		this.parser = new JsonParser();
 		this.baseUrl = baseUrl;
 		
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "get", "username=" + NamelessAPI.encode(username));
+		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "userinfo", "username=" + NamelessAPI.encode(username));
 		init(request);
 	}
 	
@@ -74,9 +74,9 @@ public final class NamelessPlayer {
 		uuid = UUID.fromString(addDashesToUUID(message.get("uuid").getAsString()));
 		groupID = message.get("group_id").getAsInt();
 		registeredDate = registered;
-		reputation = message.get("reputation").getAsInt();
 		validated = message.get("validated").getAsString().equals("1");
-		banned = message.get("banned").getAsString().equals("1");
+		reputation = message.get("reputation").getAsInt();
+		//banned = message.get("banned").getAsString().equals("1");
 	}
 
 	public static String addDashesToUUID(String uuid) {
@@ -182,7 +182,9 @@ public final class NamelessPlayer {
 
 	/**
 	 * @return Whether this account is banned from the website.
+	 * @deprecated Api no longer returns this?
 	 */
+	@Deprecated
 	public boolean isBanned() {
 		if (!exists) {
 			throw new UnsupportedOperationException("This player does not exist.");
