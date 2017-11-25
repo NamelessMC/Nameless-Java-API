@@ -1,7 +1,9 @@
 package com.namelessmc.NamelessAPI;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import com.google.gson.JsonObject;
@@ -193,40 +195,24 @@ public final class NamelessPlayer {
 		return banned;
 	}
 	
-	/**
-	 * @return Number of alerts
-	 * @see #getMessageCount()
-	 * @throws NamelessException
-	 */
-	public int getAlertCount() throws NamelessException {
+	public List<Notification> getNotifications(){
+		final List<Notification> notifications = new ArrayList<>();
+		
 		String postString = "uuid=" + NamelessAPI.encode(uuid);
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "getNotifications", postString);
+		Request request = NamelessRequestUtil.sendGetRequest(baseUrl, "getNotiftications", postString);
 		
 		if (!request.hasSucceeded()) {
 			throw new NamelessException(request.getException());
 		}
 		
-		JsonObject response = request.getResponse();
-		JsonObject message = parser.parse(response.get("message").getAsString()).getAsJsonObject();
-		return message.get("alerts").getAsInt();
-	}
-	
-	/**
-	 * @return Number of unread private messages
-	 * @see #getAlertCount()
-	 * @throws NamelessException
-	 */
-	public int getMessageCount() throws NamelessException {
-		String postString = "uuid=" + NamelessAPI.encode(uuid);
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "getNotifications", postString);
+		JsonObject object = request.getResponse();
+		object.getAsJsonArray().forEach((element) -> {
+			String message = element.getAsJsonObject().get("message").getAsString();
+			String url = element.getAsJsonObject().get("url").getAsString();
+			notifications.add(new Notification(message, url));
+		});
 		
-		if (!request.hasSucceeded()) {
-			throw new NamelessException(request.getException());
-		}
-		
-		JsonObject response = request.getResponse();
-		JsonObject message = parser.parse(response.get("message").getAsString()).getAsJsonObject();
-		return message.get("messages").getAsInt();
+		return notifications;
 	}
 	
 	/**
