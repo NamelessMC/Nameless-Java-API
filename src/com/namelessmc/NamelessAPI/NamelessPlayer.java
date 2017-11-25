@@ -215,11 +215,8 @@ public final class NamelessPlayer {
 	 * @throws NamelessException
 	 */
 	public void setGroup(int groupId) throws NamelessException {
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "setGroup", "uuid=" + NamelessAPI.encode(uuid) + "&group_id=");
-		
-		if (!request.hasSucceeded()) {
-			throw new NamelessException(request.getException());
-		}
+		Request request = new Request(baseUrl, Action.SET_GROUP, new ParameterBuilder().add("uuid", uuid).add("group-id", groupId).build());
+		request.connect();
 	}
 
 	/**
