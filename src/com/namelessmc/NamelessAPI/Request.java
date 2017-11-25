@@ -26,7 +26,7 @@ public class Request {
 	
 	private JsonObject response;
 	
-	public Request(String baseUrl, Action action, String... parameters) {
+	public Request(URL baseUrl, Action action, String... parameters) {
 		try {
 			url = new URL(appendCharacter(baseUrl.toString(), '/') + action.toString());
 		} catch (MalformedURLException e) {

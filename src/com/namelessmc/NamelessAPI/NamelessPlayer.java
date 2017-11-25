@@ -8,8 +8,7 @@ import java.util.UUID;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.namelessmc.NamelessAPI.utils.NamelessRequestUtil;
-import com.namelessmc.NamelessAPI.utils.NamelessRequestUtil.Request;
+import com.namelessmc.NamelessAPI.Request.Action;
 
 public final class NamelessPlayer {
 
@@ -195,15 +194,10 @@ public final class NamelessPlayer {
 		return banned;
 	}
 	
-	public List<Notification> getNotifications(){
+	public List<Notification> getNotifications() throws NamelessException {
 		final List<Notification> notifications = new ArrayList<>();
 		
-		String postString = "uuid=" + NamelessAPI.encode(uuid);
-		Request request = NamelessRequestUtil.sendGetRequest(baseUrl, "getNotiftications", postString);
-		
-		if (!request.hasSucceeded()) {
-			throw new NamelessException(request.getException());
-		}
+		Request request = new Request(baseUrl, Action.GET_NOTIFICATIONS, new ParameterBuilder().add("uuid", uuid).build());
 		
 		JsonObject object = request.getResponse();
 		object.getAsJsonArray().forEach((element) -> {
