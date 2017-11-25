@@ -248,7 +248,7 @@ public final class NamelessPlayer {
 	public void updateUsername(String newUserName) throws NamelessException {
 		String encodedUuid = NamelessAPI.encode(uuid);
 		String encodedName = NamelessAPI.encode(newUserName);
-		String postString = "id=" + encodedUuid + "?new_username=" + encodedName;
+		String postString = "id=" + encodedUuid + "&new_username=" + encodedName;
 		
 		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "updateUsername", postString);
 		
