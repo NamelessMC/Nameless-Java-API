@@ -142,8 +142,6 @@ public class Request {
 		}
 	}
 	
-	
-	
 	private static String appendCharacter(String string, char c) {
 		if (string.endsWith(c + "")) {
 			return string;
@@ -184,7 +182,7 @@ public class Request {
 	
 	public static enum RequestMethod {
 		
-		GET, POST;
+		GET, POST
 		
 	}
 
