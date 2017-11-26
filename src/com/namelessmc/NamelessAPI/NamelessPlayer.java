@@ -218,23 +218,6 @@ public final class NamelessPlayer {
 		Request request = new Request(baseUrl, Action.SET_GROUP, new ParameterBuilder().add("uuid", uuid).add("group-id", groupId).build());
 		request.connect();
 	}
-
-	/**
-	 * Changes the players username on the website. You should check if another account with the name <i>newUserName</i> exists before calling this method. 
-	 * @param newUserName
-	 * @throws NamelessException
-	 */
-	public void updateUsername(String newUserName) throws NamelessException {
-		String encodedUuid = NamelessAPI.encode(uuid);
-		String encodedName = NamelessAPI.encode(newUserName);
-		String postString = "id=" + encodedUuid + "&new_username=" + encodedName;
-		
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "updateUsername", postString);
-		
-		if (!request.hasSucceeded()) {
-			throw new NamelessException(request.getException());
-		}
-	}
 	
 	/**
 	 * Registers a new account. The player will be sent an email to set a password.
