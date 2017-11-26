@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.namelessmc.NamelessAPI.Request.Action;
 
 public final class NamelessPlayer {
@@ -23,61 +22,54 @@ public final class NamelessPlayer {
 	private boolean banned;
 	
 	private URL baseUrl;
-	
-	private JsonParser parser;
 
 	/**
 	 * Creates a new NamelessPlayer object. This constructor should not be called in the main server thread.
 	 * @param uuid
 	 * @param baseUrl Base API URL: <i>http(s)://yoursite.com/api/v2/API_KEY<i>
+	 * @throws NamelessException 
 	 * @see #NamelessPlayer(String, URL)
 	 */
-	public NamelessPlayer(UUID uuid, URL baseUrl) {	
-		parser = new JsonParser();
+	public NamelessPlayer(UUID uuid, URL baseUrl) throws NamelessException {	
 		this.baseUrl = baseUrl;
 		
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "userinfo", "uuid=" + NamelessAPI.encode(uuid));
-		init(request);
+		Request request = new Request(baseUrl, Action.USER_INFO, new ParameterBuilder().add("uuid", uuid).build());
+		init(request.getResponse());
 	}
 	
 	/**
 	 * Creates a new NamelessPlayer object. This constructor should not be called in the main server thread.
 	 * @param username
-	 * @param baseUrl
+	 * @param baseUrl Base API URL: <i>http(s)://yoursite.com/api/v2/API_KEY<i>
+	 * @throws NamelessException 
 	 * @see #NamelessPlayer(UUID, URL)
 	 */
-	public NamelessPlayer(String username, URL baseUrl) {	
-		this.parser = new JsonParser();
+	public NamelessPlayer(String username, URL baseUrl) throws NamelessException {	
 		this.baseUrl = baseUrl;
 		
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "userinfo", "username=" + NamelessAPI.encode(username));
-		init(request);
+		Request request = new Request(baseUrl, Action.USER_INFO, new ParameterBuilder().add("username", username).build());
+		init(request.getResponse());
 	}
 	
-	private void init(Request request) {	
-		if (!request.hasSucceeded()) {
-			exists = false;
+	private void init(JsonObject response) {			
+		exists = response.get("exists").getAsBoolean();
+		
+		if (!exists) {
 			return;
 		}
-		
-		//No errors, parse response
-		JsonObject response = request.getResponse();
-		JsonObject message = parser.parse(response.get("message").getAsString()).getAsJsonObject();
-
-		exists = true;
 
 		// Convert UNIX timestamp to date
-		Date registered = new Date(Long.parseLong(message.get("registered").toString().replaceAll("^\"|\"$", "")) * 1000);
+		Date registered = new Date(Long.parseLong(response.get("registered").toString().replaceAll("^\"|\"$", "")) * 1000);
 
 		// Display get user.
-		userName = message.get("username").getAsString();
-		displayName = message.get("displayname").getAsString();
-		uuid = UUID.fromString(addDashesToUUID(message.get("uuid").getAsString()));
-		groupID = message.get("group_id").getAsInt();
+		userName = response.get("username").getAsString();
+		displayName = response.get("displayname").getAsString();
+		uuid = UUID.fromString(addDashesToUUID(response.get("uuid").getAsString()));
+		groupID = response.get("group_id").getAsInt();
 		registeredDate = registered;
-		validated = message.get("validated").getAsString().equals("1");
-		reputation = message.get("reputation").getAsInt();
-		//banned = message.get("banned").getAsString().equals("1");
+		validated = response.get("validated").getAsBoolean();
+		reputation = response.get("reputation").getAsInt();
+		banned = response.get("banned").getAsBoolean();
 	}
 
 	public static String addDashesToUUID(String uuid) {
@@ -183,9 +175,7 @@ public final class NamelessPlayer {
 
 	/**
 	 * @return Whether this account is banned from the website.
-	 * @deprecated Api no longer returns this?
 	 */
-	@Deprecated
 	public boolean isBanned() {
 		if (!exists) {
 			throw new UnsupportedOperationException("This player does not exist.");
@@ -215,7 +205,7 @@ public final class NamelessPlayer {
 	 * @throws NamelessException
 	 */
 	public void setGroup(int groupId) throws NamelessException {
-		Request request = new Request(baseUrl, Action.SET_GROUP, new ParameterBuilder().add("uuid", uuid).add("group-id", groupId).build());
+		Request request = new Request(baseUrl, Action.SET_GROUP, new ParameterBuilder().add("uuid", uuid).add("group_id", groupId).build());
 		request.connect();
 	}
 	
@@ -226,22 +216,8 @@ public final class NamelessPlayer {
 	 * @throws NamelessException
 	 */
 	public void register(String minecraftName, String email) throws NamelessException {
-		String encodedUuid = NamelessAPI.encode(uuid);
-		String encodedName = NamelessAPI.encode(minecraftName);
-		String encodedEmail = NamelessAPI.encode(email);
-		
-		String postString = String.format("username=%s&uuid=%s&email=%s", encodedUuid, encodedName, encodedEmail);
-
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "register", postString);
-
-		if (!request.hasSucceeded()) {
-			String errorMessage = request.getException().getMessage();
-			if (errorMessage.contains("Username") || errorMessage.contains("UUID") || errorMessage.contains("Email")) {
-				throw new IllegalArgumentException(errorMessage);
-			} else {
-				throw new NamelessException(request.getException());
-			}
-		}
+		String[] parameters = new ParameterBuilder().add("username", minecraftName).add("uuid", uuid).add("email", email).build();
+		new Request(baseUrl, Action.REGISTER, parameters).connect();
 	}
 
 	/**
@@ -251,21 +227,14 @@ public final class NamelessPlayer {
 	 * @param reason Reason why this player has been reported
 	 * @throws NamelessException
 	 */
-	public void reportPlayer(UUID reportedUuid, String reportedUsername, String reason) throws NamelessException {
-		String encodedReporterUuid = NamelessAPI.encode(uuid);
-		String encodedReportedUuid = NamelessAPI.encode(reportedUuid);
-		String encodedName = NamelessAPI.encode(reportedUsername);
-		String encodedReason = NamelessAPI.encode(reason);
-		
-		String postString = String.format("reporter_uuid=%s&reported_uuid=%s&reported_username=%s&content=%s", 
-				encodedReporterUuid, encodedReportedUuid, encodedName, encodedReason);
-		
-		Request request = NamelessRequestUtil.sendPostRequest(baseUrl, "createReport", postString);
-		
-		if (!request.hasSucceeded()) {
-			throw new NamelessException(request.getException());
-		}
-	
+	public void createReport(UUID reportedUuid, String reportedUsername, String reason) throws NamelessException {		
+		String[] parameters = new ParameterBuilder()
+				.add("reporter_uuid", uuid)
+				.add("reported_uuid", reportedUuid)
+				.add("reported_username", reportedUsername)
+				.add("reason", reason)
+				.build();
+		new Request(baseUrl, Action.CREATE_REPORT, parameters);
 	}
 
 }

@@ -4,8 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 
-import com.namelessmc.NamelessAPI.utils.NamelessRequestUtil;
-import com.namelessmc.NamelessAPI.utils.NamelessRequestUtil.Request;
+import com.google.gson.JsonObject;
+import com.namelessmc.NamelessAPI.Request.Action;
 
 public final class NamelessAPI {
 
@@ -15,12 +15,19 @@ public final class NamelessAPI {
 	 * Checks if a web API connection can be established
 	 * @return An exception if the connection was unsuccessful, null if the connection was successful.
 	 */
-	public static Exception checkWebAPIConnection(URL url) {
-		Request request = NamelessRequestUtil.sendPostRequest(url, "checkConnection", null);
-		if (request.hasSucceeded()) {
-			return null;
-		} else {
-			return request.getException();
+	public static Throwable checkWebAPIConnection(URL url) {		
+		try {
+			JsonObject response = new Request(url, Action.INFO).getResponse();
+			if (response.has("version")) {
+				return null;
+			} else {
+				return new NamelessException("Invalid respose: " + response.getAsString());
+			}
+		} catch (NamelessException e) {
+			if (e.getCause() != null)
+				return e.getCause();
+			else
+				return e;
 		}
 	}
 	
