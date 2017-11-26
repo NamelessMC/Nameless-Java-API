@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.google.gson.JsonObject;
+import com.namelessmc.NamelessAPI.Notification.NotificationType;
 import com.namelessmc.NamelessAPI.Request.Action;
 
 public final class NamelessPlayer {
@@ -193,7 +194,8 @@ public final class NamelessPlayer {
 		object.getAsJsonArray().forEach((element) -> {
 			String message = element.getAsJsonObject().get("message").getAsString();
 			String url = element.getAsJsonObject().get("url").getAsString();
-			notifications.add(new Notification(message, url));
+			NotificationType type = NotificationType.fromString(element.getAsJsonObject().get("type").getAsString());
+			notifications.add(new Notification(message, url, type));
 		});
 		
 		return notifications;
