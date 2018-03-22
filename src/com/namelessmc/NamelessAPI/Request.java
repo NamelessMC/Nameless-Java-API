@@ -74,11 +74,11 @@ public class Request {
 
 				response = parser.parse(responseBuilder.toString()).getAsJsonObject();
 
-				if (response.has("error")) {
+				//if (response.has("error")) {
 					// Error with request
-					String errorMessage = response.get("message").getAsString();
-					throw new NamelessException(errorMessage);
-				}
+					//String errorMessage = response.get("message").getAsString();
+				//	throw new NamelessException("unknown error");
+				//}
 
 				// Close output/input stream
 				outputStream.flush();
@@ -121,11 +121,11 @@ public class Request {
 
 				response = parser.parse(responseBuilder.toString()).getAsJsonObject();
 
-				if (response.has("error")) {
+				//if (response.has("error")) {
 					// Error with request
-					String errorMessage = response.get("message").getAsString();
-					throw new NamelessException(errorMessage);
-				}
+				//	String errorMessage = response.get("message").getAsString();
+				//	throw new NamelessException(errorMessage);
+				//}
 
 				// Close output/input stream
 				outputStream.flush();
