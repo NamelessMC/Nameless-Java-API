@@ -1,5 +1,8 @@
 package com.namelessmc.NamelessAPI;
 
+import static com.namelessmc.NamelessAPI.Request.RequestMethod.GET;
+import static com.namelessmc.NamelessAPI.Request.RequestMethod.POST;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -7,16 +10,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import static com.namelessmc.NamelessAPI.Request.RequestMethod.*;
 
 public class Request {
 	
@@ -152,31 +150,38 @@ public class Request {
 	
 	public static enum Action {
 		
-		INFO(GET),
-		GET_ANNOUNCEMENTS(GET),
-		REGISTER(POST),
-		USER_INFO(GET),
-		SET_GROUP(POST),
-		CREATE_REPORT(POST),
-		GET_NOTIFICATIONS(GET),
-		SERVER_INFO(POST),
+		INFO("info", GET),
+		GET_ANNOUNCEMENTS("getAnnouncements", GET),
+		REGISTER("register", POST),
+		USER_INFO("userInfo", GET),
+		SET_GROUP("setGroup", POST),
+		CREATE_REPORT("createReport", POST),
+		GET_NOTIFICATIONS("getNotifications", GET),
+		SERVER_INFO("serverInfo", POST),
 		
 		;
 		
 		RequestMethod method;
+		String name;
 		
-		Action(RequestMethod method){
+		Action(String name, RequestMethod method){
+			this.name = name;
 			this.method = method;
 		}
 		
 		@Override
+		public String toString() {
+			return name;
+		}
+		
+		/*@Override
 		public String toString() {
 			List<String> list = Arrays.asList(super.toString().split("_"));
 			StringBuilder builder = new StringBuilder();
 			builder.append(list.remove(0).toLowerCase(Locale.ENGLISH));
 			list.forEach((element) -> builder.append(element.substring(0, 1) + element.substring(1).toLowerCase()));
 			return builder.toString();
-		}
+		}*/
 
 	}
 	
