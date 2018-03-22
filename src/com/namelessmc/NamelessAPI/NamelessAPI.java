@@ -10,6 +10,7 @@ import java.util.UUID;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.namelessmc.NamelessAPI.Request.Action;
+import com.namelessmc.NamelessAPI.Website.Update;
 
 public final class NamelessAPI {
 
@@ -19,19 +20,16 @@ public final class NamelessAPI {
 	 * Checks if a web API connection can be established
 	 * @return An exception if the connection was unsuccessful, null if the connection was successful.
 	 */
-	public static Throwable checkWebAPIConnection(URL url) {		
+	public static Exception checkWebAPIConnection(URL url) {		
 		try {
 			JsonObject response = new Request(url, Action.INFO).getResponse();
-			if (response.has("version")) {
+			if (response.has("nameless_version")) {
 				return null;
 			} else {
 				return new NamelessException("Invalid respose: " + response.getAsString());
 			}
 		} catch (NamelessException e) {
-			if (e.getCause() != null)
-				return e.getCause();
-			else
-				return e;
+			return e;
 		}
 	}
 	
@@ -98,6 +96,30 @@ public final class NamelessAPI {
 	public static void submitServerInfo(URL apiUrl, String jsonData) throws NamelessException {
 		Request request = new Request(apiUrl, Action.SERVER_INFO, new ParameterBuilder().add("info", jsonData).build());
 		request.getResponse();
+	}
+	
+	public static Website getWebsiteInfo(URL apiUrl) throws NamelessException {
+		Request request = new Request(apiUrl, Action.INFO);
+		
+		JsonObject json = request.getResponse();
+		
+		String version = json.get("nameless_version").getAsString();
+		
+		String[] modules = jsonToArray(json.get("modules").getAsJsonArray());
+		
+		JsonObject updateJson = json.get("version_update").getAsJsonObject();
+		boolean updateAvailable = updateJson.get("update").getAsBoolean();
+		Update update;
+		if (updateAvailable) {
+			String updateVersion = updateJson.get("version").getAsString();
+			boolean isUrgent = updateJson.get("urgent").getAsBoolean();
+			update = new Update(isUrgent, updateVersion);
+		} else {
+			update = null;
+		}
+
+		return new Website(version, update, modules);
+		
 	}
 
 
