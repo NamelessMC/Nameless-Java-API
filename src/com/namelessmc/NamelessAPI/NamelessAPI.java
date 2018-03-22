@@ -94,6 +94,11 @@ public final class NamelessAPI {
 		
 		return announcements;
 	}
+	
+	public static void submitServerInfo(URL apiUrl, String jsonData) throws NamelessException {
+		Request request = new Request(apiUrl, Action.SERVER_INFO, new ParameterBuilder().add("info", jsonData).build());
+		request.getResponse();
+	}
 
 
 }
