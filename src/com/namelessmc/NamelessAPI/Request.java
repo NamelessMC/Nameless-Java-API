@@ -5,6 +5,7 @@ import static com.namelessmc.NamelessAPI.Request.RequestMethod.POST;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -23,6 +24,8 @@ public class Request {
 	private String parameters;
 	
 	private JsonObject response;
+	private boolean hasError;
+	private int errorCode = -1;
 	
 	public Request(URL baseUrl, Action action, String... parameters) {
 		try {
@@ -34,109 +37,118 @@ public class Request {
 		this.parameters = String.join("&", parameters);
 	}
 	
-	public JsonObject getResponse() throws NamelessException {
-		if (response == null) {
-			connect();
+	public boolean hasError() {
+		return hasError;
+	}
+	
+	public int getError() throws NamelessException {
+		if (!hasError) {
+			throw new NamelessException("Requested error code but there is no error.");
 		}
 		
+		return errorCode;
+	}
+	
+	public JsonObject getResponse() throws NamelessException {		
 		return response;
 	}
 	
 	public void connect() throws NamelessException {
-		if (url.toString().startsWith("https://")){
-			try {
+		try {
+			if (url.toString().startsWith("https://")){
 				HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-
+	
 				connection.setRequestMethod(method.toString());
 				connection.setRequestProperty("Content-Length", Integer.toString(parameters.length()));
 				connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 				connection.setDoOutput(true);
 				connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
-
+	
 				// Initialize output stream
 				DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-
+	
 				// Write request
 				outputStream.writeBytes(parameters);
-
+	
 				// Initialize input stream
 				InputStream inputStream = connection.getInputStream();
-
+	
 				// Handle response
 				BufferedReader streamReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
 				StringBuilder responseBuilder = new StringBuilder();
-
+	
 				String responseString;
 				while ((responseString = streamReader.readLine()) != null)
 					responseBuilder.append(responseString);
-
+	
 				JsonParser parser = new JsonParser();
-
+	
 				response = parser.parse(responseBuilder.toString()).getAsJsonObject();
-
-				//if (response.has("error")) {
-					// Error with request
-					//String errorMessage = response.get("message").getAsString();
-				//	throw new NamelessException("unknown error");
-				//}
-
+	
+				// if (response.has("error")) {
+				// Error with request
+				// String errorMessage = response.get("message").getAsString();
+				// throw new NamelessException("unknown error");
+				// }
+	
 				// Close output/input stream
 				outputStream.flush();
 				outputStream.close();
 				inputStream.close();
-
+	
 				// Disconnect
 				connection.disconnect();
-			} catch (Exception e) {
-				throw new NamelessException(e);
-			}
-		} else {
-			try {
+			} else {
 				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
+	
 				connection.setRequestMethod(method.toString());
 				connection.setRequestProperty("Content-Length", Integer.toString(parameters.length()));
 				connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 				connection.setDoOutput(true);
 				connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
-
+	
 				// Initialize output stream
 				DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-
+	
 				// Write request
 				outputStream.writeBytes(parameters);
-
+	
 				// Initialize input stream
 				InputStream inputStream = connection.getInputStream();
-
+	
 				// Handle response
 				BufferedReader streamReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
 				StringBuilder responseBuilder = new StringBuilder();
-
+	
 				String responseString;
 				while ((responseString = streamReader.readLine()) != null)
 					responseBuilder.append(responseString);
-
+	
 				JsonParser parser = new JsonParser();
-
+	
 				response = parser.parse(responseBuilder.toString()).getAsJsonObject();
-
-				//if (response.has("error")) {
-					// Error with request
-				//	String errorMessage = response.get("message").getAsString();
-				//	throw new NamelessException(errorMessage);
-				//}
-
+	
+				// if (response.has("error")) {
+				// Error with request
+				// String errorMessage = response.get("message").getAsString();
+				// throw new NamelessException(errorMessage);
+				// }
+	
 				// Close output/input stream
 				outputStream.flush();
 				outputStream.close();
 				inputStream.close();
-
+	
 				// Disconnect
 				connection.disconnect();
-			} catch (Exception e) {
-				throw new NamelessException(e);
 			}
+			
+			hasError = response.get("error").getAsBoolean();
+			if (hasError) {
+				errorCode = response.get("code").getAsInt();
+			}
+		} catch (IOException e) {
+			throw new NamelessException(e);
 		}
 	}
 	
