@@ -121,6 +121,20 @@ public final class NamelessAPI {
 		return new Website(version, update, modules);
 		
 	}
+	
+	public static boolean validateUser(URL apiUrl, UUID uuid, String code) throws NamelessException {
+		String[] parameters = new ParameterBuilder().add("uuid", uuid.toString()).add("code", code).build();
+		Request request = new Request(apiUrl, Action.VALIDATE_USER, parameters);
+		request.connect();
+		if (request.hasError()) {
+			int errorCode = request.getError();
+			if (errorCode == 28) {
+				return false;
+			}
+			throw new ApiError(errorCode);
+		}
+		return true;
+	}
 
 
 }

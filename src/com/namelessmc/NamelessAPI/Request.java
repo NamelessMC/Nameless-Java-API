@@ -170,6 +170,7 @@ public class Request {
 		CREATE_REPORT("createReport", POST),
 		GET_NOTIFICATIONS("getNotifications", GET),
 		SERVER_INFO("serverInfo", POST),
+		VALIDATE_USER("validateUser", POST),
 		
 		;
 		
