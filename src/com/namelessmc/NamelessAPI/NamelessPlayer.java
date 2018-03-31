@@ -35,7 +35,7 @@ public final class NamelessPlayer {
 		this.baseUrl = baseUrl;
 		
 		Request request = new Request(baseUrl, Action.USER_INFO, new ParameterBuilder().add("uuid", uuid).build());
-		init(request.getResponse());
+		init(request);
 	}
 	
 	/**
@@ -49,10 +49,16 @@ public final class NamelessPlayer {
 		this.baseUrl = baseUrl;
 		
 		Request request = new Request(baseUrl, Action.USER_INFO, new ParameterBuilder().add("username", username).build());
-		init(request.getResponse());
+		init(request);
 	}
 	
-	private void init(JsonObject response) {			
+	private void init(Request request) throws NamelessException {
+		request.connect();
+		
+		if (request.hasError()) throw new ApiError(request.getError());
+		
+		JsonObject response = request.getResponse();
+		
 		exists = response.get("exists").getAsBoolean();
 		
 		if (!exists) {
@@ -62,7 +68,6 @@ public final class NamelessPlayer {
 		// Convert UNIX timestamp to date
 		Date registered = new Date(Long.parseLong(response.get("registered").toString().replaceAll("^\"|\"$", "")) * 1000);
 
-		// Display get user.
 		userName = response.get("username").getAsString();
 		displayName = response.get("displayname").getAsString();
 		uuid = UUID.fromString(addDashesToUUID(response.get("uuid").getAsString()));
@@ -186,9 +191,12 @@ public final class NamelessPlayer {
 	}
 	
 	public List<Notification> getNotifications() throws NamelessException {
-		final List<Notification> notifications = new ArrayList<>();
-		
 		Request request = new Request(baseUrl, Action.GET_NOTIFICATIONS, new ParameterBuilder().add("uuid", uuid).build());
+		request.connect();
+		
+		if (request.hasError()) throw new ApiError(request.getError());
+		
+		final List<Notification> notifications = new ArrayList<>();
 		
 		JsonObject object = request.getResponse();
 		object.getAsJsonArray().forEach((element) -> {
@@ -207,8 +215,10 @@ public final class NamelessPlayer {
 	 * @throws NamelessException
 	 */
 	public void setGroup(int groupId) throws NamelessException {
-		Request request = new Request(baseUrl, Action.SET_GROUP, new ParameterBuilder().add("uuid", uuid).add("group_id", groupId).build());
+		String[] parameters = new ParameterBuilder().add("uuid", uuid).add("group_id", groupId).build();
+		Request request = new Request(baseUrl, Action.SET_GROUP, parameters);
 		request.connect();
+		if (request.hasError()) throw new ApiError(request.getError());
 	}
 	
 	/**
@@ -219,7 +229,9 @@ public final class NamelessPlayer {
 	 */
 	public void register(String minecraftName, String email) throws NamelessException {
 		String[] parameters = new ParameterBuilder().add("username", minecraftName).add("uuid", uuid).add("email", email).build();
-		new Request(baseUrl, Action.REGISTER, parameters).connect();
+		Request request = new Request(baseUrl, Action.REGISTER, parameters);
+		request.connect();
+		if (request.hasError()) throw new ApiError(request.getError());
 	}
 
 	/**

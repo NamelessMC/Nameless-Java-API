@@ -18,11 +18,21 @@ public final class NamelessAPI {
 	
 	/**
 	 * Checks if a web API connection can be established
-	 * @return An exception if the connection was unsuccessful, null if the connection was successful.
+	 * @return 
+	 * <ul>
+	 *   <li>An {@link ApiError} if the api has returned an error</li>
+	 *   <li>A {@link NamelessException} if the connection was unsuccessful</li>
+	 *   <li>null if the connection was successful.</li>
+	 * </ul>
 	 */
-	public static Exception checkWebAPIConnection(URL url) {		
+	public static NamelessException checkWebAPIConnection(URL url) {		
 		try {
-			JsonObject response = new Request(url, Action.INFO).getResponse();
+			Request request = new Request(url, Action.INFO);
+			request.connect();
+			
+			if (request.hasError()) throw new ApiError(request.getError());
+			
+			JsonObject response = request.getResponse();
 			if (response.has("nameless_version")) {
 				return null;
 			} else {
@@ -55,6 +65,9 @@ public final class NamelessAPI {
 	 */
 	public static List<Announcement> getAnnouncements(URL apiUrl) throws NamelessException {
 		Request request = new Request(apiUrl, Action.GET_ANNOUNCEMENTS);
+		request.connect();
+		
+		if (request.hasError()) throw new ApiError(request.getError());
 		
 		List<Announcement> announcements = new ArrayList<>();
 		
@@ -78,6 +91,9 @@ public final class NamelessAPI {
 	 */
 	public static List<Announcement> getAnnouncements(URL apiUrl, UUID uuid) throws NamelessException {
 		Request request = new Request(apiUrl, Action.GET_ANNOUNCEMENTS, new ParameterBuilder().add("uuid", uuid).build());
+		request.connect();
+		
+		if (request.hasError()) throw new ApiError(request.getError());
 		
 		List<Announcement> announcements = new ArrayList<>();
 		
@@ -100,6 +116,9 @@ public final class NamelessAPI {
 	
 	public static Website getWebsiteInfo(URL apiUrl) throws NamelessException {
 		Request request = new Request(apiUrl, Action.INFO);
+		request.connect();
+		
+		if (request.hasError()) throw new ApiError(request.getError());
 		
 		JsonObject json = request.getResponse();
 		
