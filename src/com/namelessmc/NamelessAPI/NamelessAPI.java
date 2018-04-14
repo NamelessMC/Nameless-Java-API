@@ -112,6 +112,7 @@ public final class NamelessAPI {
 	public static void submitServerInfo(URL apiUrl, String jsonData) throws NamelessException {
 		Request request = new Request(apiUrl, Action.SERVER_INFO, new ParameterBuilder().add("info", jsonData).build());
 		request.connect();
+		if (request.hasError()) throw new ApiError(request.getError());
 	}
 	
 	public static Website getWebsiteInfo(URL apiUrl) throws NamelessException {
