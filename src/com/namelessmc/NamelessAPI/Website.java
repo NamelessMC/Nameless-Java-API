@@ -29,8 +29,20 @@ public class Website {
 	
 	public static class Update {
 		
-		Update(boolean urgent, String version){
-			
+		private boolean isUrgent;
+		private String version;
+		
+		Update(boolean isUrgent, String version){
+			this.isUrgent = isUrgent;
+			this.version = version;
+		}
+		
+		public boolean isUrgent() {
+			return isUrgent;
+		}
+		
+		public String getVersion() {
+			return version;
 		}
 		
 	}
