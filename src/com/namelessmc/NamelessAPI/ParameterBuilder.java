@@ -24,7 +24,7 @@ public class ParameterBuilder {
 		List<String> parameterStrings = new ArrayList<>();
 		
 		parameters.entrySet().forEach((entry) -> {
-			parameterStrings.add(entry.getKey() + "-" + encode(entry.getValue()));
+			parameterStrings.add(entry.getKey() + "=" + encode(entry.getValue()));
 		});
 		
 		return parameterStrings.toArray(new String[] {});
