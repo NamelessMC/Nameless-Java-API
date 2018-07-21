@@ -31,7 +31,7 @@ public final class NamelessPlayer {
 	 * @throws NamelessException 
 	 * @see #NamelessPlayer(String, URL)
 	 */
-	public NamelessPlayer(UUID uuid, URL baseUrl) throws NamelessException {	
+	NamelessPlayer(UUID uuid, URL baseUrl) throws NamelessException {	
 		this.baseUrl = baseUrl;
 		
 		Request request = new Request(baseUrl, Action.USER_INFO, new ParameterBuilder().add("uuid", uuid).build());
@@ -45,7 +45,7 @@ public final class NamelessPlayer {
 	 * @throws NamelessException 
 	 * @see #NamelessPlayer(UUID, URL)
 	 */
-	public NamelessPlayer(String username, URL baseUrl) throws NamelessException {	
+	NamelessPlayer(String username, URL baseUrl) throws NamelessException {	
 		this.baseUrl = baseUrl;
 		
 		Request request = new Request(baseUrl, Action.USER_INFO, new ParameterBuilder().add("username", username).build());
@@ -225,13 +225,24 @@ public final class NamelessPlayer {
 	 * Registers a new account. The player will be sent an email to set a password.
 	 * @param minecraftName In-game name for this player
 	 * @param email Email address
+	 * @return Email verification disabled: A link which the user needs to click to complete registration
+	 * <br>Email verification enabled: An empty string (the user needs to check their email to complete registration)
 	 * @throws NamelessException
 	 */
-	public void register(String minecraftName, String email) throws NamelessException {
+	public String register(String minecraftName, String email) throws NamelessException {
 		String[] parameters = new ParameterBuilder().add("username", minecraftName).add("uuid", uuid).add("email", email).build();
 		Request request = new Request(baseUrl, Action.REGISTER, parameters);
 		request.connect();
+		
 		if (request.hasError()) throw new ApiError(request.getError());
+		
+		JsonObject response = request.getResponse();
+		
+		if (response.has("link")) {
+			return response.get("link").getAsString();
+		} else {
+			return "";
+		}
 	}
 
 	/**
