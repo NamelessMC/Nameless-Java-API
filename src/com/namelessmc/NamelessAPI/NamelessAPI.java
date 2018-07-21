@@ -14,7 +14,11 @@ import com.namelessmc.NamelessAPI.Website.Update;
 
 public final class NamelessAPI {
 
-	private NamelessAPI() {}
+	private URL apiUrl;
+	
+	public NamelessAPI(URL apiUrl) {
+		this.apiUrl = apiUrl;
+	}
 	
 	/**
 	 * Checks if a web API connection can be established
@@ -25,9 +29,9 @@ public final class NamelessAPI {
 	 *   <li>null if the connection was successful.</li>
 	 * </ul>
 	 */
-	public static NamelessException checkWebAPIConnection(URL url) {		
+	public NamelessException checkWebAPIConnection() {		
 		try {
-			Request request = new Request(url, Action.INFO);
+			Request request = new Request(apiUrl, Action.INFO);
 			request.connect();
 			
 			if (request.hasError()) throw new ApiError(request.getError());
@@ -42,28 +46,14 @@ public final class NamelessAPI {
 			return e;
 		}
 	}
-	
-	static String encode(Object object) {
-		try {
-			return URLEncoder.encode(object.toString(), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e.getMessage());
-		}
-	}
-	
-	static String[] jsonToArray(JsonArray jsonArray) {
-		List<String> list = new ArrayList<>();
-		jsonArray.iterator().forEachRemaining((element) -> list.add(element.getAsString()));
-		return list.toArray(new String[] {});
-	}
-	
+
 	/**
 	 * Get all announcements
 	 * @param apiUrl
 	 * @return
 	 * @throws NamelessException
 	 */
-	public static List<Announcement> getAnnouncements(URL apiUrl) throws NamelessException {
+	public List<Announcement> getAnnouncements() throws NamelessException {
 		Request request = new Request(apiUrl, Action.GET_ANNOUNCEMENTS);
 		request.connect();
 		
@@ -89,7 +79,7 @@ public final class NamelessAPI {
 	 * @return
 	 * @throws NamelessException
 	 */
-	public static List<Announcement> getAnnouncements(URL apiUrl, UUID uuid) throws NamelessException {
+	public List<Announcement> getAnnouncements(UUID uuid) throws NamelessException {
 		Request request = new Request(apiUrl, Action.GET_ANNOUNCEMENTS, new ParameterBuilder().add("uuid", uuid).build());
 		request.connect();
 		
@@ -109,13 +99,13 @@ public final class NamelessAPI {
 		return announcements;
 	}
 	
-	public static void submitServerInfo(URL apiUrl, String jsonData) throws NamelessException {
+	public void submitServerInfo(String jsonData) throws NamelessException {
 		Request request = new Request(apiUrl, Action.SERVER_INFO, new ParameterBuilder().add("info", jsonData).build());
 		request.connect();
 		if (request.hasError()) throw new ApiError(request.getError());
 	}
 	
-	public static Website getWebsiteInfo(URL apiUrl) throws NamelessException {
+	public Website getWebsite() throws NamelessException {
 		Request request = new Request(apiUrl, Action.INFO);
 		request.connect();
 		
@@ -142,7 +132,7 @@ public final class NamelessAPI {
 		
 	}
 	
-	public static boolean validateUser(URL apiUrl, UUID uuid, String code) throws NamelessException {
+	public boolean validateUser(UUID uuid, String code) throws NamelessException {
 		String[] parameters = new ParameterBuilder().add("uuid", uuid.toString()).add("code", code).build();
 		Request request = new Request(apiUrl, Action.VALIDATE_USER, parameters);
 		request.connect();
@@ -154,6 +144,28 @@ public final class NamelessAPI {
 			throw new ApiError(errorCode);
 		}
 		return true;
+	}
+	
+	public NamelessPlayer getPlayer(UUID uuid) throws NamelessException {
+		return new NamelessPlayer(uuid, apiUrl);
+	}
+	
+	public NamelessPlayer getPlayer(String username) throws NamelessException {
+		return new NamelessPlayer(username, apiUrl);
+	}
+	
+	static String encode(Object object) {
+		try {
+			return URLEncoder.encode(object.toString(), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e.getMessage());
+		}
+	}
+	
+	static String[] jsonToArray(JsonArray jsonArray) {
+		List<String> list = new ArrayList<>();
+		jsonArray.iterator().forEachRemaining((element) -> list.add(element.getAsString()));
+		return list.toArray(new String[] {});
 	}
 
 
