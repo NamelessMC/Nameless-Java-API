@@ -44,6 +44,7 @@ public final class NamelessPlayer {
 	 * @param baseUrl Base API URL: <i>http(s)://yoursite.com/api/v2/API_KEY<i>
 	 * @throws NamelessException 
 	 * @see #NamelessPlayer(UUID, URL)
+	 * @deprecated Use {@link #NamelessPlayer(UUID, URL)}
 	 */
 	NamelessPlayer(String username, URL baseUrl) throws NamelessException {	
 		this.baseUrl = baseUrl;
