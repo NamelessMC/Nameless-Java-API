@@ -191,6 +191,30 @@ public final class NamelessPlayer {
 		return banned;
 	}
 	
+	/**
+	 * @param code
+	 * @return True if the user could be validated successfully, false if the provided code is wrong
+	 * @throws NamelessException 
+	 * @throws  
+	 */
+	public boolean validate(String code) throws NamelessException {
+		final String[] params = new ParameterBuilder()
+				.add("uuid", uuid)
+				.add("code", code).build();
+		final Request request = new Request(baseUrl, Action.VALIDATE_USER, params);
+		request.connect();
+		
+		if (request.hasError()) {
+			if (request.getError() == ApiError.INVALID_VALIDATE_CODE) {
+				return false;
+			} else {
+				throw new ApiError(request.getError());
+			}
+		} else {
+			return true;
+		}
+	}
+	
 	public List<Notification> getNotifications() throws NamelessException {
 		Request request = new Request(baseUrl, Action.GET_NOTIFICATIONS, new ParameterBuilder().add("uuid", uuid).build());
 		request.connect();
