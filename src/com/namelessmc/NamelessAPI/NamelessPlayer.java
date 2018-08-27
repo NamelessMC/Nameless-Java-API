@@ -284,7 +284,9 @@ public final class NamelessPlayer {
 				.add("reported_username", reportedUsername)
 				.add("reason", reason)
 				.build();
-		new Request(baseUrl, Action.CREATE_REPORT, parameters);
+		Request request = new Request(baseUrl, Action.CREATE_REPORT, parameters);
+		request.connect();
+		if (request.hasError()) throw new ApiError(request.getError());
 	}
 
 }
