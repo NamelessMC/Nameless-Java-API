@@ -34,7 +34,7 @@ public final class NamelessPlayer {
 	NamelessPlayer(UUID uuid, URL baseUrl) throws NamelessException {	
 		this.baseUrl = baseUrl;
 		
-		Request request = new Request(baseUrl, Action.USER_INFO, new ParameterBuilder().add("uuid", uuid).build());
+		final Request request = new Request(baseUrl, Action.USER_INFO, new ParameterBuilder().add("uuid", uuid).build());
 		init(request);
 	}
 	
@@ -49,7 +49,7 @@ public final class NamelessPlayer {
 	NamelessPlayer(String username, URL baseUrl) throws NamelessException {	
 		this.baseUrl = baseUrl;
 		
-		Request request = new Request(baseUrl, Action.USER_INFO, new ParameterBuilder().add("username", username).build());
+		final Request request = new Request(baseUrl, Action.USER_INFO, new ParameterBuilder().add("username", username).build());
 		init(request);
 	}
 	
@@ -58,7 +58,7 @@ public final class NamelessPlayer {
 		
 		if (request.hasError()) throw new ApiError(request.getError());
 		
-		JsonObject response = request.getResponse();
+		final JsonObject response = request.getResponse();
 		
 		exists = response.get("exists").getAsBoolean();
 		
@@ -216,18 +216,18 @@ public final class NamelessPlayer {
 	}
 	
 	public List<Notification> getNotifications() throws NamelessException {
-		Request request = new Request(baseUrl, Action.GET_NOTIFICATIONS, new ParameterBuilder().add("uuid", uuid).build());
+		final Request request = new Request(baseUrl, Action.GET_NOTIFICATIONS, new ParameterBuilder().add("uuid", uuid).build());
 		request.connect();
 		
 		if (request.hasError()) throw new ApiError(request.getError());
 		
 		final List<Notification> notifications = new ArrayList<>();
 		
-		JsonObject object = request.getResponse();
+		final JsonObject object = request.getResponse();
 		object.getAsJsonArray().forEach((element) -> {
-			String message = element.getAsJsonObject().get("message").getAsString();
-			String url = element.getAsJsonObject().get("url").getAsString();
-			NotificationType type = NotificationType.fromString(element.getAsJsonObject().get("type").getAsString());
+			final String message = element.getAsJsonObject().get("message").getAsString();
+			final String url = element.getAsJsonObject().get("url").getAsString();
+			final NotificationType type = NotificationType.fromString(element.getAsJsonObject().get("type").getAsString());
 			notifications.add(new Notification(message, url, type));
 		});
 		
@@ -240,8 +240,8 @@ public final class NamelessPlayer {
 	 * @throws NamelessException
 	 */
 	public void setGroup(int groupId) throws NamelessException {
-		String[] parameters = new ParameterBuilder().add("uuid", uuid).add("group_id", groupId).build();
-		Request request = new Request(baseUrl, Action.SET_GROUP, parameters);
+		final String[] parameters = new ParameterBuilder().add("uuid", uuid).add("group_id", groupId).build();
+		final Request request = new Request(baseUrl, Action.SET_GROUP, parameters);
 		request.connect();
 		if (request.hasError()) throw new ApiError(request.getError());
 	}
@@ -255,13 +255,13 @@ public final class NamelessPlayer {
 	 * @throws NamelessException
 	 */
 	public String register(String minecraftName, String email) throws NamelessException {
-		String[] parameters = new ParameterBuilder().add("username", minecraftName).add("uuid", uuid).add("email", email).build();
-		Request request = new Request(baseUrl, Action.REGISTER, parameters);
+		final String[] parameters = new ParameterBuilder().add("username", minecraftName).add("uuid", uuid).add("email", email).build();
+		final Request request = new Request(baseUrl, Action.REGISTER, parameters);
 		request.connect();
 		
 		if (request.hasError()) throw new ApiError(request.getError());
 		
-		JsonObject response = request.getResponse();
+		final JsonObject response = request.getResponse();
 		
 		if (response.has("link")) {
 			return response.get("link").getAsString();
@@ -278,7 +278,7 @@ public final class NamelessPlayer {
 	 * @throws NamelessException
 	 */
 	public void createReport(UUID reportedUuid, String reportedUsername, String reason) throws NamelessException {		
-		String[] parameters = new ParameterBuilder()
+		final String[] parameters = new ParameterBuilder()
 				.add("reporter_uuid", uuid)
 				.add("reported_uuid", reportedUuid)
 				.add("reported_username", reportedUsername)
