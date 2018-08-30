@@ -142,7 +142,7 @@ public final class NamelessPlayer {
 	/**
 	 * @return The user's site reputation.
 	 */
-	public int getReputations() {
+	public int getReputation() {
 		if (!exists) {
 			throw new UnsupportedOperationException("This player does not exist.");
 		}
