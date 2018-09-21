@@ -4,10 +4,12 @@ import static com.namelessmc.NamelessAPI.Request.RequestMethod.GET;
 import static com.namelessmc.NamelessAPI.Request.RequestMethod.POST;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -22,6 +24,7 @@ public class Request {
 	private URL url;
 	private RequestMethod method;
 	private String parameters;
+	private Action action;
 	
 	private JsonObject response;
 	private boolean hasError;
@@ -33,6 +36,7 @@ public class Request {
 		} catch (MalformedURLException e) {
 			throw new IllegalArgumentException("URL or action is malformed (" + e.getMessage() + ")");
 		}
+		this.action = action;
 		this.method = action.method;
 		this.parameters = String.join("&", parameters);
 	}
@@ -54,21 +58,29 @@ public class Request {
 	}
 	
 	public void connect() throws NamelessException {
+		
+		if (NamelessAPI.DEBUG_MODE) {
+			System.out.printf("NamelessAPI > Making %s request (%s)\n", action.toString(), method.toString());
+			System.out.printf("NamelessAPI > URL: %s\n", url);
+			System.out.printf("NamelessAPI > Parameters: %s\n", parameters);
+		}
+		
 		try {
 			if (url.toString().startsWith("https://")){
 				HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
 	
 				connection.setRequestMethod(method.toString());
-				connection.setRequestProperty("Content-Length", Integer.toString(parameters.length()));
+				//connection.setRequestProperty("Content-Length", Integer.toString(parameters.length()));
 				connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 				connection.setDoOutput(true);
 				connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
 	
-				// Initialize output stream
 				DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-	
-				// Write request
-				outputStream.writeBytes(parameters);
+				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+				writer.write(parameters);
+				writer.flush();
+				writer.close();
+				outputStream.close();
 	
 				// Initialize input stream
 				InputStream inputStream = connection.getInputStream();
@@ -84,16 +96,7 @@ public class Request {
 				JsonParser parser = new JsonParser();
 	
 				response = parser.parse(responseBuilder.toString()).getAsJsonObject();
-	
-				// if (response.has("error")) {
-				// Error with request
-				// String errorMessage = response.get("message").getAsString();
-				// throw new NamelessException("unknown error");
-				// }
-	
-				// Close output/input stream
-				outputStream.flush();
-				outputStream.close();
+
 				inputStream.close();
 	
 				// Disconnect

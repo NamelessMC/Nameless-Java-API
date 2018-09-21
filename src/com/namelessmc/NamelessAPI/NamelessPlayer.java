@@ -23,7 +23,7 @@ public final class NamelessPlayer {
 	private boolean banned;
 	
 	private URL baseUrl;
-
+	
 	/**
 	 * Creates a new NamelessPlayer object. This constructor should not be called in the main server thread.
 	 * @param uuid

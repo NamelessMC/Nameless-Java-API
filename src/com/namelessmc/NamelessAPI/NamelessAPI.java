@@ -14,9 +14,17 @@ import com.namelessmc.NamelessAPI.Website.Update;
 
 public final class NamelessAPI {
 
+	public static boolean DEBUG_MODE = false;
+	
 	private URL apiUrl;
 	
-	public NamelessAPI(URL apiUrl) {
+	/**
+	 * 
+	 * @param apiUrl
+	 * @param debug If debug is set to true, debug messages are enabled for <i>every</i> NamelessAPI instance.
+	 */
+	public NamelessAPI(URL apiUrl, boolean debug) {
+		if (debug) DEBUG_MODE = true;
 		this.apiUrl = apiUrl;
 	}
 	
