@@ -105,16 +105,17 @@ public class Request {
 				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 	
 				connection.setRequestMethod(method.toString());
-				connection.setRequestProperty("Content-Length", Integer.toString(parameters.length()));
+				//connection.setRequestProperty("Content-Length", Integer.toString(parameters.length()));
 				connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 				connection.setDoOutput(true);
 				connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
 	
-				// Initialize output stream
 				DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-	
-				// Write request
-				outputStream.writeBytes(parameters);
+				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+				writer.write(parameters);
+				writer.flush();
+				writer.close();
+				outputStream.close();
 	
 				// Initialize input stream
 				InputStream inputStream = connection.getInputStream();
@@ -130,16 +131,7 @@ public class Request {
 				JsonParser parser = new JsonParser();
 	
 				response = parser.parse(responseBuilder.toString()).getAsJsonObject();
-	
-				// if (response.has("error")) {
-				// Error with request
-				// String errorMessage = response.get("message").getAsString();
-				// throw new NamelessException(errorMessage);
-				// }
-	
-				// Close output/input stream
-				outputStream.flush();
-				outputStream.close();
+
 				inputStream.close();
 	
 				// Disconnect
