@@ -281,7 +281,7 @@ public final class NamelessPlayer {
 				.add("reporter_uuid", uuid)
 				.add("reported_uuid", reportedUuid)
 				.add("reported_username", reportedUsername)
-				.add("reason", reason)
+				.add("content", reason)
 				.build();
 		Request request = new Request(baseUrl, Action.CREATE_REPORT, parameters);
 		request.connect();
