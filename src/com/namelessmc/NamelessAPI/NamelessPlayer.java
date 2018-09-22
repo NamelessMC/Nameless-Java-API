@@ -223,7 +223,7 @@ public final class NamelessPlayer {
 		final List<Notification> notifications = new ArrayList<>();
 		
 		final JsonObject object = request.getResponse();
-		object.getAsJsonArray().forEach((element) -> {
+		object.getAsJsonArray("notifications").forEach((element) -> {
 			final String message = element.getAsJsonObject().get("message").getAsString();
 			final String url = element.getAsJsonObject().get("url").getAsString();
 			final NotificationType type = NotificationType.fromString(element.getAsJsonObject().get("type").getAsString());

@@ -25,7 +25,8 @@ public class Notification {
 	}
 	
 	public static enum NotificationType {
-		
+
+		TAG,
 		MESSAGE,
 		LIKE,
 		PROFILE_COMMENT,
