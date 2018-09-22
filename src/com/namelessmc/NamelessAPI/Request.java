@@ -55,11 +55,11 @@ public class Request {
 			
 			if (action.method == RequestMethod.GET){
 				char prefix = baseUrl.toString().contains("?") ? '&' : '?';
-				url = new URL(action.toString() + prefix + this.parameters);
+				url = new URL(base + action.toString() + prefix + this.parameters);
 			}
 			
 			if (action.method == RequestMethod.POST) {
-				url = new URL(action.toString());
+				url = new URL(base + action.toString());
 			}
 		} catch (MalformedURLException e) {
 			IllegalArgumentException ex = new IllegalArgumentException("URL is malformed (" + e.getMessage() + ")");
