@@ -54,8 +54,12 @@ public class Request {
 			base = base.endsWith("/") ? base : base + "/"; // Append trailing slash if not present
 			
 			if (action.method == RequestMethod.GET){
-				char prefix = baseUrl.toString().contains("?") ? '&' : '?';
-				url = new URL(base + action.toString() + prefix + this.parameters);
+				if (parameters.length > 0) {
+					char prefix = baseUrl.toString().contains("?") ? '&' : '?';
+					url = new URL(base + action.toString() + prefix + this.parameters);
+				} else {
+					url = new URL(base + action.toString());
+				}
 			}
 			
 			if (action.method == RequestMethod.POST) {
