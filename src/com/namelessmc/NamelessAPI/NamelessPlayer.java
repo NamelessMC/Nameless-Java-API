@@ -32,25 +32,11 @@ public final class NamelessPlayer {
 	 * @throws NamelessException 
 	 * @see #NamelessPlayer(String, URL)
 	 */
-	NamelessPlayer(UUID uuid, URL baseUrl) throws NamelessException {	
+	NamelessPlayer(UUID uuid, URL baseUrl) throws NamelessException {
+		this.uuid = uuid;
 		this.baseUrl = baseUrl;
 		
 		final Request request = new Request(baseUrl, Action.USER_INFO, new ParameterBuilder().add("uuid", uuid).build());
-		init(request);
-	}
-	
-	/**
-	 * Creates a new NamelessPlayer object. This constructor should not be called in the main server thread.
-	 * @param username
-	 * @param baseUrl Base API URL: <i>http(s)://yoursite.com/api/v2/API_KEY<i>
-	 * @throws NamelessException 
-	 * @see #NamelessPlayer(UUID, URL)
-	 * @deprecated Use {@link #NamelessPlayer(UUID, URL)}
-	 */
-	NamelessPlayer(String username, URL baseUrl) throws NamelessException {	
-		this.baseUrl = baseUrl;
-		
-		final Request request = new Request(baseUrl, Action.USER_INFO, new ParameterBuilder().add("username", username).build());
 		init(request);
 	}
 	
@@ -72,7 +58,7 @@ public final class NamelessPlayer {
 
 		userName = response.get("username").getAsString();
 		displayName = response.get("displayname").getAsString();
-		uuid = UUID.fromString(addDashesToUUID(response.get("uuid").getAsString()));
+		//uuid = UUID.fromString(addDashesToUUID(response.get("uuid").getAsString()));
 		groupName = response.get("group_name").getAsString();
 		groupID = response.get("group_id").getAsInt();
 		registeredDate = registered;
@@ -82,7 +68,7 @@ public final class NamelessPlayer {
 		banned = response.get("banned").getAsBoolean();
 	}
 
-	public static String addDashesToUUID(String uuid) {
+	/*public static String addDashesToUUID(String uuid) {
 		// https://bukkit.org/threads/java-adding-dashes-back-to-minecrafts-uuids.272746/
 		StringBuffer sb = new StringBuffer(uuid);
 		sb.insert(8, "-");
@@ -97,7 +83,7 @@ public final class NamelessPlayer {
 		sb.insert(23, "-");
 		 
 		return sb.toString();
-	}
+	}*/
 	
 	/**
 	 * @return The Minecraft username associated with the provided UUID. This is not always the name displayed on the website.
@@ -269,7 +255,7 @@ public final class NamelessPlayer {
 	 * <br>Email verification enabled: An empty string (the user needs to check their email to complete registration)
 	 * @throws NamelessException
 	 */
-	public String register(String minecraftName, String email, UUID uuid) throws NamelessException {
+	public String register(String minecraftName, String email) throws NamelessException {
 		final String[] parameters = new ParameterBuilder().add("username", minecraftName).add("uuid", uuid).add("email", email).build();
 		final Request request = new Request(baseUrl, Action.REGISTER, parameters);
 		request.connect();
