@@ -29,8 +29,7 @@ public final class NamelessPlayer {
 	 * Creates a new NamelessPlayer object. This constructor should not be called in the main server thread.
 	 * @param uuid
 	 * @param baseUrl Base API URL: <i>http(s)://yoursite.com/api/v2/API_KEY<i>
-	 * @throws NamelessException 
-	 * @see #NamelessPlayer(String, URL)
+	 * @throws NamelessException
 	 */
 	NamelessPlayer(UUID uuid, URL baseUrl) throws NamelessException {
 		this.uuid = uuid;
@@ -255,7 +254,7 @@ public final class NamelessPlayer {
 	 * <br>Email verification enabled: An empty string (the user needs to check their email to complete registration)
 	 * @throws NamelessException
 	 */
-	public String register(String minecraftName, String email) throws NamelessException {
+	public String register(String minecraftName, String email, UUID uuid) throws NamelessException {
 		final String[] parameters = new ParameterBuilder().add("username", minecraftName).add("uuid", uuid).add("email", email).build();
 		final Request request = new Request(baseUrl, Action.REGISTER, parameters);
 		request.connect();

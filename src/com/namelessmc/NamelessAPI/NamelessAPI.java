@@ -157,14 +157,6 @@ public final class NamelessAPI {
 		return new NamelessPlayer(uuid, apiUrl);
 	}
 	
-	/*
-	 * @deprecated Use {@link #NamelessPlayer(UUID, URL)}. Only supported in earlier api versions.
-	 */
-	@Deprecated
-	public NamelessPlayer getPlayer(String username) throws NamelessException {
-		return new NamelessPlayer(username, apiUrl);
-	}
-	
 	static String encode(Object object) {
 		try {
 			return URLEncoder.encode(object.toString(), "UTF-8");
