@@ -20,19 +20,30 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class Request {
-	
+
 	private URL url;
 	private RequestMethod method;
 	private String parameters;
 	private Action action;
-	
+
 	private JsonObject response;
 	private boolean hasError;
 	private int errorCode = -1;
-	
+
 	public Request(URL baseUrl, Action action, String... parameters) {
 		try {
-			url = new URL(appendCharacter(baseUrl.toString(), '/') + action.toString());
+			if(action.method == RequestMethod.GET){
+				// Check for ? to see if we need ? or & (non-friendly URL support)
+				Character appendChar = '?';
+				if(baseUrl.toString().contains("?")){
+					appendChar = '&';
+				}
+
+				url = new URL(appendCharacter(appendCharacter(baseUrl.toString(), '/') + action.toString(), appendChar) + String.join("&", parameters));
+
+			} else {
+				url = new URL(appendCharacter(baseUrl.toString(), '/') + action.toString());
+			}
 		} catch (MalformedURLException e) {
 			throw new IllegalArgumentException("URL or action is malformed (" + e.getMessage() + ")");
 		}
@@ -40,104 +51,112 @@ public class Request {
 		this.method = action.method;
 		this.parameters = String.join("&", parameters);
 	}
-	
+
 	public boolean hasError() {
 		return hasError;
 	}
-	
+
 	public int getError() throws NamelessException {
 		if (!hasError) {
 			throw new NamelessException("Requested error code but there is no error.");
 		}
-		
+
 		return errorCode;
 	}
-	
-	public JsonObject getResponse() throws NamelessException {		
+
+	public JsonObject getResponse() throws NamelessException {
 		return response;
 	}
-	
+
 	public void connect() throws NamelessException {
-		
+
 		if (NamelessAPI.DEBUG_MODE) {
 			System.out.printf("NamelessAPI > Making %s request (%s)\n", action.toString(), method.toString());
 			System.out.printf("NamelessAPI > URL: %s\n", url);
 			System.out.printf("NamelessAPI > Parameters: %s\n", parameters);
 		}
-		
+
 		try {
 			if (url.toString().startsWith("https://")){
 				HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-	
+
 				connection.setRequestMethod(method.toString());
-				//connection.setRequestProperty("Content-Length", Integer.toString(parameters.length()));
+				connection.setRequestProperty("Content-Length", Integer.toString(parameters.length()));
 				connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 				connection.setDoOutput(true);
 				connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
-	
+
+				if(method == RequestMethod.GET) {
+					connection.setRequestMethod("GET");
+				}
+
 				DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
 				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
 				writer.write(parameters);
 				writer.flush();
 				writer.close();
 				outputStream.close();
-	
+
 				// Initialize input stream
 				InputStream inputStream = connection.getInputStream();
-	
+
 				// Handle response
 				BufferedReader streamReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
 				StringBuilder responseBuilder = new StringBuilder();
-	
+
 				String responseString;
 				while ((responseString = streamReader.readLine()) != null)
 					responseBuilder.append(responseString);
-	
+
 				JsonParser parser = new JsonParser();
-	
+
 				response = parser.parse(responseBuilder.toString()).getAsJsonObject();
 
 				inputStream.close();
-	
+
 				// Disconnect
 				connection.disconnect();
 			} else {
 				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-	
+
 				connection.setRequestMethod(method.toString());
-				//connection.setRequestProperty("Content-Length", Integer.toString(parameters.length()));
+				connection.setRequestProperty("Content-Length", Integer.toString(parameters.length()));
 				connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 				connection.setDoOutput(true);
 				connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
-	
+
+				if(method == RequestMethod.GET) {
+					connection.setRequestMethod("GET");
+				}
+
 				DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
 				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
 				writer.write(parameters);
 				writer.flush();
 				writer.close();
 				outputStream.close();
-	
+
 				// Initialize input stream
 				InputStream inputStream = connection.getInputStream();
-	
+
 				// Handle response
 				BufferedReader streamReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
 				StringBuilder responseBuilder = new StringBuilder();
-	
+
 				String responseString;
 				while ((responseString = streamReader.readLine()) != null)
 					responseBuilder.append(responseString);
-	
+
 				JsonParser parser = new JsonParser();
-	
+
 				response = parser.parse(responseBuilder.toString()).getAsJsonObject();
 
 				inputStream.close();
-	
+
 				// Disconnect
 				connection.disconnect();
 			}
-			
+
 			hasError = response.get("error").getAsBoolean();
 			if (hasError) {
 				errorCode = response.get("code").getAsInt();
@@ -146,7 +165,7 @@ public class Request {
 			throw new NamelessException(e);
 		}
 	}
-	
+
 	private static String appendCharacter(String string, char c) {
 		if (string.endsWith(c + "")) {
 			return string;
@@ -154,9 +173,9 @@ public class Request {
 			return string + c;
 		}
 	}
-	
+
 	public static enum Action {
-		
+
 		INFO("info", GET),
 		GET_ANNOUNCEMENTS("getAnnouncements", GET),
 		REGISTER("register", POST),
@@ -166,17 +185,17 @@ public class Request {
 		GET_NOTIFICATIONS("getNotifications", GET),
 		SERVER_INFO("serverInfo", POST),
 		VALIDATE_USER("validateUser", POST),
-		
+
 		;
-		
+
 		RequestMethod method;
 		String name;
-		
+
 		Action(String name, RequestMethod method){
 			this.name = name;
 			this.method = method;
 		}
-		
+
 		@Override
 		public String toString() {
 			return name;
@@ -192,11 +211,11 @@ public class Request {
 		}*/
 
 	}
-	
+
 	public static enum RequestMethod {
-		
+
 		GET, POST
-		
+
 	}
 
 }

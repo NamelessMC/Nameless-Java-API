@@ -20,7 +20,7 @@ public final class NamelessAPI {
 	
 	/**
 	 * 
-	 * @param apiUrl
+	 * @param apiUrl URL of API to connect to
 	 * @param debug If debug is set to true, debug messages are enabled for <i>every</i> NamelessAPI instance.
 	 */
 	public NamelessAPI(URL apiUrl, boolean debug) {
@@ -57,9 +57,8 @@ public final class NamelessAPI {
 
 	/**
 	 * Get all announcements
-	 * @param apiUrl
-	 * @return
-	 * @throws NamelessException
+	 * @return list of current announcements
+	 * @throws NamelessException if there is an error in the request
 	 */
 	public List<Announcement> getAnnouncements() throws NamelessException {
 		Request request = new Request(apiUrl, Action.GET_ANNOUNCEMENTS);
@@ -83,9 +82,9 @@ public final class NamelessAPI {
 	
 	/**
 	 * Get all announcements visible for the player with the specified uuid
-	 * @param apiUrl
-	 * @return
-	 * @throws NamelessException
+	 * @param uuid UUID of player to get visibile announcements for
+	 * @return list of current announcements visible to the player
+	 * @throws NamelessException if there is an error in the request
 	 */
 	public List<Announcement> getAnnouncements(UUID uuid) throws NamelessException {
 		Request request = new Request(apiUrl, Action.GET_ANNOUNCEMENTS, new ParameterBuilder().add("uuid", uuid).build());

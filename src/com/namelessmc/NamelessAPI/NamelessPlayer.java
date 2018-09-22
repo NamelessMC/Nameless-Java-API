@@ -21,6 +21,7 @@ public final class NamelessPlayer {
 	private boolean exists;
 	private boolean validated;
 	private boolean banned;
+	private String groupName;
 	
 	private URL baseUrl;
 	
@@ -72,10 +73,12 @@ public final class NamelessPlayer {
 		userName = response.get("username").getAsString();
 		displayName = response.get("displayname").getAsString();
 		uuid = UUID.fromString(addDashesToUUID(response.get("uuid").getAsString()));
+		groupName = response.get("group_name").getAsString();
 		groupID = response.get("group_id").getAsInt();
 		registeredDate = registered;
 		validated = response.get("validated").getAsBoolean();
-		reputation = response.get("reputation").getAsInt();
+		//reputation = response.get("reputation").getAsInt();
+		reputation = 0; // temp until reputation is added to API
 		banned = response.get("banned").getAsBoolean();
 	}
 
@@ -140,6 +143,17 @@ public final class NamelessPlayer {
 	}
 
 	/**
+	 * @return The user's primary group name
+	 */
+	public String getGroupName() {
+		if (!exists) {
+			throw new UnsupportedOperationException("This player does not exist.");
+		}
+
+		return groupName;
+	}
+
+	/**
 	 * @return The user's site reputation.
 	 */
 	public int getReputation() {
@@ -163,7 +177,7 @@ public final class NamelessPlayer {
 
 	/**
 	 * @return Whether an account associated with the UUID exists.
-	 * @see #getUUID()
+	 * @see #getUniqueId()
 	 */
 	public boolean exists() {	
 		return exists;
@@ -250,11 +264,12 @@ public final class NamelessPlayer {
 	 * Registers a new account. The player will be sent an email to set a password.
 	 * @param minecraftName In-game name for this player
 	 * @param email Email address
+	 * @param uuid UUID of player
 	 * @return Email verification disabled: A link which the user needs to click to complete registration
 	 * <br>Email verification enabled: An empty string (the user needs to check their email to complete registration)
 	 * @throws NamelessException
 	 */
-	public String register(String minecraftName, String email) throws NamelessException {
+	public String register(String minecraftName, String email, UUID uuid) throws NamelessException {
 		final String[] parameters = new ParameterBuilder().add("username", minecraftName).add("uuid", uuid).add("email", email).build();
 		final Request request = new Request(baseUrl, Action.REGISTER, parameters);
 		request.connect();
