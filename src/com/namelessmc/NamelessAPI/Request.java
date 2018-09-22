@@ -62,7 +62,9 @@ public class Request {
 				url = new URL(action.toString());
 			}
 		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("URL is malformed (" + e.getMessage() + ")");
+			IllegalArgumentException ex = new IllegalArgumentException("URL is malformed (" + e.getMessage() + ")");
+			ex.initCause(e);
+			throw ex;
 		}
 	}
 
