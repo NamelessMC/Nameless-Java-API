@@ -31,25 +31,39 @@ public class Request {
 	private int errorCode = -1;
 
 	public Request(URL baseUrl, Action action, String... parameters) {
-		try {
-			if(action.method == RequestMethod.GET){
-				// Check for ? to see if we need ? or & (non-friendly URL support)
-				Character appendChar = '?';
-				if(baseUrl.toString().contains("?")){
-					appendChar = '&';
-				}
-
-				url = new URL(appendCharacter(appendCharacter(baseUrl.toString(), '/') + action.toString(), appendChar) + String.join("&", parameters));
-
-			} else {
-				url = new URL(appendCharacter(baseUrl.toString(), '/') + action.toString());
-			}
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("URL or action is malformed (" + e.getMessage() + ")");
-		}
 		this.action = action;
 		this.method = action.method;
 		this.parameters = String.join("&", parameters);
+		
+		try {
+			/*
+			 * If the url contains a question mark, it's most likely not a friendly url.
+			 * Friendly urls have the normal url as a parameter like this:
+			 * https://example.com/index.php?route=/api/v2/key/action
+			 * Parameters should be added after the route parameter (&param1=value1&param2=value2)
+			 * 
+			 * If the url does not contain a question mark, it's most likely a friendly url
+			 * https://example.com/api/v2/key/action
+			 * Parameters need to be prefixed with a question mark (?param1&value1&param2=value2)
+			 * 
+			 * For post method, parameters need to be sent like this: param1=value1&param2=value2
+			 * regardless of the friendly url option.
+			 */
+			
+			String base = baseUrl.toString();
+			base = base.endsWith("/") ? base : base + "/"; // Append trailing slash if not present
+			
+			if (action.method == RequestMethod.GET){
+				char prefix = baseUrl.toString().contains("?") ? '&' : '?';
+				url = new URL(action.toString() + prefix + this.parameters);
+			}
+			
+			if (action.method == RequestMethod.POST) {
+				url = new URL(action.toString());
+			}
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException("URL is malformed (" + e.getMessage() + ")");
+		}
 	}
 
 	public boolean hasError() {
@@ -83,19 +97,18 @@ public class Request {
 				connection.setRequestMethod(method.toString());
 				connection.setRequestProperty("Content-Length", Integer.toString(parameters.length()));
 				connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-				connection.setDoOutput(true);
 				connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
 
-				if(method == RequestMethod.GET) {
-					connection.setRequestMethod("GET");
+				// If request method is POST, send parameters. Otherwise, they're already included in the URL
+				if (action.method == RequestMethod.POST) {
+					connection.setDoOutput(true);
+					DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+					writer.write(parameters);
+					writer.flush();
+					writer.close();
+					outputStream.close();
 				}
-
-				DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-				writer.write(parameters);
-				writer.flush();
-				writer.close();
-				outputStream.close();
 
 				// Initialize input stream
 				InputStream inputStream = connection.getInputStream();
@@ -122,19 +135,18 @@ public class Request {
 				connection.setRequestMethod(method.toString());
 				connection.setRequestProperty("Content-Length", Integer.toString(parameters.length()));
 				connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-				connection.setDoOutput(true);
 				connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
 
-				if(method == RequestMethod.GET) {
-					connection.setRequestMethod("GET");
+				// If request method is POST, send parameters. Otherwise, they're already included in the URL
+				if (action.method == RequestMethod.POST) {
+					connection.setDoOutput(true);
+					DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+					writer.write(parameters);
+					writer.flush();
+					writer.close();
+					outputStream.close();
 				}
-
-				DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-				writer.write(parameters);
-				writer.flush();
-				writer.close();
-				outputStream.close();
 
 				// Initialize input stream
 				InputStream inputStream = connection.getInputStream();
@@ -163,14 +175,6 @@ public class Request {
 			}
 		} catch (IOException e) {
 			throw new NamelessException(e);
-		}
-	}
-
-	private static String appendCharacter(String string, char c) {
-		if (string.endsWith(c + "")) {
-			return string;
-		} else {
-			return string + c;
 		}
 	}
 
