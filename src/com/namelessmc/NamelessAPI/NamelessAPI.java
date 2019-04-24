@@ -96,8 +96,7 @@ public final class NamelessAPI {
 		
 		List<Announcement> announcements = new ArrayList<>();
 		
-		JsonObject object = request.getResponse();
-		object.getAsJsonArray().forEach((element) -> {
+		request.getResponse().get("announcements").getAsJsonArray().forEach((element) -> {
 			JsonObject announcementJson = element.getAsJsonObject();
 			String content = announcementJson.get("content").getAsString();
 			String[] display = jsonToArray(announcementJson.get("display").getAsJsonArray());
