@@ -158,7 +158,7 @@ public final class NamelessAPI {
 		return new NamelessPlayer(uuid, apiUrl);
 	}
 	
-	public Map<UUID, String> getRegisteredUsers() throws NamelessException {
+	public Map<UUID, String> getRegisteredUsers(boolean hideInactive, boolean hideBanned) throws NamelessException {
 		Request request = new Request(apiUrl, Action.LIST_USERS);
 		request.connect();
 		if (request.hasError()) {
@@ -170,6 +170,16 @@ public final class NamelessAPI {
 		request.getResponse().get("users").getAsJsonArray().forEach(userJsonElement -> {
 			final String uuid = userJsonElement.getAsJsonObject().get("uuid").getAsString();
 			final String username = userJsonElement.getAsJsonObject().get("username").getAsString();
+			final int active = userJsonElement.getAsJsonObject().get("active").getAsInt();
+			final int banned = userJsonElement.getAsJsonObject().get("active").getAsInt();
+			
+			if (hideInactive && active == 0) {
+				return;
+			}
+			
+			if (hideBanned && banned == 1) {
+				return;
+			}
 			
 			users.put(websiteUuidToJavaUuid(uuid), username);
 		});
@@ -177,8 +187,8 @@ public final class NamelessAPI {
 		return users;
 	}
 	
-	public List<NamelessPlayer> getRegisteredUsersAsNamelessPlayerList() throws NamelessException {
-		Map<UUID, String> users = getRegisteredUsers();
+	public List<NamelessPlayer> getRegisteredUsersAsNamelessPlayerList(boolean hideInactive, boolean hideBanned) throws NamelessException {
+		Map<UUID, String> users = getRegisteredUsers(hideInactive, hideBanned);
 		List<NamelessPlayer> namelessPlayers = new ArrayList<>();
 		
 		for (UUID userUuid : users.keySet()) {
