@@ -195,6 +195,7 @@ public class Request {
 		GET_NOTIFICATIONS("getNotifications", GET),
 		SERVER_INFO("serverInfo", POST),
 		VALIDATE_USER("validateUser", POST),
+		LIST_USERS("listUsers", GET),
 
 		;
 

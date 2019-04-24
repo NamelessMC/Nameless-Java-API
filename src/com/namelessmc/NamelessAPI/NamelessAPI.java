@@ -4,7 +4,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.google.gson.JsonArray;
@@ -157,6 +159,36 @@ public final class NamelessAPI {
 		return new NamelessPlayer(uuid, apiUrl);
 	}
 	
+	public Map<UUID, String> getRegisteredUsers() throws NamelessException {
+		Request request = new Request(apiUrl, Action.LIST_USERS);
+		request.connect();
+		if (request.hasError()) {
+			throw new ApiError(request.getError());
+		}
+		
+		Map<UUID, String> users = new HashMap<>();
+		
+		request.getResponse().get("users").getAsJsonArray().forEach(userJsonElement -> {
+			final String uuid = userJsonElement.getAsJsonObject().get("uuid").getAsString();
+			final String username = userJsonElement.getAsJsonObject().get("username").getAsString();
+			
+			users.put(websiteUuidToJavaUuid(uuid), username);
+		});
+		
+		return users;
+	}
+	
+	public List<NamelessPlayer> getRegisteredUsersAsNamelessPlayerList() throws NamelessException {
+		Map<UUID, String> users = getRegisteredUsers();
+		List<NamelessPlayer> namelessPlayers = new ArrayList<>();
+		
+		for (UUID userUuid : users.keySet()) {
+			namelessPlayers.add(this.getPlayer(userUuid));
+		}
+		
+		return namelessPlayers;
+	}
+	
 	static String encode(Object object) {
 		try {
 			return URLEncoder.encode(object.toString(), "UTF-8");
@@ -169,6 +201,24 @@ public final class NamelessAPI {
 		List<String> list = new ArrayList<>();
 		jsonArray.iterator().forEachRemaining((element) -> list.add(element.getAsString()));
 		return list.toArray(new String[] {});
+	}
+	
+	static UUID websiteUuidToJavaUuid(String uuid) {
+		// Add dashes to uuid
+		// https://bukkit.org/threads/java-adding-dashes-back-to-minecrafts-uuids.272746/
+		StringBuffer sb = new StringBuffer(uuid);
+		sb.insert(8, "-");
+		 
+		sb = new StringBuffer(sb.toString());
+		sb.insert(13, "-");
+		 
+		sb = new StringBuffer(sb.toString());
+		sb.insert(18, "-");
+		 
+		sb = new StringBuffer(sb.toString());
+		sb.insert(23, "-");
+		 
+		return UUID.fromString(sb.toString());
 	}
 
 
