@@ -170,18 +170,15 @@ public final class NamelessAPI {
 		request.getResponse().get("users").getAsJsonArray().forEach(userJsonElement -> {
 			final String uuid = userJsonElement.getAsJsonObject().get("uuid").getAsString();
 			final String username = userJsonElement.getAsJsonObject().get("username").getAsString();
-			final int active = userJsonElement.getAsJsonObject().get("active").getAsInt();
-			final int banned = userJsonElement.getAsJsonObject().get("active").getAsInt();
+			final String active = userJsonElement.getAsJsonObject().get("active").getAsString();
+			final String banned = userJsonElement.getAsJsonObject().get("banned").getAsString();
 			
-			if (hideInactive && active == 0) {
-				return;
+			if (!(
+					( hideInactive && active.equals("0") ) || 
+					( hideBanned && banned.equals("1") )
+					)) {
+				users.put(websiteUuidToJavaUuid(uuid), username);
 			}
-			
-			if (hideBanned && banned == 1) {
-				return;
-			}
-			
-			users.put(websiteUuidToJavaUuid(uuid), username);
 		});
 		
 		return users;
