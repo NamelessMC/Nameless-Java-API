@@ -166,7 +166,11 @@ public class Request {
 					responseBuilder.append(responseString);
 
 				JsonParser parser = new JsonParser();
-
+				
+				if (NamelessAPI.DEBUG_MODE) {
+					System.out.println(String.format("NamelessAPI > Response: %s", responseBuilder.toString()));
+				}
+				
 				response = parser.parse(responseBuilder.toString()).getAsJsonObject();
 
 				inputStream.close();
