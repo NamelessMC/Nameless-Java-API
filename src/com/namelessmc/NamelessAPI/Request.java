@@ -92,7 +92,7 @@ public class Request {
 
 		if (NamelessAPI.DEBUG_MODE) {
 			System.out.println(String.format("NamelessAPI > Making %s request (%s", action.toString(), method.toString()));
-			System.out.println(String.format("NamelessAPI > URL: %", url));
+			System.out.println(String.format("NamelessAPI > URL: %s", url));
 			System.out.println(String.format("NamelessAPI > Parameters: %s", parameters));
 		}
 
