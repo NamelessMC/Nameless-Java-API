@@ -174,6 +174,7 @@ public final class NamelessAPI {
 			final String banned = userJsonElement.getAsJsonObject().get("banned").getAsString();
 			
 			if (!(
+					uuid.equals("none") ||
 					( hideInactive && active.equals("0") ) || 
 					( hideBanned && banned.equals("1") )
 					)) {
