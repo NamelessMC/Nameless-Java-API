@@ -91,9 +91,9 @@ public class Request {
 	public void connect() throws NamelessException {
 
 		if (NamelessAPI.DEBUG_MODE) {
-			System.out.printf("NamelessAPI > Making %s request (%s)\n", action.toString(), method.toString());
-			System.out.printf("NamelessAPI > URL: %s\n", url);
-			System.out.printf("NamelessAPI > Parameters: %s\n", parameters);
+			System.out.println(String.format("NamelessAPI > Making %s request (%s", action.toString(), method.toString()));
+			System.out.println(String.format("NamelessAPI > URL: %", url));
+			System.out.println(String.format("NamelessAPI > Parameters: %s", parameters));
 		}
 
 		try {
