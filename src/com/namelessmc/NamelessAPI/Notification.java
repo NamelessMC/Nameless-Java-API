@@ -1,29 +1,29 @@
 package com.namelessmc.NamelessAPI;
 
 public class Notification {
-	
-	private String message;
-	private String url;
-	private NotificationType type;
-	
-	public Notification(String message, String url, NotificationType type) {
+
+	private final String message;
+	private final String url;
+	private final NotificationType type;
+
+	public Notification(final String message, final String url, final NotificationType type) {
 		this.message = message;
 		this.url = url;
 		this.type = type;
 	}
-	
+
 	public String getMessage() {
-		return message;
+		return this.message;
 	}
-	
+
 	public String getUrl() {
-		return url;
+		return this.url;
 	}
-	
+
 	public NotificationType getType() {
-		return type;
+		return this.type;
 	}
-	
+
 	public static enum NotificationType {
 
 		TAG,
@@ -32,12 +32,18 @@ public class Notification {
 		PROFILE_COMMENT,
 		COMMENT_REPLY,
 		THREAD_REPLY,
-		FOLLOW;
-		
-		public static NotificationType fromString(String string) {
-			return NotificationType.valueOf(string.replace('-', '_').toUpperCase());
+		FOLLOW,
+
+		UNKNOWN;
+
+		public static NotificationType fromString(final String string) {
+			try {
+				return NotificationType.valueOf(string.replace('-', '_').toUpperCase());
+			} catch (final IllegalArgumentException e) {
+				return NotificationType.UNKNOWN;
+			}
 		}
-		
+
 	}
 
 }
