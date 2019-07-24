@@ -22,15 +22,17 @@ import com.google.gson.JsonParser;
 public class Request {
 
 	private URL url;
-	private RequestMethod method;
-	private String parameters;
-	private Action action;
+	private final RequestMethod method;
+	private final String parameters;
+	private final Action action;
+	private final String userAgent;
 
 	private JsonObject response;
 	private boolean hasError;
 	private int errorCode = -1;
 
-	public Request(URL baseUrl, Action action, String... parameters) {
+	public Request(final URL baseUrl, final String userAgent, final Action action, final String... parameters) {
+		this.userAgent = userAgent;
 		this.action = action;
 		this.method = action.method;
 		this.parameters = String.join("&", parameters);
@@ -55,123 +57,124 @@ public class Request {
 			
 			if (action.method == RequestMethod.GET){
 				if (parameters.length > 0) {
-					char prefix = baseUrl.toString().contains("?") ? '&' : '?';
-					url = new URL(base + action.toString() + prefix + this.parameters);
+					final char prefix = baseUrl.toString().contains("?") ? '&' : '?';
+					this.url = new URL(base + action.toString() + prefix + this.parameters);
 				} else {
-					url = new URL(base + action.toString());
+					this.url = new URL(base + action.toString());
 				}
 			}
 			
 			if (action.method == RequestMethod.POST) {
-				url = new URL(base + action.toString());
+				this.url = new URL(base + action.toString());
 			}
-		} catch (MalformedURLException e) {
-			IllegalArgumentException ex = new IllegalArgumentException("URL is malformed (" + e.getMessage() + ")");
+		} catch (final MalformedURLException e) {
+			final IllegalArgumentException ex = new IllegalArgumentException("URL is malformed (" + e.getMessage() + ")");
 			ex.initCause(e);
 			throw ex;
 		}
 	}
 
 	public boolean hasError() {
-		return hasError;
+		return this.hasError;
 	}
 
 	public int getError() throws NamelessException {
-		if (!hasError) {
+		if (!this.hasError)
 			throw new NamelessException("Requested error code but there is no error.");
-		}
 
-		return errorCode;
+		return this.errorCode;
 	}
 
 	public JsonObject getResponse() throws NamelessException {
-		return response;
+		return this.response;
 	}
 
 	public void connect() throws NamelessException {
 
 		if (NamelessAPI.DEBUG_MODE) {
-			System.out.println(String.format("NamelessAPI > Making %s request (%s", action.toString(), method.toString()));
-			System.out.println(String.format("NamelessAPI > URL: %s", url));
-			System.out.println(String.format("NamelessAPI > Parameters: %s", parameters));
+			System.out.println(String.format("NamelessAPI > Making %s request (%s", this.action.toString(), this.method.toString()));
+			System.out.println(String.format("NamelessAPI > URL: %s", this.url));
+			System.out.println(String.format("NamelessAPI > Parameters: %s", this.parameters));
 		}
 
 		try {
-			if (url.toString().startsWith("https://")){
-				HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+			if (this.url.toString().startsWith("https://")){
+				final HttpsURLConnection connection = (HttpsURLConnection) this.url.openConnection();
 
-				connection.setRequestMethod(method.toString());
-				connection.setRequestProperty("Content-Length", Integer.toString(parameters.length()));
+				connection.setRequestMethod(this.method.toString());
+				connection.setRequestProperty("Content-Length", Integer.toString(this.parameters.length()));
 				connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-				connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
+				connection.addRequestProperty("User-Agent", this.userAgent);
 
 				// If request method is POST, send parameters. Otherwise, they're already included in the URL
-				if (action.method == RequestMethod.POST) {
+				if (this.action.method == RequestMethod.POST) {
 					connection.setDoOutput(true);
-					DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-					writer.write(parameters);
+					final DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+					final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+					writer.write(this.parameters);
 					writer.flush();
 					writer.close();
 					outputStream.close();
 				}
 
 				// Initialize input stream
-				InputStream inputStream = connection.getInputStream();
+				final InputStream inputStream = connection.getInputStream();
 
 				// Handle response
-				BufferedReader streamReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-				StringBuilder responseBuilder = new StringBuilder();
+				final BufferedReader streamReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+				final StringBuilder responseBuilder = new StringBuilder();
 
 				String responseString;
-				while ((responseString = streamReader.readLine()) != null)
+				while ((responseString = streamReader.readLine()) != null) {
 					responseBuilder.append(responseString);
+				}
 
-				JsonParser parser = new JsonParser();
+				final JsonParser parser = new JsonParser();
 
-				response = parser.parse(responseBuilder.toString()).getAsJsonObject();
+				this.response = parser.parse(responseBuilder.toString()).getAsJsonObject();
 
 				inputStream.close();
 
 				// Disconnect
 				connection.disconnect();
 			} else {
-				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+				final HttpURLConnection connection = (HttpURLConnection) this.url.openConnection();
 
-				connection.setRequestMethod(method.toString());
-				connection.setRequestProperty("Content-Length", Integer.toString(parameters.length()));
+				connection.setRequestMethod(this.method.toString());
+				connection.setRequestProperty("Content-Length", Integer.toString(this.parameters.length()));
 				connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-				connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
+				connection.addRequestProperty("User-Agent", this.userAgent);
 
 				// If request method is POST, send parameters. Otherwise, they're already included in the URL
-				if (action.method == RequestMethod.POST) {
+				if (this.action.method == RequestMethod.POST) {
 					connection.setDoOutput(true);
-					DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-					writer.write(parameters);
+					final DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+					final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+					writer.write(this.parameters);
 					writer.flush();
 					writer.close();
 					outputStream.close();
 				}
 
 				// Initialize input stream
-				InputStream inputStream = connection.getInputStream();
+				final InputStream inputStream = connection.getInputStream();
 
 				// Handle response
-				BufferedReader streamReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-				StringBuilder responseBuilder = new StringBuilder();
+				final BufferedReader streamReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+				final StringBuilder responseBuilder = new StringBuilder();
 
 				String responseString;
-				while ((responseString = streamReader.readLine()) != null)
+				while ((responseString = streamReader.readLine()) != null) {
 					responseBuilder.append(responseString);
+				}
 
-				JsonParser parser = new JsonParser();
+				final JsonParser parser = new JsonParser();
 				
 				if (NamelessAPI.DEBUG_MODE) {
 					System.out.println(String.format("NamelessAPI > Response: %s", responseBuilder.toString()));
 				}
 				
-				response = parser.parse(responseBuilder.toString()).getAsJsonObject();
+				this.response = parser.parse(responseBuilder.toString()).getAsJsonObject();
 
 				inputStream.close();
 
@@ -179,11 +182,11 @@ public class Request {
 				connection.disconnect();
 			}
 
-			hasError = response.get("error").getAsBoolean();
-			if (hasError) {
-				errorCode = response.get("code").getAsInt();
+			this.hasError = this.response.get("error").getAsBoolean();
+			if (this.hasError) {
+				this.errorCode = this.response.get("code").getAsInt();
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new NamelessException(e);
 		}
 	}
@@ -206,14 +209,14 @@ public class Request {
 		RequestMethod method;
 		String name;
 
-		Action(String name, RequestMethod method){
+		Action(final String name, final RequestMethod method){
 			this.name = name;
 			this.method = method;
 		}
 
 		@Override
 		public String toString() {
-			return name;
+			return this.name;
 		}
 		
 		/*@Override

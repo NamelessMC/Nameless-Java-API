@@ -15,19 +15,25 @@ import com.namelessmc.NamelessAPI.Request.Action;
 import com.namelessmc.NamelessAPI.Website.Update;
 
 public final class NamelessAPI {
+	
+	private static final String DEFAULT_USER_AGENT = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)";
 
 	public static boolean DEBUG_MODE = false;
 	
-	private URL apiUrl;
+	private final URL apiUrl;
+	
+	private String userAgent = null;
 	
 	/**
-	 * 
 	 * @param apiUrl URL of API to connect to
 	 * @param debug If debug is set to true, debug messages are enabled for <i>every</i> NamelessAPI instance.
 	 */
-	public NamelessAPI(URL apiUrl, boolean debug) {
-		if (debug) DEBUG_MODE = true;
+	public NamelessAPI(final URL apiUrl, final boolean debug) {
+		if (debug) {
+			DEBUG_MODE = true;
+		}
 		this.apiUrl = apiUrl;
+		this.userAgent = DEFAULT_USER_AGENT;
 	}
 	
 	/**
@@ -41,18 +47,17 @@ public final class NamelessAPI {
 	 */
 	public NamelessException checkWebAPIConnection() {		
 		try {
-			Request request = new Request(apiUrl, Action.INFO);
+			final Request request = new Request(this.apiUrl, this.userAgent,  Action.INFO);
 			request.connect();
 			
 			if (request.hasError()) throw new ApiError(request.getError());
 			
-			JsonObject response = request.getResponse();
-			if (response.has("nameless_version")) {
+			final JsonObject response = request.getResponse();
+			if (response.has("nameless_version"))
 				return null;
-			} else {
+			else
 				return new NamelessException("Invalid respose: " + response.getAsString());
-			}
-		} catch (NamelessException e) {
+		} catch (final NamelessException e) {
 			return e;
 		}
 	}
@@ -63,19 +68,19 @@ public final class NamelessAPI {
 	 * @throws NamelessException if there is an error in the request
 	 */
 	public List<Announcement> getAnnouncements() throws NamelessException {
-		Request request = new Request(apiUrl, Action.GET_ANNOUNCEMENTS);
+		final Request request = new Request(this.apiUrl, this.userAgent,  Action.GET_ANNOUNCEMENTS);
 		request.connect();
 		
 		if (request.hasError()) throw new ApiError(request.getError());
 		
-		List<Announcement> announcements = new ArrayList<>();
+		final List<Announcement> announcements = new ArrayList<>();
 		
-		JsonObject object = request.getResponse();
+		final JsonObject object = request.getResponse();
 		object.getAsJsonArray().forEach((element) -> {
-			JsonObject announcementJson = element.getAsJsonObject();
-			String content = announcementJson.get("content").getAsString();
-			String[] display = jsonToArray(announcementJson.get("display").getAsJsonArray());
-			String[] permissions = jsonToArray(announcementJson.get("permissions").getAsJsonArray());
+			final JsonObject announcementJson = element.getAsJsonObject();
+			final String content = announcementJson.get("content").getAsString();
+			final String[] display = jsonToArray(announcementJson.get("display").getAsJsonArray());
+			final String[] permissions = jsonToArray(announcementJson.get("permissions").getAsJsonArray());
 			announcements.add(new Announcement(content, display, permissions));
 		});
 		
@@ -88,49 +93,49 @@ public final class NamelessAPI {
 	 * @return list of current announcements visible to the player
 	 * @throws NamelessException if there is an error in the request
 	 */
-	public List<Announcement> getAnnouncements(UUID uuid) throws NamelessException {
-		Request request = new Request(apiUrl, Action.GET_ANNOUNCEMENTS, new ParameterBuilder().add("uuid", uuid).build());
+	public List<Announcement> getAnnouncements(final UUID uuid) throws NamelessException {
+		final Request request = new Request(this.apiUrl, this.userAgent, Action.GET_ANNOUNCEMENTS, new ParameterBuilder().add("uuid", uuid).build());
 		request.connect();
 		
 		if (request.hasError()) throw new ApiError(request.getError());
 		
-		List<Announcement> announcements = new ArrayList<>();
+		final List<Announcement> announcements = new ArrayList<>();
 		
 		request.getResponse().get("announcements").getAsJsonArray().forEach((element) -> {
-			JsonObject announcementJson = element.getAsJsonObject();
-			String content = announcementJson.get("content").getAsString();
-			String[] display = jsonToArray(announcementJson.get("display").getAsJsonArray());
-			String[] permissions = jsonToArray(announcementJson.get("permissions").getAsJsonArray());
+			final JsonObject announcementJson = element.getAsJsonObject();
+			final String content = announcementJson.get("content").getAsString();
+			final String[] display = jsonToArray(announcementJson.get("display").getAsJsonArray());
+			final String[] permissions = jsonToArray(announcementJson.get("permissions").getAsJsonArray());
 			announcements.add(new Announcement(content, display, permissions));
 		});
 		
 		return announcements;
 	}
 	
-	public void submitServerInfo(String jsonData) throws NamelessException {
-		Request request = new Request(apiUrl, Action.SERVER_INFO, new ParameterBuilder().add("info", jsonData).build());
+	public void submitServerInfo(final String jsonData) throws NamelessException {
+		final Request request = new Request(this.apiUrl, this.userAgent, Action.SERVER_INFO, new ParameterBuilder().add("info", jsonData).build());
 		request.connect();
 		if (request.hasError()) throw new ApiError(request.getError());
 	}
 	
 	public Website getWebsite() throws NamelessException {
-		Request request = new Request(apiUrl, Action.INFO);
+		final Request request = new Request(this.apiUrl, this.userAgent, Action.INFO);
 		request.connect();
 		
 		if (request.hasError()) throw new ApiError(request.getError());
 		
-		JsonObject json = request.getResponse();
+		final JsonObject json = request.getResponse();
 		
-		String version = json.get("nameless_version").getAsString();
+		final String version = json.get("nameless_version").getAsString();
 		
-		String[] modules = jsonToArray(json.get("modules").getAsJsonArray());
+		final String[] modules = jsonToArray(json.get("modules").getAsJsonArray());
 		
-		JsonObject updateJson = json.get("version_update").getAsJsonObject();
-		boolean updateAvailable = updateJson.get("update").getAsBoolean();
+		final JsonObject updateJson = json.get("version_update").getAsJsonObject();
+		final boolean updateAvailable = updateJson.get("update").getAsBoolean();
 		Update update;
 		if (updateAvailable) {
-			String updateVersion = updateJson.get("version").getAsString();
-			boolean isUrgent = updateJson.get("urgent").getAsBoolean();
+			final String updateVersion = updateJson.get("version").getAsString();
+			final boolean isUrgent = updateJson.get("urgent").getAsBoolean();
 			update = new Update(isUrgent, updateVersion);
 		} else {
 			update = null;
@@ -140,32 +145,30 @@ public final class NamelessAPI {
 		
 	}
 	
-	public boolean validateUser(UUID uuid, String code) throws NamelessException {
-		String[] parameters = new ParameterBuilder().add("uuid", uuid.toString()).add("code", code).build();
-		Request request = new Request(apiUrl, Action.VALIDATE_USER, parameters);
+	public boolean validateUser(final UUID uuid, final String code) throws NamelessException {
+		final String[] parameters = new ParameterBuilder().add("uuid", uuid.toString()).add("code", code).build();
+		final Request request = new Request(this.apiUrl, this.userAgent, Action.VALIDATE_USER, parameters);
 		request.connect();
 		if (request.hasError()) {
-			int errorCode = request.getError();
-			if (errorCode == 28) {
+			final int errorCode = request.getError();
+			if (errorCode == 28)
 				return false;
-			}
 			throw new ApiError(errorCode);
 		}
 		return true;
 	}
 	
-	public NamelessPlayer getPlayer(UUID uuid) throws NamelessException {
-		return new NamelessPlayer(uuid, apiUrl);
+	public NamelessPlayer getPlayer(final UUID uuid) throws NamelessException {
+		return new NamelessPlayer(uuid, this.apiUrl, this.userAgent);
 	}
 	
-	public Map<UUID, String> getRegisteredUsers(boolean hideInactive, boolean hideBanned) throws NamelessException {
-		Request request = new Request(apiUrl, Action.LIST_USERS);
+	public Map<UUID, String> getRegisteredUsers(final boolean hideInactive, final boolean hideBanned) throws NamelessException {
+		final Request request = new Request(this.apiUrl, this.userAgent, Action.LIST_USERS);
 		request.connect();
-		if (request.hasError()) {
+		if (request.hasError())
 			throw new ApiError(request.getError());
-		}
 		
-		Map<UUID, String> users = new HashMap<>();
+		final Map<UUID, String> users = new HashMap<>();
 		
 		request.getResponse().get("users").getAsJsonArray().forEach(userJsonElement -> {
 			final String uuid = userJsonElement.getAsJsonObject().get("uuid").getAsString();
@@ -185,32 +188,44 @@ public final class NamelessAPI {
 		return users;
 	}
 	
-	public List<NamelessPlayer> getRegisteredUsersAsNamelessPlayerList(boolean hideInactive, boolean hideBanned) throws NamelessException {
-		Map<UUID, String> users = getRegisteredUsers(hideInactive, hideBanned);
-		List<NamelessPlayer> namelessPlayers = new ArrayList<>();
+	public List<NamelessPlayer> getRegisteredUsersAsNamelessPlayerList(final boolean hideInactive, final boolean hideBanned) throws NamelessException {
+		final Map<UUID, String> users = this.getRegisteredUsers(hideInactive, hideBanned);
+		final List<NamelessPlayer> namelessPlayers = new ArrayList<>();
 		
-		for (UUID userUuid : users.keySet()) {
+		for (final UUID userUuid : users.keySet()) {
 			namelessPlayers.add(this.getPlayer(userUuid));
 		}
 		
 		return namelessPlayers;
 	}
 	
-	static String encode(Object object) {
+	public void setUserAgent(final String userAgent) {
+		this.userAgent = userAgent;
+	}
+	
+	/**
+	 * 
+	 * @return Configured user agent or {@code null} if not configured.
+	 */
+	public String getUserAgent() {
+		return this.userAgent;
+	}
+	
+	static String encode(final Object object) {
 		try {
 			return URLEncoder.encode(object.toString(), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
+		} catch (final UnsupportedEncodingException e) {
 			throw new RuntimeException(e.getMessage());
 		}
 	}
 	
-	static String[] jsonToArray(JsonArray jsonArray) {
-		List<String> list = new ArrayList<>();
+	static String[] jsonToArray(final JsonArray jsonArray) {
+		final List<String> list = new ArrayList<>();
 		jsonArray.iterator().forEachRemaining((element) -> list.add(element.getAsString()));
 		return list.toArray(new String[] {});
 	}
 	
-	static UUID websiteUuidToJavaUuid(String uuid) {
+	static UUID websiteUuidToJavaUuid(final String uuid) {
 		// Add dashes to uuid
 		// https://bukkit.org/threads/java-adding-dashes-back-to-minecrafts-uuids.272746/
 		StringBuffer sb = new StringBuffer(uuid);
