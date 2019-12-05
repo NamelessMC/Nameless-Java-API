@@ -36,36 +36,14 @@ public class Request {
 		this.action = action;
 		this.method = action.method;
 		this.parameters = String.join("&", parameters);
-		
+
 		try {
-			/*
-			 * If the url contains a question mark, it's most likely not a friendly url.
-			 * Friendly urls have the normal url as a parameter like this:
-			 * https://example.com/index.php?route=/api/v2/key/action
-			 * Parameters should be added after the route parameter (&param1=value1&param2=value2)
-			 * 
-			 * If the url does not contain a question mark, it's most likely a friendly url
-			 * https://example.com/api/v2/key/action
-			 * Parameters need to be prefixed with a question mark (?param1&value1&param2=value2)
-			 * 
-			 * For post method, parameters need to be sent like this: param1=value1&param2=value2
-			 * regardless of the friendly url option.
-			 */
-			
-			String base = baseUrl.toString();
-			base = base.endsWith("/") ? base : base + "/"; // Append trailing slash if not present
-			
-			if (action.method == RequestMethod.GET){
-				if (parameters.length > 0) {
-					final char prefix = baseUrl.toString().contains("?") ? '&' : '?';
-					this.url = new URL(base + action.toString() + prefix + this.parameters);
-				} else {
-					this.url = new URL(base + action.toString());
-				}
-			}
-			
-			if (action.method == RequestMethod.POST) {
-				this.url = new URL(base + action.toString());
+			final String base = baseUrl.toString() + "/" + action.toString();
+
+			if (action.method == RequestMethod.GET && parameters.length > 0) {
+				this.url = new URL(base + "&" + this.parameters);
+			} else {
+				this.url = new URL(base);
 			}
 		} catch (final MalformedURLException e) {
 			final IllegalArgumentException ex = new IllegalArgumentException("URL is malformed (" + e.getMessage() + ")");
@@ -79,8 +57,9 @@ public class Request {
 	}
 
 	public int getError() throws NamelessException {
-		if (!this.hasError)
+		if (!this.hasError) {
 			throw new NamelessException("Requested error code but there is no error.");
+		}
 
 		return this.errorCode;
 	}
@@ -169,11 +148,11 @@ public class Request {
 				}
 
 				final JsonParser parser = new JsonParser();
-				
+
 				if (NamelessAPI.DEBUG_MODE) {
 					System.out.println(String.format("NamelessAPI > Response: %s", responseBuilder.toString()));
 				}
-				
+
 				this.response = parser.parse(responseBuilder.toString()).getAsJsonObject();
 
 				inputStream.close();
@@ -191,7 +170,7 @@ public class Request {
 		}
 	}
 
-	public static enum Action {
+	public enum Action {
 
 		INFO("info", GET),
 		GET_ANNOUNCEMENTS("getAnnouncements", GET),
@@ -218,7 +197,7 @@ public class Request {
 		public String toString() {
 			return this.name;
 		}
-		
+
 		/*@Override
 		public String toString() {
 			List<String> list = Arrays.asList(super.toString().split("_"));
@@ -230,7 +209,7 @@ public class Request {
 
 	}
 
-	public static enum RequestMethod {
+	public enum RequestMethod {
 
 		GET, POST
 
