@@ -210,7 +210,11 @@ public final class NamelessAPI {
 					hideInactive && active.equals("0") ||
 					hideBanned && banned.equals("1")
 					)) {
-				users.put(websiteUuidToJavaUuid(uuid), username);
+				try {
+					users.put(websiteUuidToJavaUuid(uuid), username);
+				} catch (final StringIndexOutOfBoundsException e) {
+					System.err.println("NamelessMC API - Skipped user with invalid UUID '" + uuid + "' (username: '" + username + "')");
+				}
 			}
 		});
 
