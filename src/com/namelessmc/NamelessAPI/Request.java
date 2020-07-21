@@ -177,7 +177,7 @@ public class Request {
 		REGISTER("register", POST),
 		USER_INFO("userInfo", GET),
 		SET_GROUP("setGroup", POST),
-		SET_DISCORD_ID("setDiscordId", POST)
+		SET_DISCORD_ID("setDiscordId", POST),
 		CREATE_REPORT("createReport", POST),
 		GET_NOTIFICATIONS("getNotifications", GET),
 		SERVER_INFO("serverInfo", POST),
