@@ -44,14 +44,17 @@ public final class NamelessPlayer {
 	private void init(final Request request) throws NamelessException {
 		request.connect();
 		
-		if (request.hasError()) throw new ApiError(request.getError());
+		if (request.hasError()) {
+			throw new ApiError(request.getError());
+		}
 		
 		final JsonObject response = request.getResponse();
 		
 		this.exists = response.get("exists").getAsBoolean();
 		
-		if (!this.exists)
+		if (!this.exists) {
 			return;
+		}
 
 		// Convert UNIX timestamp to date
 		final Date registered = new Date(Long.parseLong(response.get("registered").toString().replaceAll("^\"|\"$", "")) * 1000);
@@ -90,8 +93,9 @@ public final class NamelessPlayer {
 	 * @see #getDisplayName()
 	 */
 	public String getUsername() {
-		if (!this.exists)
+		if (!this.exists) {
 			throw new UnsupportedOperationException("This player does not exist.");
+		}
 		
 		return this.userName;
 	}
@@ -101,8 +105,9 @@ public final class NamelessPlayer {
 	 * @see #getUsername()
 	 */
 	public String getDisplayName() {
-		if (!this.exists)
+		if (!this.exists) {
 			throw new UnsupportedOperationException("This player does not exist.");
+		}
 		
 		return this.displayName;
 	}
@@ -119,8 +124,9 @@ public final class NamelessPlayer {
 	 * @return A numerical group id.
 	 */
 	public int getGroupID() {
-		if (!this.exists)
+		if (!this.exists) {
 			throw new UnsupportedOperationException("This player does not exist.");
+		}
 		
 		return this.groupID;
 	}
@@ -129,8 +135,9 @@ public final class NamelessPlayer {
 	 * @return The user's primary group name
 	 */
 	public String getGroupName() {
-		if (!this.exists)
+		if (!this.exists) {
 			throw new UnsupportedOperationException("This player does not exist.");
+		}
 
 		return this.groupName;
 	}
@@ -139,8 +146,9 @@ public final class NamelessPlayer {
 	 * @return The user's site reputation.
 	 */
 	public int getReputation() {
-		if (!this.exists)
+		if (!this.exists) {
 			throw new UnsupportedOperationException("This player does not exist.");
+		}
 		
 		return this.reputation;
 	}
@@ -149,8 +157,9 @@ public final class NamelessPlayer {
 	 * @return The date the user registered on the website.
 	 */
 	public Date getRegisteredDate() {
-		if (!this.exists)
+		if (!this.exists) {
 			throw new UnsupportedOperationException("This player does not exist.");
+		}
 		
 		return this.registeredDate;
 	}
@@ -159,7 +168,7 @@ public final class NamelessPlayer {
 	 * @return Whether an account associated with the UUID exists.
 	 * @see #getUniqueId()
 	 */
-	public boolean exists() {	
+	public boolean exists() {
 		return this.exists;
 	}
 
@@ -167,8 +176,9 @@ public final class NamelessPlayer {
 	 * @return Whether this account has been validated. An account is validated when a password is set.
 	 */
 	public boolean isValidated() {
-		if (!this.exists)
+		if (!this.exists) {
 			throw new UnsupportedOperationException("This player does not exist.");
+		}
 		
 		return this.validated;
 	}
@@ -177,8 +187,9 @@ public final class NamelessPlayer {
 	 * @return Whether this account is banned from the website.
 	 */
 	public boolean isBanned() {
-		if (!this.exists)
+		if (!this.exists) {
 			throw new UnsupportedOperationException("This player does not exist.");
+		}
 		
 		return this.banned;
 	}
@@ -186,8 +197,8 @@ public final class NamelessPlayer {
 	/**
 	 * @param code
 	 * @return True if the user could be validated successfully, false if the provided code is wrong
-	 * @throws NamelessException 
-	 * @throws  
+	 * @throws NamelessException
+	 * @throws
 	 */
 	public boolean validate(final String code) throws NamelessException {
 		final String[] params = new ParameterBuilder()
@@ -197,19 +208,23 @@ public final class NamelessPlayer {
 		request.connect();
 		
 		if (request.hasError()) {
-			if (request.getError() == ApiError.INVALID_VALIDATE_CODE)
+			if (request.getError() == ApiError.INVALID_VALIDATE_CODE) {
 				return false;
-			else
+			} else {
 				throw new ApiError(request.getError());
-		} else
+			}
+		} else {
 			return true;
+		}
 	}
 	
 	public List<Notification> getNotifications() throws NamelessException {
 		final Request request = new Request(this.baseUrl, this.userAgent, Action.GET_NOTIFICATIONS, new ParameterBuilder().add("uuid", this.uuid).build());
 		request.connect();
 		
-		if (request.hasError()) throw new ApiError(request.getError());
+		if (request.hasError()) {
+			throw new ApiError(request.getError());
+		}
 		
 		final List<Notification> notifications = new ArrayList<>();
 		
@@ -233,7 +248,9 @@ public final class NamelessPlayer {
 		final String[] parameters = new ParameterBuilder().add("uuid", this.uuid).add("group_id", groupId).build();
 		final Request request = new Request(this.baseUrl, this.userAgent,  Action.SET_GROUP, parameters);
 		request.connect();
-		if (request.hasError()) throw new ApiError(request.getError());
+		if (request.hasError()) {
+			throw new ApiError(request.getError());
+		}
 	}
 	
 	/**
@@ -249,14 +266,17 @@ public final class NamelessPlayer {
 		final Request request = new Request(this.baseUrl, this.userAgent,  Action.REGISTER, parameters);
 		request.connect();
 		
-		if (request.hasError()) throw new ApiError(request.getError());
+		if (request.hasError()) {
+			throw new ApiError(request.getError());
+		}
 		
 		final JsonObject response = request.getResponse();
 		
-		if (response.has("link"))
+		if (response.has("link")) {
 			return response.get("link").getAsString();
-		else
+		} else {
 			return "";
+		}
 	}
 
 	/**
@@ -266,7 +286,7 @@ public final class NamelessPlayer {
 	 * @param reason Reason why this player has been reported
 	 * @throws NamelessException
 	 */
-	public void createReport(final UUID reportedUuid, final String reportedUsername, final String reason) throws NamelessException {		
+	public void createReport(final UUID reportedUuid, final String reportedUsername, final String reason) throws NamelessException {
 		final String[] parameters = new ParameterBuilder()
 				.add("reporter_uuid", this.uuid)
 				.add("reported_uuid", reportedUuid)
@@ -275,7 +295,25 @@ public final class NamelessPlayer {
 				.build();
 		final Request request = new Request(this.baseUrl, this.userAgent,  Action.CREATE_REPORT, parameters);
 		request.connect();
-		if (request.hasError()) throw new ApiError(request.getError());
+		if (request.hasError()) {
+			throw new ApiError(request.getError());
+		}
+	}
+	
+	public void verifyDiscord(final String verificationToken) {
+		throw new UnsupportedOperationException("Not yet implemented"); // TODO
+	}
+	
+	public void setDiscordId(final long discordId) {
+		throw new UnsupportedOperationException("Not yet implemented"); // TODO
+	}
+	
+	public void setDiscordId(final long discordId) {
+		throw new UnsupportedOperationException("Not yet implemented"); // TODO
+	}
+	
+	public void setDiscordId(final long discordId) {
+		throw new UnsupportedOperationException("Not yet implemented"); // TODO
 	}
 
 }
