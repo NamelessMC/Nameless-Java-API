@@ -33,6 +33,7 @@ public final class NamelessAPI {
 		if (debug) {
 			DEBUG_MODE = true;
 		}
+		
 		this.apiUrl = apiUrl;
 		this.userAgent = DEFAULT_USER_AGENT;
 	}
@@ -230,6 +231,10 @@ public final class NamelessAPI {
 		}
 
 		return namelessPlayers;
+	}
+	
+	public void submitRankList(final List<String> rankNames) {
+		
 	}
 
 	public void setUserAgent(final String userAgent) {
