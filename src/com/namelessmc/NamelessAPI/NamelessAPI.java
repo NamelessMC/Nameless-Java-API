@@ -186,9 +186,17 @@ public final class NamelessAPI {
 		}
 		return true;
 	}
-
-	public NamelessPlayer getPlayer(final UUID uuid) throws NamelessException {
-		return new NamelessPlayer(uuid, this.apiUrl, this.userAgent);
+	
+	public NamelessUser getUser(int id) {
+		
+	}
+	
+	public NamelessUser getUser(UUID uuid) {
+		
+	}
+	
+	public NamelessUser getUser(String username) {
+		
 	}
 
 	public Map<UUID, String> getRegisteredUsers(final boolean hideInactive, final boolean hideBanned) throws NamelessException {
@@ -222,9 +230,9 @@ public final class NamelessAPI {
 		return users;
 	}
 
-	public List<NamelessPlayer> getRegisteredUsersAsNamelessPlayerList(final boolean hideInactive, final boolean hideBanned) throws NamelessException {
+	public List<NamelessUser> getRegisteredUsersAsNamelessPlayerList(final boolean hideInactive, final boolean hideBanned) throws NamelessException {
 		final Map<UUID, String> users = this.getRegisteredUsers(hideInactive, hideBanned);
-		final List<NamelessPlayer> namelessPlayers = new ArrayList<>();
+		final List<NamelessUser> namelessPlayers = new ArrayList<>();
 
 		for (final UUID userUuid : users.keySet()) {
 			namelessPlayers.add(this.getPlayer(userUuid));
