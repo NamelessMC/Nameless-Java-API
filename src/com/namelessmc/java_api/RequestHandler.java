@@ -11,7 +11,8 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -27,6 +28,10 @@ public class RequestHandler {
 	}
 	
 	public JsonObject post(final Action action, final String postData) throws NamelessException {
+		if (action.method != RequestMethod.POST) {
+			throw new IllegalArgumentException("Cannot POST to a GET API method");
+		}
+		
 		URL url;
 		try {
 			url = new URL(this.baseUrl.toString() + "/" + action);
@@ -41,17 +46,36 @@ public class RequestHandler {
 		}
 	}
 	
-	public JsonObject get(final Action action, final String... parameters) throws NamelessException {
+	public JsonObject get(final Action action, final Object... parameters) throws NamelessException {
+		if (action.method != RequestMethod.GET) {
+			throw new IllegalArgumentException("Cannot GET a POST API method");
+		}
+		
+		final StringBuilder urlBuilder = new StringBuilder(this.baseUrl.toString());
+		urlBuilder.append("/");
+		urlBuilder.append(action);
+		
+		if (parameters.length > 0) {
+			if (parameters.length % 2 != 0) {
+				throw new IllegalArgumentException("Parameter string varargs array length must be even");
+			}
+			
+			for (int i = 0; i < parameters.length; i++) {
+				if (i % 2 == 0) {
+					urlBuilder.append("&");
+					urlBuilder.append(parameters[i]);
+				} else {
+					urlBuilder.append("=");
+					urlBuilder.append(URLEncoder.encode(parameters[i].toString(), StandardCharsets.UTF_8));
+				}
+			}
+		}
+		
 		URL url;
 		try {
-			final String base = this.baseUrl.toString() + "/" + action;
-			if (parameters != null && !parameters.isEmpty()) {
-				url = new URL(base + "&" + parameters);
-			} else {
-				url = new URL(base);
-			}
+			url = new URL(urlBuilder.toString());
 		} catch (final MalformedURLException e) {
-			throw new NamelessException("Invalid URL or parameter string");
+			throw new NamelessException("Error while building request URL: " + urlBuilder);
 		}
 		
 		try {
@@ -69,7 +93,7 @@ public class RequestHandler {
 		if (postBody != null) {
 			connection.setRequestMethod("POST");
 			final String contentType = postBody.startsWith("[") || postBody.startsWith("{") ? "application/json" : "text/plain";
-			final byte[] encodedMessage = postBody.getBytes(Charset.forName("UTF-8"));
+			final byte[] encodedMessage = postBody.getBytes(StandardCharsets.UTF_8);
 			connection.setRequestProperty("Content-Length", encodedMessage.length + "");
 			connection.setRequestProperty("Content-Type", contentType);
 			connection.setDoOutput(true);
@@ -81,7 +105,7 @@ public class RequestHandler {
 		JsonObject response;
 		
 		try (InputStream in = connection.getInputStream();
-				Reader reader = new InputStreamReader(connection.getInputStream(), Charset.forName("UTF-8"))){
+				Reader reader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)){
 			response = JsonParser.parseReader(reader).getAsJsonObject();
 		}
 
