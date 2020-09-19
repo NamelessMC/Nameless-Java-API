@@ -16,6 +16,7 @@ public final class NamelessUser {
 	private final NamelessAPI api;
 	private final RequestHandler requests;
 	
+	private int id;
 	private String username;
 	private String displayName;
 	private Optional<UUID> uuid;
@@ -38,7 +39,7 @@ public final class NamelessUser {
 		this.api = api;
 		this.requests = api.getRequestHandler();
 		
-		this.init(this.requests.get(Action.USER_INFO, "uuid", uuid.toString()));
+		this.init(this.requests.get(Action.USER_INFO, "uuid", uuid));
 	}
 	
 	NamelessUser(final NamelessAPI api, final String username) throws NamelessException {
@@ -51,8 +52,8 @@ public final class NamelessUser {
 	NamelessUser(final NamelessAPI api, final int id) throws NamelessException {
 		this.api = api;
 		this.requests = api.getRequestHandler();
-		
-		this.init(this.requests.get(Action.USER_INFO, "id", String.valueOf(id)));
+	
+		this.init(this.requests.get(Action.USER_INFO, "id", id));
 	}
 	
 	private void init(final JsonObject response) throws NamelessException {
@@ -65,6 +66,7 @@ public final class NamelessUser {
 		// Convert UNIX timestamp to date
 		final Date registered = new Date(Long.parseLong(response.get("registered").toString().replaceAll("^\"|\"$", "")) * 1000);
 
+		this.id = response.get("id").getAsInt();
 		this.username = response.get("username").getAsString();
 		this.displayName = response.get("displayname").getAsString();
 		if (response.has("uuid")) {
@@ -174,17 +176,10 @@ public final class NamelessUser {
 	}
 	
 	public List<Notification> getNotifications() throws NamelessException {
-		final Request request = new Request(this.baseUrl, this.userAgent, Action.GET_NOTIFICATIONS, new ParameterBuilder().add("uuid", this.uuid).build());
-		request.connect();
-		
-		if (request.hasError()) {
-			throw new ApiError(request.getError());
-		}
+		final JsonObject response = this.requests.get(Action.GET_NOTIFICATIONS, "id", this.id);
 		
 		final List<Notification> notifications = new ArrayList<>();
-		
-		final JsonObject object = request.getResponse();
-		object.getAsJsonArray("notifications").forEach((element) -> {
+		response.getAsJsonArray("notifications").forEach((element) -> {
 			final String message = element.getAsJsonObject().get("message").getAsString();
 			final String url = element.getAsJsonObject().get("url").getAsString();
 			final NotificationType type = NotificationType.fromString(element.getAsJsonObject().get("type").getAsString());
@@ -195,64 +190,42 @@ public final class NamelessUser {
 	}
 	
 	/**
-	 * Sets the players group
-	 * @param groupId Numerical ID associated with a group
-	 * @throws NamelessException
-	 */
-	public void setGroup(final int groupId) throws NamelessException {
-		final String[] parameters = new ParameterBuilder().add("uuid", this.uuid).add("group_id", groupId).build();
-		final Request request = new Request(this.baseUrl, this.userAgent,  Action.SET_GROUP, parameters);
-		request.connect();
-		if (request.hasError()) {
-			throw new ApiError(request.getError());
-		}
-	}
-	
-	/**
-	 * Registers a new account. The player will be sent an email to set a password.
-	 * @param minecraftName In-game name for this player
+	 * Registers a new account. The user will be sent an email to set a password.
+	 * @param username Username
 	 * @param email Email address
 	 * @return Email verification disabled: A link which the user needs to click to complete registration
 	 * <br>Email verification enabled: An empty string (the user needs to check their email to complete registration)
 	 * @throws NamelessException
 	 */
-	public String register(final String minecraftName, final String email) throws NamelessException {
-		final String[] parameters = new ParameterBuilder().add("username", minecraftName).add("uuid", this.uuid).add("email", email).build();
-		final Request request = new Request(this.baseUrl, this.userAgent,  Action.REGISTER, parameters);
-		request.connect();
-		
-		if (request.hasError()) {
-			throw new ApiError(request.getError());
+	public Optional<String> register(final String username, final String email, final Optional<UUID> uuid) throws NamelessException {
+		final JsonObject post = new JsonObject();
+		post.addProperty("username", username);
+		post.addProperty("email", email);
+		if (uuid.isPresent()) {
+			post.addProperty("uuid", uuid.get().toString());
 		}
 		
-		final JsonObject response = request.getResponse();
+		final JsonObject response = this.requests.post(Action.REGISTER, post.toString());
 		
 		if (response.has("link")) {
-			return response.get("link").getAsString();
+			return Optional.of(response.get("link").getAsString());
 		} else {
-			return "";
+			return Optional.empty();
 		}
 	}
 
 	/**
 	 * Reports a player
-	 * @param reportedUuid UUID of the reported player
-	 * @param reportedUsername In-game name of the reported player
+	 * @param username Username of the player or user to report
 	 * @param reason Reason why this player has been reported
 	 * @throws NamelessException
 	 */
-	public void createReport(final UUID reportedUuid, final String reportedUsername, final String reason) throws NamelessException {
-		final String[] parameters = new ParameterBuilder()
-				.add("reporter_uuid", this.uuid)
-				.add("reported_uuid", reportedUuid)
-				.add("reported_username", reportedUsername)
-				.add("content", reason)
-				.build();
-		final Request request = new Request(this.baseUrl, this.userAgent,  Action.CREATE_REPORT, parameters);
-		request.connect();
-		if (request.hasError()) {
-			throw new ApiError(request.getError());
-		}
+	public void createReport(final String username, final String reason) throws NamelessException {
+		final JsonObject post = new JsonObject();
+		post.addProperty("reporter", this.id);
+		post.addProperty("reported", username);
+		post.addProperty("content", reason);
+		this.requests.post(Action.CREATE_REPORT, post.toString());
 	}
 	
 	/**
@@ -262,20 +235,18 @@ public final class NamelessUser {
 	 * @throws
 	 */
 	public boolean verifyMinecraft(final String code) throws NamelessException {
-		final String[] params = new ParameterBuilder()
-				.add("uuid", this.uuid)
-				.add("code", code).build();
-		final Request request = new Request(this.baseUrl, this.userAgent, Action.VALIDATE_USER, params);
-		request.connect();
-		
-		if (request.hasError()) {
-			if (request.getError() == ApiError.INVALID_VALIDATE_CODE) {
+		final JsonObject post = new JsonObject();
+		post.addProperty("id", this.id);
+		post.addProperty("code", code);
+		try {
+			this.requests.post(Action.VERIFY_MINECRAFT, post.toString());
+			return true;
+		} catch (final ApiError e) {
+			if (e.getError() == ApiError.INVALID_VALIDATE_CODE) {
 				return false;
 			} else {
-				throw new ApiError(request.getError());
+				throw e;
 			}
-		} else {
-			return true;
 		}
 	}
 	

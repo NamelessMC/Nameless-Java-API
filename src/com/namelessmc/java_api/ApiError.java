@@ -34,15 +34,15 @@ public class ApiError extends NamelessException {
 	
 	private static final long serialVersionUID = 3093028909912281912L;
 	
-	private int code;
+	private final int code;
 	
-	public ApiError(int code) {
+	public ApiError(final int code) {
 		super("An API error occured with error code " + code);
 		this.code = code;
 	}
 	
-	public int getErrorCode() {
-		return code;
+	public int getError() {
+		return this.code;
 	}
 
 }
