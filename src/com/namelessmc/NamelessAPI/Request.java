@@ -16,6 +16,7 @@ import java.nio.charset.Charset;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+@Deprecated
 public class Request {
 
 	private URL url;

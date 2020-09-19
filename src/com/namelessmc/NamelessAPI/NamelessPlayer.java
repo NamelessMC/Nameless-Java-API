@@ -1,6 +1,5 @@
 package com.namelessmc.NamelessAPI;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,6 +11,8 @@ import com.namelessmc.NamelessAPI.Request.Action;
 
 public final class NamelessPlayer {
 
+	private NamelessAPI api;
+	
 	private String userName;
 	private String displayName;
 	private final UUID uuid;
@@ -23,21 +24,16 @@ public final class NamelessPlayer {
 	private boolean banned;
 	private String groupName;
 	
-	private final URL baseUrl;
-	private final String userAgent;
-	
 	/**
 	 * Creates a new NamelessPlayer object. This constructor should not be called in the main server thread.
 	 * @param uuid
 	 * @param baseUrl Base API URL: <i>http(s)://yoursite.com/api/v2/API_KEY<i>
 	 * @throws NamelessException
 	 */
-	NamelessPlayer(final UUID uuid, final URL baseUrl, final String userAgent) throws NamelessException {
+	NamelessPlayer(final NamelessAPI api, final UUID uuid) throws NamelessException {
 		this.uuid = uuid;
-		this.baseUrl = baseUrl;
-		this.userAgent = userAgent;
 		
-		final Request request = new Request(baseUrl, userAgent, Action.USER_INFO, new ParameterBuilder().add("uuid", uuid).build());
+		final Request request = new Request(this.baseUrl, this.userAgent, Action.USER_INFO, new ParameterBuilder().add("uuid", uuid).build());
 		this.init(request);
 	}
 	
