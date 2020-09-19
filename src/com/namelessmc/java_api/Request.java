@@ -1,7 +1,7 @@
-package com.namelessmc.NamelessAPI;
+package com.namelessmc.java_api;
 
-import static com.namelessmc.NamelessAPI.Request.RequestMethod.GET;
-import static com.namelessmc.NamelessAPI.Request.RequestMethod.POST;
+import static com.namelessmc.java_api.Request.RequestMethod.GET;
+import static com.namelessmc.java_api.Request.RequestMethod.POST;
 
 import java.io.IOException;
 import java.io.InputStream;

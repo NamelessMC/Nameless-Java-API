@@ -1,4 +1,4 @@
-package com.namelessmc.NamelessAPI;
+package com.namelessmc.java_api;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.UUID;
 
 import com.google.gson.JsonObject;
-import com.namelessmc.NamelessAPI.Notification.NotificationType;
-import com.namelessmc.NamelessAPI.Request.Action;
+import com.namelessmc.java_api.Notification.NotificationType;
+import com.namelessmc.java_api.Request.Action;
 
 public final class NamelessPlayer {
 

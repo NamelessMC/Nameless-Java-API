@@ -1,4 +1,4 @@
-package com.namelessmc.NamelessAPI;
+package com.namelessmc.java_api;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -12,8 +12,8 @@ import java.util.UUID;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.namelessmc.NamelessAPI.Request.Action;
-import com.namelessmc.NamelessAPI.Website.Update;
+import com.namelessmc.java_api.Request.Action;
+import com.namelessmc.java_api.Website.Update;
 
 public final class NamelessAPI {
 
