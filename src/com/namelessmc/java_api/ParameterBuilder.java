@@ -7,33 +7,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 public class ParameterBuilder {
 	
-	private Map<String, String> parameters;
+	private final Map<String, String> parameters;
 	
 	public ParameterBuilder() {
-		parameters = new HashMap<>();
+		this.parameters = new HashMap<>();
 	}
 	
-	public ParameterBuilder add(String key, Object value) {
-		parameters.put(key, value.toString());
+	public ParameterBuilder add(final String key, final Object value) {
+		this.parameters.put(key, value.toString());
 		return this;
 	}
 	
 	public String[] build() {
-		List<String> parameterStrings = new ArrayList<>();
+		final List<String> parameterStrings = new ArrayList<>();
 		
-		parameters.entrySet().forEach((entry) -> {
+		this.parameters.entrySet().forEach((entry) -> {
 			parameterStrings.add(entry.getKey() + "=" + encode(entry.getValue()));
 		});
 		
 		return parameterStrings.toArray(new String[] {});
 	}
 	
-	private static String encode(Object object) {
+	private static String encode(final Object object) {
 		try {
 			return URLEncoder.encode(object.toString(), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
+		} catch (final UnsupportedEncodingException e) {
 			throw new RuntimeException(e.getMessage());
 		}
 	}

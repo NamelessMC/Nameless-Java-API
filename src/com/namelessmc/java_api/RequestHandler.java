@@ -21,7 +21,7 @@ public class RequestHandler {
 	private final URL baseUrl;
 	private final String userAgent;
 	
-	RequestHandler(final URL baseUrl, final String userAgent){
+	RequestHandler(final URL baseUrl, final String userAgent, final boolean debug) {
 		this.baseUrl = baseUrl;
 		this.userAgent = userAgent;
 	}
@@ -41,7 +41,7 @@ public class RequestHandler {
 		}
 	}
 	
-	public JsonObject get(final Action action, final String parameters) throws NamelessException {
+	public JsonObject get(final Action action, final String... parameters) throws NamelessException {
 		URL url;
 		try {
 			final String base = this.baseUrl.toString() + "/" + action;
