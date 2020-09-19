@@ -8,10 +8,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.namelessmc.java_api.RequestHandler.Action;
 import com.namelessmc.java_api.Website.Update;
 
 public final class NamelessAPI {
@@ -68,30 +70,12 @@ public final class NamelessAPI {
 
 	/**
 	 * Checks if a web API connection can be established
-	 * @return
-	 * <ul>
-	 *   <li>An {@link ApiError} if the api has returned an error</li>
-	 *   <li>A {@link NamelessException} if the connection was unsuccessful</li>
-	 *   <li>null if the connection was successful.</li>
-	 * </ul>
+	 * throws {@link NamelessException} if the connection was unsuccessful
 	 */
-	public NamelessException checkWebAPIConnection() {
-		try {
-			final Request request = new Request(this.apiUrl, this.userAgent,  Action.INFO);
-			request.connect();
-
-			if (request.hasError()) {
-				throw new ApiError(request.getError());
-			}
-
-			final JsonObject response = request.getResponse();
-			if (response.has("nameless_version")) {
-				return null;
-			} else {
-				return new NamelessException("Invalid respose: " + response.getAsString());
-			}
-		} catch (final NamelessException e) {
-			return e;
+	public void checkWebAPIConnection() throws NamelessException {
+		final JsonObject response = this.requests.get(Action.INFO);
+		if (!response.has("nameless_version")) {
+			throw new NamelessException("Invalid respose: " + response.getAsString());
 		}
 	}
 
@@ -186,24 +170,6 @@ public final class NamelessAPI {
 
 	}
 
-	public boolean validateUser(final UUID uuid, final String code) throws NamelessException {
-		final String[] parameters = new ParameterBuilder().add("uuid", uuid.toString()).add("code", code).build();
-		final Request request = new Request(this.apiUrl, this.userAgent, Action.VALIDATE_USER, parameters);
-		request.connect();
-		if (request.hasError()) {
-			final int errorCode = request.getError();
-			if (errorCode == 28) {
-				return false;
-			}
-			throw new ApiError(errorCode);
-		}
-		return true;
-	}
-
-	public NamelessPlayer getPlayer(final UUID uuid) throws NamelessException {
-		return new NamelessPlayer(uuid, this.apiUrl, this.userAgent);
-	}
-
 	public Map<UUID, String> getRegisteredUsers(final boolean hideInactive, final boolean hideBanned) throws NamelessException {
 		final Request request = new Request(this.apiUrl, this.userAgent, Action.LIST_USERS);
 		request.connect();
@@ -246,8 +212,45 @@ public final class NamelessAPI {
 		return namelessPlayers;
 	}
 	
+	public NamelessUser getUser(final int id) throws NamelessException {
+		return new NamelessUser(this, id);
+	}
+	
+	public NamelessUser getUser(final String username) throws NamelessException {
+		return new NamelessUser(this, username);
+	}
+	
+	public NamelessUser getUser(final UUID uuid) throws NamelessException {
+		return new NamelessUser(this, uuid);
+	}
+	
 	public void submitRankList(final List<String> rankNames) {
 		
+	}
+	
+	/**
+	 * Registers a new account. The user will be sent an email to set a password.
+	 * @param username Username
+	 * @param email Email address
+	 * @return Email verification disabled: A link which the user needs to click to complete registration
+	 * <br>Email verification enabled: An empty string (the user needs to check their email to complete registration)
+	 * @throws NamelessException
+	 */
+	public Optional<String> registerUser(final String username, final String email, final Optional<UUID> uuid) throws NamelessException {
+		final JsonObject post = new JsonObject();
+		post.addProperty("username", username);
+		post.addProperty("email", email);
+		if (uuid.isPresent()) {
+			post.addProperty("uuid", uuid.get().toString());
+		}
+		
+		final JsonObject response = this.requests.post(Action.REGISTER, post.toString());
+		
+		if (response.has("link")) {
+			return Optional.of(response.get("link").getAsString());
+		} else {
+			return Optional.empty();
+		}
 	}
 
 	static String encode(final Object object) {

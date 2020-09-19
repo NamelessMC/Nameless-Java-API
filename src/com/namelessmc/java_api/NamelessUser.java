@@ -60,7 +60,7 @@ public final class NamelessUser {
 		this.exists = response.get("exists").getAsBoolean();
 		
 		if (!this.exists) {
-			return;
+			throw new UserNotExistException();
 		}
 
 		// Convert UNIX timestamp to date
@@ -90,9 +90,12 @@ public final class NamelessUser {
 			secondaryGroups.add(new Group(group.get("id").getAsInt(), group.get("name").getAsString(), false));
 		});
 		this.secondaryGroups = Collections.unmodifiableList(secondaryGroups);
-		
 	}
 
+	public NamelessAPI getApi() {
+		return this.api;
+	}
+	
 	/**
 	 * @return The Minecraft username associated with the provided UUID. This is not always the name displayed on the website.
 	 * @see #getDisplayName()
@@ -137,15 +140,6 @@ public final class NamelessUser {
 	}
 
 	/**
-	 * @return Whether the requested user exists
-	 * @see #getUniqueId()
-	 */
-	public boolean exists() {
-		// TODO Throw an exception in constructor instead when user does not exist
-		return this.exists;
-	}
-
-	/**
 	 * @return Whether this account is banned from the website.
 	 */
 	public boolean isBanned() {
@@ -187,31 +181,6 @@ public final class NamelessUser {
 		});
 		
 		return notifications;
-	}
-	
-	/**
-	 * Registers a new account. The user will be sent an email to set a password.
-	 * @param username Username
-	 * @param email Email address
-	 * @return Email verification disabled: A link which the user needs to click to complete registration
-	 * <br>Email verification enabled: An empty string (the user needs to check their email to complete registration)
-	 * @throws NamelessException
-	 */
-	public Optional<String> register(final String username, final String email, final Optional<UUID> uuid) throws NamelessException {
-		final JsonObject post = new JsonObject();
-		post.addProperty("username", username);
-		post.addProperty("email", email);
-		if (uuid.isPresent()) {
-			post.addProperty("uuid", uuid.get().toString());
-		}
-		
-		final JsonObject response = this.requests.post(Action.REGISTER, post.toString());
-		
-		if (response.has("link")) {
-			return Optional.of(response.get("link").getAsString());
-		} else {
-			return Optional.empty();
-		}
 	}
 
 	/**
