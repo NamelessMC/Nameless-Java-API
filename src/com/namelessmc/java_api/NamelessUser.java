@@ -16,156 +16,156 @@ public final class NamelessUser {
 	private final NamelessAPI api;
 	private final RequestHandler requests;
 	
-	private int id;
+	private Integer id;
 	private String username;
-	private String displayName;
 	private Optional<UUID> uuid;
-	private Date registeredDate;
-	private boolean exists;
-	private boolean banned;
+
+	private JsonObject userInfo;
 	
-	private VerificationInfo verification;
-	
-	private Group primaryGroup;
-	private List<Group> secondaryGroups;
-	
-	/**
-	 * Creates a new NamelessPlayer object. This constructor should not be called in the main server thread.
-	 * @param uuid
-	 * @param baseUrl Base API URL: <i>http(s)://yoursite.com/api/v2/API_KEY<i>
-	 * @throws NamelessException
-	 */
-	NamelessUser(final NamelessAPI api, final UUID uuid) throws NamelessException {
+	// only one of id, username, uuid has to be provided
+	NamelessUser(final NamelessAPI api, final Integer id, final String username, final Optional<UUID> uuid) throws NamelessException {
 		this.api = api;
 		this.requests = api.getRequestHandler();
 		
-		this.init(this.requests.get(Action.USER_INFO, "uuid", uuid));
-	}
-	
-	NamelessUser(final NamelessAPI api, final String username) throws NamelessException {
-		this.api = api;
-		this.requests = api.getRequestHandler();
+		if (id == null && username == null && uuid == null) {
+			throw new IllegalArgumentException("You must specify at least one of ID, uuid, username");
+		}
 		
-		this.init(this.requests.get(Action.USER_INFO, "username", username));
+		this.id = id;
+		this.username = username;
+		this.uuid = uuid;
 	}
 	
-	NamelessUser(final NamelessAPI api, final int id) throws NamelessException {
-		this.api = api;
-		this.requests = api.getRequestHandler();
-	
-		this.init(this.requests.get(Action.USER_INFO, "id", id));
-	}
-	
-	private void init(final JsonObject response) throws NamelessException {
-		this.exists = response.get("exists").getAsBoolean();
+	private void loadUserInfo() throws NamelessException {
+		final JsonObject response;
+		if (this.id != null) {
+			response = this.requests.get(Action.USER_INFO, "id", this.id);
+		} else if (this.uuid != null && this.uuid.isPresent()) {
+			response = this.requests.get(Action.USER_INFO, "uuid", this.uuid.get());
+		} else if (this.username != null) {
+			response = this.requests.get(Action.USER_INFO, "username", this.username);
+		} else {
+			throw new IllegalStateException("ID, uuid, and username not known for this player.");
+		}
 		
-		if (!this.exists) {
+		if (!response.get("exists").getAsBoolean()) {
 			throw new UserNotExistException();
 		}
-
-		// Convert UNIX timestamp to date
-		final Date registered = new Date(Long.parseLong(response.get("registered").toString().replaceAll("^\"|\"$", "")) * 1000);
-
-		this.id = response.get("id").getAsInt();
-		this.username = response.get("username").getAsString();
-		this.displayName = response.get("displayname").getAsString();
-		if (response.has("uuid")) {
-			this.uuid = Optional.of(NamelessAPI.websiteUuidToJavaUuid(response.get("uuid").getAsString()));
-		} else {
-			this.uuid = Optional.empty();
-		}
-		this.registeredDate = registered;
-		this.banned = response.get("banned").getAsBoolean();
 		
-		final boolean verified = response.get("verified").getAsBoolean();
-		final JsonObject verification = response.getAsJsonObject("verification");
-		this.verification = new VerificationInfo(verified, verification);
-		
-		final JsonObject groups = response.getAsJsonObject("groups");
-		final JsonObject primary = groups.getAsJsonObject("primary");
-		this.primaryGroup = new Group(primary.get("id").getAsInt(), primary.get("name").getAsString(), true);
-		final List<Group> secondaryGroups = new ArrayList<>();
-		groups.getAsJsonArray("secondary").forEach(e -> {
-			final JsonObject group = e.getAsJsonObject();
-			secondaryGroups.add(new Group(group.get("id").getAsInt(), group.get("name").getAsString(), false));
-		});
-		this.secondaryGroups = Collections.unmodifiableList(secondaryGroups);
+		this.userInfo = response;
 	}
 
 	public NamelessAPI getApi() {
 		return this.api;
 	}
 	
-	/**
-	 * @return The Minecraft username associated with the provided UUID. This is not always the name displayed on the website.
-	 * @see #getDisplayName()
-	 */
-	public String getUsername() {
-		if (!this.exists) {
-			throw new UnsupportedOperationException("This user does not exist.");
+	public int getId() throws NamelessException {
+		if (this.id == null) {
+			this.loadUserInfo();
+			this.id = this.userInfo.get("id").getAsInt();
+		}
+		
+		return this.id;
+	}
+	
+	public String getUsername() throws NamelessException {
+		if (this.username == null) {
+			this.loadUserInfo();
+			this.username = this.userInfo.get("username").getAsString();
 		}
 		
 		return this.username;
 	}
-
-	/**
-	 * @return The name this player uses on the website. This is not always the same as their Minecraft username.
-	 * @see #getUsername()
-	 */
-	public String getDisplayName() {
-		if (!this.exists) {
-			throw new UnsupportedOperationException("This user does not exist.");
+	
+	public Optional<UUID> getUniqueId() throws NamelessException {
+		if (this.uuid == null) {
+			this.loadUserInfo();
+			if (this.userInfo.has("uuid")) {
+				this.uuid = Optional.of(NamelessAPI.websiteUuidToJavaUuid(this.userInfo.get("uuid").getAsString()));
+			} else {
+				this.uuid = Optional.empty();
+			}
 		}
 		
-		return this.displayName;
-	}
-	
-	/**
-	 * @return Minecraft UUID of this player. Empty if Minecraft integration is disabled.
-	 * @see #getUsername()
-	 */
-	public Optional<UUID> getUniqueId() {
 		return this.uuid;
 	}
 
-	/**
-	 * @return The date the user registered on the website.
-	 */
-	public Date getRegisteredDate() {
-		if (!this.exists) {
-			throw new UnsupportedOperationException("This player does not exist.");
+	public String getDisplayName() throws NamelessException {
+		if (this.userInfo == null) {
+			this.loadUserInfo();
 		}
 		
-		return this.registeredDate;
+		return this.userInfo.get("displayname").getAsString();
+	}
+
+
+	/**
+	 * @return The date the user registered on the website.
+	 * @throws NamelessException
+	 */
+	public Date getRegisteredDate() throws NamelessException {
+		if (this.userInfo == null) {
+			this.loadUserInfo();
+		}
+		
+		return new Date(Long.parseLong(this.userInfo.get("registered").toString().replaceAll("^\"|\"$", "")) * 1000);
 	}
 
 	/**
 	 * @return Whether this account is banned from the website.
+	 * @throws NamelessException
 	 */
-	public boolean isBanned() {
-		if (!this.exists) {
-			throw new UnsupportedOperationException("This player does not exist.");
+	public boolean isBanned() throws NamelessException {
+		if (this.userInfo == null) {
+			this.loadUserInfo();
 		}
 		
-		return this.banned;
+		return this.userInfo.get("banned").getAsBoolean();
 	}
 	
-	public VerificationInfo getVerificationInfo() {
-		return this.verification;
+	public boolean isVerified() throws NamelessException {
+		if (this.userInfo == null) {
+			this.loadUserInfo();
+		}
+		
+		return this.userInfo.get("verified").getAsBoolean();
 	}
 	
-	public Group getPrimaryGroup() {
-		return this.primaryGroup;
+	public VerificationInfo getVerificationInfo() throws NamelessException {
+		final boolean verified = isVerified();
+		final JsonObject verification = this.userInfo.getAsJsonObject("verification");
+		return new VerificationInfo(verified, verification);
 	}
 	
-	public List<Group> getSecondaryGroups() {
-		return this.secondaryGroups;
+	public Group getPrimaryGroup() throws NamelessException {
+		if (this.userInfo == null) {
+			this.loadUserInfo();
+		}
+		
+		final JsonObject groups = this.userInfo.getAsJsonObject("groups");
+		final JsonObject primary = groups.getAsJsonObject("primary");
+		return new Group(primary.get("id").getAsInt(), primary.get("name").getAsString(), true);
 	}
 	
-	public List<Group> getGroups(){
-		final List<Group> list = new ArrayList<>(this.secondaryGroups.size() + 1);
-		list.add(this.primaryGroup);
-		list.addAll(this.secondaryGroups);
+	public List<Group> getSecondaryGroups() throws NamelessException {
+		if (this.userInfo == null) {
+			this.loadUserInfo();
+		}
+		
+		final JsonObject groups = this.userInfo.getAsJsonObject("groups");
+		final List<Group> secondaryGroups = new ArrayList<>();
+		groups.getAsJsonArray("secondary").forEach(e -> {
+			final JsonObject group = e.getAsJsonObject();
+			secondaryGroups.add(new Group(group.get("id").getAsInt(), group.get("name").getAsString(), false));
+		});
+		return Collections.unmodifiableList(secondaryGroups);
+	}
+	
+	public List<Group> getGroups() throws NamelessException {
+		final List<Group> secondaryGroups = this.getSecondaryGroups();
+		final List<Group> list = new ArrayList<>(secondaryGroups.size() + 1);
+		list.add(this.getPrimaryGroup());
+		list.addAll(this.getSecondaryGroups());
 		return Collections.unmodifiableList(list);
 	}
 	

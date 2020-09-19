@@ -5,13 +5,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.RequestHandler.Action;
 import com.namelessmc.java_api.Website.Update;
@@ -85,17 +85,11 @@ public final class NamelessAPI {
 	 * @throws NamelessException if there is an error in the request
 	 */
 	public List<Announcement> getAnnouncements() throws NamelessException {
-		final Request request = new Request(this.apiUrl, this.userAgent,  Action.GET_ANNOUNCEMENTS);
-		request.connect();
-
-		if (request.hasError()) {
-			throw new ApiError(request.getError());
-		}
+		final JsonObject response = this.requests.get(Action.GET_ANNOUNCEMENTS);
 
 		final List<Announcement> announcements = new ArrayList<>();
 
-		final JsonObject object = request.getResponse();
-		object.getAsJsonArray().forEach((element) -> {
+		response.getAsJsonArray().forEach((element) -> {
 			final JsonObject announcementJson = element.getAsJsonObject();
 			final String content = announcementJson.get("content").getAsString();
 			final String[] display = jsonToArray(announcementJson.get("display").getAsJsonArray());
@@ -112,17 +106,12 @@ public final class NamelessAPI {
 	 * @return list of current announcements visible to the player
 	 * @throws NamelessException if there is an error in the request
 	 */
-	public List<Announcement> getAnnouncements(final UUID uuid) throws NamelessException {
-		final Request request = new Request(this.apiUrl, this.userAgent, Action.GET_ANNOUNCEMENTS, new ParameterBuilder().add("uuid", uuid).build());
-		request.connect();
-
-		if (request.hasError()) {
-			throw new ApiError(request.getError());
-		}
+	public List<Announcement> getAnnouncements(final NamelessUser user) throws NamelessException {
+		final JsonObject response = this.requests.get(Action.GET_ANNOUNCEMENTS, "id", user.getId());
 
 		final List<Announcement> announcements = new ArrayList<>();
 
-		request.getResponse().get("announcements").getAsJsonArray().forEach((element) -> {
+		response.get("announcements").getAsJsonArray().forEach((element) -> {
 			final JsonObject announcementJson = element.getAsJsonObject();
 			final String content = announcementJson.get("content").getAsString();
 			final String[] display = jsonToArray(announcementJson.get("display").getAsJsonArray());
@@ -134,22 +123,11 @@ public final class NamelessAPI {
 	}
 
 	public void submitServerInfo(final String jsonData) throws NamelessException {
-		final Request request = new Request(this.apiUrl, this.userAgent, Action.SERVER_INFO, new ParameterBuilder().add("info", jsonData).build());
-		request.connect();
-		if (request.hasError()) {
-			throw new ApiError(request.getError());
-		}
+		this.requests.post(Action.SERVER_INFO, jsonData);
 	}
 
 	public Website getWebsite() throws NamelessException {
-		final Request request = new Request(this.apiUrl, this.userAgent, Action.INFO);
-		request.connect();
-
-		if (request.hasError()) {
-			throw new ApiError(request.getError());
-		}
-
-		final JsonObject json = request.getResponse();
+		final JsonObject json = this.requests.get(Action.INFO);
 
 		final String version = json.get("nameless_version").getAsString();
 
@@ -169,59 +147,40 @@ public final class NamelessAPI {
 		return new Website(version, update, modules);
 
 	}
-
-	public Map<UUID, String> getRegisteredUsers(final boolean hideInactive, final boolean hideBanned) throws NamelessException {
-		final Request request = new Request(this.apiUrl, this.userAgent, Action.LIST_USERS);
-		request.connect();
-		if (request.hasError()) {
-			throw new ApiError(request.getError());
-		}
-
-		final Map<UUID, String> users = new HashMap<>();
-
-		request.getResponse().get("users").getAsJsonArray().forEach(userJsonElement -> {
-			final String uuid = userJsonElement.getAsJsonObject().get("uuid").getAsString();
-			final String username = userJsonElement.getAsJsonObject().get("username").getAsString();
-			final String active = userJsonElement.getAsJsonObject().get("active").getAsString();
-			final String banned = userJsonElement.getAsJsonObject().get("banned").getAsString();
-
-			if (!(
-					uuid.equals("none") ||
-					hideInactive && active.equals("0") ||
-					hideBanned && banned.equals("1")
-					)) {
-				try {
-					users.put(websiteUuidToJavaUuid(uuid), username);
-				} catch (final StringIndexOutOfBoundsException e) {
-					System.err.println("NamelessMC API - Skipped user with invalid UUID '" + uuid + "' (username: '" + username + "')");
-				}
+	
+	public List<NamelessUser> getRegisteredUsers() throws NamelessException {
+		final JsonObject response = this.requests.get(Action.LIST_USERS);
+		final JsonArray array = response.getAsJsonArray("users");
+		final List<NamelessUser> users = new ArrayList<>(array.size());
+		for (final JsonElement e : array) {
+			final JsonObject o = e.getAsJsonObject();
+			final int id = o.get("id").getAsInt();
+			final String username = o.get("username").getAsString();
+			Optional<UUID> uuid;
+			if (o.has("uuid")) {
+				uuid = Optional.of(NamelessAPI.websiteUuidToJavaUuid(o.get("uuid").getAsString()));
+			} else {
+				uuid = Optional.empty();
 			}
-		});
-
-		return users;
-	}
-
-	public List<NamelessPlayer> getRegisteredUsersAsNamelessPlayerList(final boolean hideInactive, final boolean hideBanned) throws NamelessException {
-		final Map<UUID, String> users = this.getRegisteredUsers(hideInactive, hideBanned);
-		final List<NamelessPlayer> namelessPlayers = new ArrayList<>();
-
-		for (final UUID userUuid : users.keySet()) {
-			namelessPlayers.add(this.getPlayer(userUuid));
-		}
-
-		return namelessPlayers;
+			users.add(new NamelessUser(this, id, username, uuid));
+		};
+		return Collections.unmodifiableList(users);
 	}
 	
 	public NamelessUser getUser(final int id) throws NamelessException {
-		return new NamelessUser(this, id);
+		return new NamelessUser(this, id, null, null);
 	}
 	
 	public NamelessUser getUser(final String username) throws NamelessException {
-		return new NamelessUser(this, username);
+		return new NamelessUser(this, null, username, null);
 	}
 	
 	public NamelessUser getUser(final UUID uuid) throws NamelessException {
-		return new NamelessUser(this, uuid);
+		return new NamelessUser(this, null, null, Optional.of(uuid));
+	}
+	
+	public NamelessUser getUser(final UUID uuid, final String username) throws NamelessException {
+		return new NamelessUser(this, null, username, Optional.of(uuid));
 	}
 	
 	public void submitRankList(final List<String> rankNames) {
@@ -261,6 +220,7 @@ public final class NamelessAPI {
 		}
 	}
 
+	@Deprecated
 	static String[] jsonToArray(final JsonArray jsonArray) {
 		final List<String> list = new ArrayList<>();
 		jsonArray.iterator().forEachRemaining((element) -> list.add(element.getAsString()));
