@@ -169,6 +169,10 @@ public final class NamelessUser {
 		return Collections.unmodifiableList(list);
 	}
 	
+	public int getNotificationCount() throws NamelessException {
+		return getNotifications().size(); // TODO more efficient method
+	}
+	
 	public List<Notification> getNotifications() throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GET_NOTIFICATIONS, "id", this.id);
 		

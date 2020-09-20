@@ -28,7 +28,7 @@ public final class NamelessAPI {
 	
 	/**
 	 * @param apiUrl URL of API to connect to, in the format http(s)://yoursite.com/index.php?route=/api/v2/API_KEY
-	 * @param debug If debug is set to true, debug messages are enabled for <i>every</i> NamelessAPI instance.
+	 * @param debug
 	 */
 	public NamelessAPI(final URL apiUrl, final boolean debug) {
 		this(apiUrl, DEFAULT_USER_AGENT, debug);
@@ -41,7 +41,7 @@ public final class NamelessAPI {
 	/**
 	 * @param host URL of your website, in the format http(s)://yoursite.com
 	 * @param apiKey API key
-	 * @param debug If debug is set to true, debug messages are enabled for <i>every</i> NamelessAPI instance.
+	 * @param debug
 	 * @throws MalformedURLException
 	 */
 	public NamelessAPI(final String host, final String apiKey, final String userAgent, final boolean debug) throws MalformedURLException {
@@ -195,12 +195,12 @@ public final class NamelessAPI {
 	 * <br>Email verification enabled: An empty string (the user needs to check their email to complete registration)
 	 * @throws NamelessException
 	 */
-	public Optional<String> registerUser(final String username, final String email, final Optional<UUID> uuid) throws NamelessException {
+	public Optional<String> registerUser(final String username, final String email, final UUID uuid) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("username", username);
 		post.addProperty("email", email);
-		if (uuid.isPresent()) {
-			post.addProperty("uuid", uuid.get().toString());
+		if (uuid != null) {
+			post.addProperty("uuid", uuid.toString());
 		}
 		
 		final JsonObject response = this.requests.post(Action.REGISTER, post.toString());
@@ -210,6 +210,10 @@ public final class NamelessAPI {
 		} else {
 			return Optional.empty();
 		}
+	}
+	
+	public Optional<String> registerUser(final String username, final String email) throws NamelessException {
+		return registerUser(username, email, null);
 	}
 
 	static String encode(final Object object) {
