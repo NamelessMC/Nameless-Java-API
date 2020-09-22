@@ -167,20 +167,64 @@ public final class NamelessAPI {
 		return Collections.unmodifiableList(users);
 	}
 	
-	public NamelessUser getUser(final int id) throws NamelessException {
+	public Optional<NamelessUser> getUser(final int id) throws NamelessException {
+		final NamelessUser user = getUserLazy(id);
+		if (user.exists()) {
+			return Optional.of(user);
+		} else {
+			return Optional.empty();
+		}
+	}
+	
+	public Optional<NamelessUser> getUser(final String username) throws NamelessException {
+		final NamelessUser user = getUserLazy(username);
+		if (user.exists()) {
+			return Optional.of(user);
+		} else {
+			return Optional.empty();
+		}
+	}
+	
+	public Optional<NamelessUser> getUser(final UUID uuid) throws NamelessException {
+		final NamelessUser user = getUserLazy(uuid);
+		if (user.exists()) {
+			return Optional.of(user);
+		} else {
+			return Optional.empty();
+		}
+	}
+	
+	public NamelessUser getUserLazy(final int id) throws NamelessException {
 		return new NamelessUser(this, id, null, null);
 	}
 	
-	public NamelessUser getUser(final String username) throws NamelessException {
+	public NamelessUser getUserLazy(final String username) throws NamelessException {
 		return new NamelessUser(this, null, username, null);
 	}
 	
-	public NamelessUser getUser(final UUID uuid) throws NamelessException {
+	public NamelessUser getUserLazy(final UUID uuid) throws NamelessException {
+		return new NamelessUser(this, null, null, Optional.of(uuid));
+	}
+
+	public NamelessUser getUserLazy(final String username, final UUID uuid) throws NamelessException {
 		return new NamelessUser(this, null, null, Optional.of(uuid));
 	}
 	
-	public NamelessUser getUser(final UUID uuid, final String username) throws NamelessException {
-		return new NamelessUser(this, null, username, Optional.of(uuid));
+	public NamelessUser getUserLazy(final int id, final String username, final UUID uuid) throws NamelessException {
+		return new NamelessUser(this, id, username, Optional.of(uuid));
+	}
+	
+	public Optional<NamelessUser> getUserByDiscordId(final long id) throws NamelessException {
+		try {
+			final JsonObject response = this.requests.get(Action.GET_USER_BY_DISCORD_ID, "discord_id", id);
+			return Optional.of(new NamelessUser(this, response.get("id").getAsInt(), null, null));
+		} catch (final ApiError e) {
+			if (e.getError() == ApiError.UNABLE_TO_FIND_USER) {
+				return Optional.empty();
+			} else {
+				throw e;
+			}
+		}
 	}
 	
 	public void submitRankList(final List<String> rankNames) {

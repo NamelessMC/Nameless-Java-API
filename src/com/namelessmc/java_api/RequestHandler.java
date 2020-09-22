@@ -141,8 +141,8 @@ public class RequestHandler {
 		GET_DISCORD_ROLES("getDiscordRoles", GET),
 		GET_USER_BY_DISCORD_ID("getUserByDiscordId", GET),
 		SET_DISCORD_ROLES("setDiscordRoles", POST),
-		ADD_DISCORD_ROLE("addDiscordRole", POST),
-		REMOVE_DISCORD_ROLE("removeDiscordRole", POST),
+		ADD_DISCORD_ROLES("addDiscordRoles", POST),
+		REMOVE_DISCORD_ROLES("removeDiscordRoles", POST),
 
 		;
 

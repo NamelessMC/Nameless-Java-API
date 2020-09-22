@@ -6,7 +6,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.Notification.NotificationType;
 import com.namelessmc.java_api.RequestHandler.Action;
@@ -88,6 +91,18 @@ public final class NamelessUser {
 		}
 		
 		return this.uuid;
+	}
+	
+	public boolean exists() throws NamelessException {
+		if (this.userInfo == null) {
+			try {
+				loadUserInfo();
+			} catch (final UserNotExistException e) {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 
 	public String getDisplayName() throws NamelessException {
@@ -223,24 +238,52 @@ public final class NamelessUser {
 		}
 	}
 	
-	public void verifyDiscord(final String verificationToken) {
-		throw new UnsupportedOperationException("Not yet implemented"); // TODO
+	public void verifyDiscord(final String verificationToken) throws NamelessException {
+		this.requests.post(Action.VERIFY_DISCORD, verificationToken);
 	}
 	
-	public void setDiscordIds(final long[] discordId) {
-		throw new UnsupportedOperationException("Not yet implemented"); // TODO
+	public Optional<Integer> getDiscordId() throws NamelessException {
+		final JsonObject response = this.requests.get(Action.GET_DISCORD_ID, "id", this.id);
+		if (response.has("discord_id")) {
+			return Optional.of(response.get("discord_id").getAsInt());
+		} else {
+			return Optional.empty();
+		}
 	}
 	
-	public void addDiscordId(final long discordId) {
-		throw new UnsupportedOperationException("Not yet implemented"); // TODO
+	public long[] getDiscordRoles() throws NamelessException {
+		final JsonObject response = this.requests.get(Action.GET_DISCORD_ROLES, "id", this.id);
+		return StreamSupport.stream(response.getAsJsonArray("roles").spliterator(), false)
+				.mapToLong(JsonElement::getAsLong).toArray();
 	}
 	
-	public void removeDiscordId(final long discordId) {
-		throw new UnsupportedOperationException("Not yet implemented"); // TODO
+	public void setDiscordRoles(final long[] roleIds) throws NamelessException {
+		final JsonObject post = new JsonObject();
+		post.addProperty("id", this.id);
+		post.add("roles", new Gson().toJsonTree(roleIds));
+		this.requests.post(Action.SET_DISCORD_ROLES, post.toString());
 	}
 	
-	public long[] getDiscordIds() {
-		throw new UnsupportedOperationException("Not yet implemented"); // TODO
+	public void addDiscordRole(final long roleId) throws NamelessException {
+		addDiscordRoles(new long[] {roleId});
+	}
+	
+	public void addDiscordRoles(final long[] roleIds) throws NamelessException {
+		final JsonObject post = new JsonObject();
+		post.addProperty("id", this.id);
+		post.add("roles", new Gson().toJsonTree(roleIds));
+		this.requests.post(Action.ADD_DISCORD_ROLES, post.toString());
+	}
+	
+	public void removeDiscordRole(final long roleId) throws NamelessException {
+		removeDiscordRole(new long[] {roleId});
+	}
+	
+	public void removeDiscordRole(final long[] roleIds) throws NamelessException {
+		final JsonObject post = new JsonObject();
+		post.addProperty("id", this.id);
+		post.add("roles", new Gson().toJsonTree(roleIds));
+		this.requests.post(Action.REMOVE_DISCORD_ROLES, post.toString());
 	}
 
 }
