@@ -1,5 +1,7 @@
 package com.namelessmc.java_api;
 
+import com.google.gson.JsonObject;
+
 public class Group {
 	
 	private final int id;
@@ -10,6 +12,12 @@ public class Group {
 		this.id = id;
 		this.name = name;
 		this.primary = primary;
+	}
+	
+	Group(final JsonObject group) {
+		this.id = group.get("id").getAsInt();
+		this.name = group.get("name").getAsString();
+		this.primary = group.has("primary") ? group.get("primary").getAsBoolean() : false;
 	}
 	
 	public int getId() {
@@ -23,5 +31,5 @@ public class Group {
 	public boolean isPrimary() {
 		return this.primary;
 	}
-
+	
 }

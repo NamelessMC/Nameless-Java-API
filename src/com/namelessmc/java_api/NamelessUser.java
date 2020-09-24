@@ -1,6 +1,7 @@
 package com.namelessmc.java_api;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -182,6 +183,27 @@ public final class NamelessUser {
 		list.add(this.getPrimaryGroup());
 		list.addAll(this.getSecondaryGroups());
 		return Collections.unmodifiableList(list);
+	}
+	
+	public void setPrimaryGroup(final Group group) throws NamelessException {
+		final JsonObject post = new JsonObject();
+		post.addProperty("id", this.id);
+		post.addProperty("group", group.getId());
+		this.requests.post(Action.SET_PRIMARY_GROUP, post.toString());
+	}
+	
+	public void addSecondaryGroups(final Group... groups) throws NamelessException {
+		final JsonObject post = new JsonObject();
+		post.addProperty("id", this.id);
+		post.add("groups", new Gson().toJsonTree(Arrays.stream(groups).mapToInt(Group::getId).toArray()));
+		this.requests.post(Action.ADD_SECONDARY_GROUPS, post.toString());
+	}
+	
+	public void removeSecondaryGroups(final Group... groups) throws NamelessException {
+		final JsonObject post = new JsonObject();
+		post.addProperty("id", this.id);
+		post.add("groups", new Gson().toJsonTree(Arrays.stream(groups).mapToInt(Group::getId).toArray()));
+		this.requests.post(Action.REMOVE_SECONDARY_GROUPS, post.toString());
 	}
 	
 	public int getNotificationCount() throws NamelessException {

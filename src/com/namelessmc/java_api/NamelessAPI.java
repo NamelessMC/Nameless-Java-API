@@ -231,6 +231,24 @@ public final class NamelessAPI {
 		
 	}
 	
+	public Optional<Group> getGroup(final int id) throws NamelessException {
+		final JsonObject response = this.requests.get(Action.GROUP_INFO, "id", id);
+		if (!response.has("group")) {
+			return Optional.empty();
+		} else {
+			return Optional.of(new Group(response.getAsJsonObject("group")));
+		}
+	}
+	
+	public Optional<Group> getGroup(final String name) throws NamelessException {
+		final JsonObject response = this.requests.get(Action.GROUP_INFO, "name", name);
+		if (!response.has("group")) {
+			return Optional.empty();
+		} else {
+			return Optional.of(new Group(response.getAsJsonObject("group")));
+		}
+	}
+	
 	/**
 	 * Registers a new account. The user will be sent an email to set a password.
 	 * @param username Username
