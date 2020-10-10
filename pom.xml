@@ -4,7 +4,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.namelessmc</groupId>
-	<artifactId>NamelessAPI</artifactId>
+	<artifactId>java-api</artifactId>
 	<version>canary</version>
 
 	<properties>
