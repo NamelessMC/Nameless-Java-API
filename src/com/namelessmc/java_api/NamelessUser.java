@@ -306,7 +306,7 @@ public final class NamelessUser {
 	}
 	
 	public void removeDiscordRole(final long roleId) throws NamelessException {
-		removeDiscordRole(new long[] {roleId});
+		removeDiscordRoles(new long[] {roleId});
 	}
 	
 	public void removeDiscordRoles(final long[] roleIds) throws NamelessException {
