@@ -14,7 +14,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.RequestHandler.Action;
-import com.namelessmc.java_api.Website.Update;
 
 public final class NamelessAPI {
 
@@ -128,24 +127,7 @@ public final class NamelessAPI {
 
 	public Website getWebsite() throws NamelessException {
 		final JsonObject json = this.requests.get(Action.INFO);
-
-		final String version = json.get("nameless_version").getAsString();
-
-		final String[] modules = jsonToArray(json.get("modules").getAsJsonArray());
-
-		final JsonObject updateJson = json.get("version_update").getAsJsonObject();
-		final boolean updateAvailable = updateJson.get("update").getAsBoolean();
-		Update update;
-		if (updateAvailable) {
-			final String updateVersion = updateJson.get("version").getAsString();
-			final boolean isUrgent = updateJson.get("urgent").getAsBoolean();
-			update = new Update(isUrgent, updateVersion);
-		} else {
-			update = null;
-		}
-
-		return new Website(version, update, modules);
-
+		return new Website(json);
 	}
 	
 	public List<NamelessUser> getRegisteredUsers(final UserFilter<?>... filters) throws NamelessException {
