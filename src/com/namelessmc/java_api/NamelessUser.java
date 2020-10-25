@@ -147,6 +147,14 @@ public final class NamelessUser {
 		return this.userInfo.get("verified").getAsBoolean();
 	}
 	
+	public String getLangage() throws NamelessException {
+		if (this.userInfo == null) {
+			this.loadUserInfo();
+		}
+		
+		return this.userInfo.get("language").getAsString();
+	}
+	
 	public VerificationInfo getVerificationInfo() throws NamelessException {
 		final boolean verified = isVerified();
 		final JsonObject verification = this.userInfo.getAsJsonObject("verification");
