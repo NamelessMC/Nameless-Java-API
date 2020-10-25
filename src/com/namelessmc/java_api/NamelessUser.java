@@ -309,7 +309,7 @@ public final class NamelessUser {
 		removeDiscordRole(new long[] {roleId});
 	}
 	
-	public void removeDiscordRole(final long[] roleIds) throws NamelessException {
+	public void removeDiscordRoles(final long[] roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("id", this.id);
 		post.add("roles", new Gson().toJsonTree(roleIds));
