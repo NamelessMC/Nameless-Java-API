@@ -1,9 +1,7 @@
 package com.namelessmc.java_api;
 
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -267,14 +265,6 @@ public final class NamelessAPI {
 	
 	public void verifyDiscord(final String verificationToken) throws NamelessException {
 		this.requests.post(Action.VERIFY_DISCORD, verificationToken);
-	}
-
-	static String encode(final Object object) {
-		try {
-			return URLEncoder.encode(object.toString(), "UTF-8");
-		} catch (final UnsupportedEncodingException e) {
-			throw new RuntimeException(e.getMessage());
-		}
 	}
 
 	@Deprecated
