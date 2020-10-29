@@ -264,6 +264,10 @@ public final class NamelessAPI {
 	public Optional<String> registerUser(final String username, final String email) throws NamelessException {
 		return registerUser(username, email, null);
 	}
+	
+	public void verifyDiscord(final String verificationToken) throws NamelessException {
+		this.requests.post(Action.VERIFY_DISCORD, verificationToken);
+	}
 
 	static String encode(final Object object) {
 		try {
