@@ -64,6 +64,10 @@ public final class NamelessAPI {
 	RequestHandler getRequestHandler() {
 		return this.requests;
 	}
+	
+	public URL getApiUrl() {
+		return this.getRequestHandler().getApiUrl();
+	}
 
 	/**
 	 * Checks if a web API connection can be established

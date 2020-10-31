@@ -28,6 +28,10 @@ public class RequestHandler {
 		this.userAgent = userAgent;
 	}
 	
+	public URL getApiUrl() {
+		return this.baseUrl;
+	}
+	
 	public JsonObject post(final Action action, final JsonObject postData) throws NamelessException {
 		if (action.method != RequestMethod.POST) {
 			throw new IllegalArgumentException("Cannot POST to a GET API method");
