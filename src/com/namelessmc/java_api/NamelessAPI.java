@@ -265,6 +265,12 @@ public final class NamelessAPI {
 		json.addProperty("discord_id", discordUserId + ""); // website needs it as a string
 		this.requests.post(Action.VERIFY_DISCORD, json.toString());
 	}
+	
+	public void setDiscordBotUrl(final URL url) throws NamelessException {
+		final JsonObject json = new JsonObject();
+		json.addProperty("url", url.toString());
+		this.requests.post(Action.SET_DISCORD_BOT_URL, json.toString());
+	}
 
 	@Deprecated
 	static String[] jsonToArray(final JsonArray jsonArray) {

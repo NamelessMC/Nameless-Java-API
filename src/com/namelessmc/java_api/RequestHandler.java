@@ -146,6 +146,7 @@ public class RequestHandler {
 		VERIFY_MINECRAFT("verifyMinecraft", POST),
 		LIST_USERS("listUsers", GET),
 		INGAME_RANKS("ingameRanks", POST),
+		SET_DISCORD_BOT_URL("setDiscordBotUrl", POST),
 		VERIFY_DISCORD("verifyDiscord", POST),
 		GET_DISCORD_ID("getDiscordId", GET),
 		GET_DISCORD_ROLES("getDiscordRoles", GET),
