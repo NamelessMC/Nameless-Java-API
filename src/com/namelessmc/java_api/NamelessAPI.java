@@ -212,10 +212,6 @@ public final class NamelessAPI {
 		}
 	}
 	
-	public void submitRankList(final List<String> rankNames) {
-		
-	}
-	
 	public Optional<Group> getGroup(final int id) throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GROUP_INFO, "id", id);
 		if (!response.has("group")) {
