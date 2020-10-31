@@ -268,10 +268,6 @@ public final class NamelessUser {
 		}
 	}
 	
-	public void verifyDiscord(final String verificationToken) throws NamelessException {
-		this.requests.post(Action.VERIFY_DISCORD, verificationToken);
-	}
-	
 	public Optional<Integer> getDiscordId() throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GET_DISCORD_ID, "id", this.id);
 		if (response.has("discord_id")) {

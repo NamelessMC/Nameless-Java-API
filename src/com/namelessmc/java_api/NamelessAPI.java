@@ -259,8 +259,11 @@ public final class NamelessAPI {
 		return registerUser(username, email, null);
 	}
 	
-	public void verifyDiscord(final String verificationToken) throws NamelessException {
-		this.requests.post(Action.VERIFY_DISCORD, verificationToken);
+	public void verifyDiscord(final String verificationToken, final long discordUserId) throws NamelessException {
+		final JsonObject json = new JsonObject();
+		json.addProperty("token", verificationToken);
+		json.addProperty("discord_id", discordUserId + ""); // website needs it as a string
+		this.requests.post(Action.VERIFY_DISCORD, json.toString());
 	}
 
 	@Deprecated
