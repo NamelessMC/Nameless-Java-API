@@ -28,7 +28,7 @@ public class RequestHandler {
 		this.userAgent = userAgent;
 	}
 	
-	public JsonObject post(final Action action, final String postData) throws NamelessException {
+	public JsonObject post(final Action action, final JsonObject postData) throws NamelessException {
 		if (action.method != RequestMethod.POST) {
 			throw new IllegalArgumentException("Cannot POST to a GET API method");
 		}
@@ -90,17 +90,16 @@ public class RequestHandler {
 		}
 	}
 	
-	private JsonObject makeConnection(final URL url, final String postBody) throws NamelessException, IOException {
+	private JsonObject makeConnection(final URL url, final JsonObject postBody) throws NamelessException, IOException {
 		final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
 		connection.addRequestProperty("User-Agent", this.userAgent);
 		
 		if (postBody != null) {
 			connection.setRequestMethod("POST");
-			final String contentType = postBody.startsWith("[") || postBody.startsWith("{") ? "application/json" : "text/plain";
-			final byte[] encodedMessage = postBody.getBytes(StandardCharsets.UTF_8);
+			final byte[] encodedMessage = postBody.toString().getBytes(StandardCharsets.UTF_8);
 			connection.setRequestProperty("Content-Length", encodedMessage.length + "");
-			connection.setRequestProperty("Content-Type", contentType);
+			connection.setRequestProperty("Content-Type", "application/json");
 			connection.setDoOutput(true);
 			try (OutputStream out = connection.getOutputStream()){
 				out.write(encodedMessage);

@@ -119,7 +119,7 @@ public final class NamelessAPI {
 		return announcements;
 	}
 
-	public void submitServerInfo(final String jsonData) throws NamelessException {
+	public void submitServerInfo(final JsonObject jsonData) throws NamelessException {
 		this.requests.post(Action.SERVER_INFO, jsonData);
 	}
 
@@ -246,7 +246,7 @@ public final class NamelessAPI {
 			post.addProperty("uuid", uuid.toString());
 		}
 		
-		final JsonObject response = this.requests.post(Action.REGISTER, post.toString());
+		final JsonObject response = this.requests.post(Action.REGISTER, post);
 		
 		if (response.has("link")) {
 			return Optional.of(response.get("link").getAsString());
@@ -263,13 +263,13 @@ public final class NamelessAPI {
 		final JsonObject json = new JsonObject();
 		json.addProperty("token", verificationToken);
 		json.addProperty("discord_id", discordUserId + ""); // website needs it as a string
-		this.requests.post(Action.VERIFY_DISCORD, json.toString());
+		this.requests.post(Action.VERIFY_DISCORD, json);
 	}
 	
 	public void setDiscordBotUrl(final URL url) throws NamelessException {
 		final JsonObject json = new JsonObject();
 		json.addProperty("url", url.toString());
-		this.requests.post(Action.SET_DISCORD_BOT_URL, json.toString());
+		this.requests.post(Action.SET_DISCORD_BOT_URL, json);
 	}
 
 	@Deprecated
