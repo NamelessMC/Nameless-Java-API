@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -218,20 +220,38 @@ public final class NamelessAPI {
 	
 	public Optional<Group> getGroup(final int id) throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GROUP_INFO, "id", id);
-		if (!response.has("group")) {
+		final JsonArray array = response.getAsJsonArray("groups");
+		if (array.size() == 0) {
 			return Optional.empty();
 		} else {
 			return Optional.of(new Group(response.getAsJsonObject("group")));
 		}
 	}
 	
-	public Optional<Group> getGroup(final String name) throws NamelessException {
+	public List<Group> getGroup(final String name) throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GROUP_INFO, "name", name);
-		if (!response.has("group")) {
-			return Optional.empty();
-		} else {
-			return Optional.of(new Group(response.getAsJsonObject("group")));
-		}
+		return groupListFromJsonArray(response.getAsJsonArray("groups"));
+	}
+	
+	public List<Group> getAllGroups() throws NamelessException {
+		final JsonObject response = this.requests.get(Action.GROUP_INFO);
+		return groupListFromJsonArray(response.getAsJsonArray("groups"));
+		
+	}
+	
+	public int[] getAllGroupIds() throws NamelessException {
+		final JsonObject response = this.requests.get(Action.GROUP_INFO);
+		return StreamSupport.stream(response.getAsJsonArray("groups").spliterator(), false)
+				.map(JsonElement::getAsJsonObject)
+				.mapToInt(o -> o.get("id").getAsInt())
+				.toArray();
+	}
+	
+	private List<Group> groupListFromJsonArray(final JsonArray array) {
+		return StreamSupport.stream(array.spliterator(), false)
+				.map(JsonElement::getAsJsonObject)
+				.map(Group::new)
+				.collect(Collectors.toList());
 	}
 	
 	/**

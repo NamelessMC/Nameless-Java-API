@@ -1,7 +1,6 @@
 package com.namelessmc.java_api;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -10,6 +9,7 @@ import java.util.UUID;
 import java.util.stream.StreamSupport;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.Notification.NotificationType;
@@ -193,33 +193,35 @@ public final class NamelessUser {
 		return Collections.unmodifiableList(list);
 	}
 	
-	public void setPrimaryGroup(final Group group) throws NamelessException {
+	public void addGroups(final Group... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.addProperty("id", this.id);
-		post.addProperty("group", group.getId());
-		this.requests.post(Action.SET_PRIMARY_GROUP, post);
+		post.addProperty("user", this.id);
+		post.add("groups", groupsToJsonArray(groups));
+		this.requests.post(Action.ADD_GROUPS, post);
 	}
 	
-	public void addSecondaryGroups(final Group... groups) throws NamelessException {
+	public void removeGroups(final Group... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.addProperty("id", this.id);
-		post.add("groups", new Gson().toJsonTree(Arrays.stream(groups).mapToInt(Group::getId).toArray()));
-		this.requests.post(Action.ADD_SECONDARY_GROUPS, post);
+		post.addProperty("user", this.id);
+		post.add("groups", groupsToJsonArray(groups));
+		this.requests.post(Action.REMOVE_GROUPS, post);
 	}
 	
-	public void removeSecondaryGroups(final Group... groups) throws NamelessException {
-		final JsonObject post = new JsonObject();
-		post.addProperty("id", this.id);
-		post.add("groups", new Gson().toJsonTree(Arrays.stream(groups).mapToInt(Group::getId).toArray()));
-		this.requests.post(Action.REMOVE_SECONDARY_GROUPS, post);
+	private JsonArray groupsToJsonArray(final Group[] groups) {
+		final JsonArray array = new JsonArray();
+		for (final Group group : groups) {
+			array.add(group.getId());
+		}
+		return array;
 	}
 	
 	public int getNotificationCount() throws NamelessException {
-		return getNotifications().size(); // TODO more efficient method
+		final JsonObject response = this.requests.get(Action.GET_NOTIFICATIONS, "user", this.id);
+		return response.getAsJsonArray("notifications").size();
 	}
 	
 	public List<Notification> getNotifications() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GET_NOTIFICATIONS, "id", this.id);
+		final JsonObject response = this.requests.get(Action.GET_NOTIFICATIONS, "user", this.id);
 		
 		final List<Notification> notifications = new ArrayList<>();
 		response.getAsJsonArray("notifications").forEach((element) -> {
@@ -254,7 +256,7 @@ public final class NamelessUser {
 	 */
 	public boolean verifyMinecraft(final String code) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.addProperty("id", this.id);
+		post.addProperty("user", this.id);
 		post.addProperty("code", code);
 		try {
 			this.requests.post(Action.VERIFY_MINECRAFT, post);
@@ -269,7 +271,7 @@ public final class NamelessUser {
 	}
 	
 	public Optional<Integer> getDiscordId() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GET_DISCORD_ID, "id", this.id);
+		final JsonObject response = this.requests.get(Action.GET_DISCORD_ID, "user", this.id);
 		if (response.has("discord_id")) {
 			return Optional.of(response.get("discord_id").getAsInt());
 		} else {
@@ -278,36 +280,28 @@ public final class NamelessUser {
 	}
 	
 	public long[] getDiscordRoles() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GET_DISCORD_ROLES, "id", this.id);
+		final JsonObject response = this.requests.get(Action.GET_DISCORD_ROLES, "user", this.id);
 		return StreamSupport.stream(response.getAsJsonArray("roles").spliterator(), false)
 				.mapToLong(JsonElement::getAsLong).toArray();
 	}
 	
 	public void setDiscordRoles(final long[] roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.addProperty("id", this.id);
+		post.addProperty("user", this.id);
 		post.add("roles", new Gson().toJsonTree(roleIds));
 		this.requests.post(Action.SET_DISCORD_ROLES, post);
 	}
-	
-	public void addDiscordRole(final long roleId) throws NamelessException {
-		addDiscordRoles(new long[] {roleId});
-	}
-	
-	public void addDiscordRoles(final long[] roleIds) throws NamelessException {
+
+	public void addDiscordRoles(final long... roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.addProperty("id", this.id);
+		post.addProperty("user", this.id);
 		post.add("roles", new Gson().toJsonTree(roleIds));
 		this.requests.post(Action.ADD_DISCORD_ROLES, post);
 	}
 	
-	public void removeDiscordRole(final long roleId) throws NamelessException {
-		removeDiscordRoles(new long[] {roleId});
-	}
-	
-	public void removeDiscordRoles(final long[] roleIds) throws NamelessException {
+	public void removeDiscordRoles(final long... roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.addProperty("id", this.id);
+		post.addProperty("user", this.id);
 		post.add("roles", new Gson().toJsonTree(roleIds));
 		this.requests.post(Action.REMOVE_DISCORD_ROLES, post);
 	}
