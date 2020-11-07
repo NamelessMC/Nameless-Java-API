@@ -63,6 +63,19 @@ public final class NamelessUser {
 		return this.api;
 	}
 	
+	/**
+	 * The API method `userInfo` is only called once to improve performance.
+	 * This means that if something changes on the website, methods that use
+	 * data from the `userInfo` API method will keep returning the old data.
+	 * Calling this method will invalidate the cache and require making a new
+	 * API request. It will not make a new API request immediately. Calling
+	 * this method multiple times while the cache is already cleared has no
+	 * effect.
+	 */
+	public void invalidateCache() {
+		this.userInfo = null;
+	}
+	
 	public int getId() throws NamelessException {
 		if (this.id == null) {
 			this.loadUserInfo();
