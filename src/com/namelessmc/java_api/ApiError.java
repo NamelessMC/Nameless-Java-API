@@ -31,6 +31,8 @@ public class ApiError extends NamelessException {
 	public static final int INVALID_GET_CONTENTS = 26;
 	public static final int INVALID_SERVER_ID = 27;
 	public static final int INVALID_VALIDATE_CODE = 28;
+	public static final int UNABLE_TO_SET_USER_DISCORD_ID = 29;
+	public static final int UNABLE_TO_SET_DISCORD_BOT_URL = 30;
 	
 	private static final long serialVersionUID = 3093028909912281912L;
 	
