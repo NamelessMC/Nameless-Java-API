@@ -236,6 +236,7 @@ public final class NamelessUser {
 		post.addProperty("user", this.id);
 		post.add("groups", groupsToJsonArray(groups));
 		this.requests.post(Action.ADD_GROUPS, post);
+		this.userInfo = null; // Groups modified, invalidate cache
 	}
 	
 	public void removeGroups(final Group... groups) throws NamelessException {
@@ -243,6 +244,7 @@ public final class NamelessUser {
 		post.addProperty("user", this.id);
 		post.add("groups", groupsToJsonArray(groups));
 		this.requests.post(Action.REMOVE_GROUPS, post);
+		this.userInfo = null; // Groups modified, invalidate cache
 	}
 	
 	private JsonArray groupsToJsonArray(final Group[] groups) {
@@ -298,6 +300,7 @@ public final class NamelessUser {
 		post.addProperty("code", code);
 		try {
 			this.requests.post(Action.VERIFY_MINECRAFT, post);
+			this.userInfo = null;
 			return true;
 		} catch (final ApiError e) {
 			if (e.getError() == ApiError.INVALID_VALIDATE_CODE) {
@@ -306,6 +309,7 @@ public final class NamelessUser {
 				throw e;
 			}
 		}
+		
 	}
 	
 	public Optional<Integer> getDiscordId() throws NamelessException {
