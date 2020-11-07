@@ -1,11 +1,11 @@
 package com.namelessmc.java_api;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import com.google.gson.Gson;
@@ -124,7 +124,7 @@ public final class NamelessUser {
 			this.loadUserInfo();
 		}
 		
-		return new Date(Long.parseLong(this.userInfo.get("registered").toString().replaceAll("^\"|\"$", "")) * 1000);
+		return new Date(this.userInfo.get("registered_date").getAsLong() * 1000);
 	}
 
 	/**
@@ -161,36 +161,53 @@ public final class NamelessUser {
 		return new VerificationInfo(verified, verification);
 	}
 	
-	public Group getPrimaryGroup() throws NamelessException {
-		if (this.userInfo == null) {
-			this.loadUserInfo();
+	/**
+	 * @return True if the user is member of at least one staff group, otherwise false
+	 * @throws NamelessException
+	 */
+	public boolean isStaff() throws NamelessException {
+		for (final Group group : this.getGroups()) {
+			if (group.isStaff()) {
+				return true;
+			}
 		}
-		
-		final JsonObject groups = this.userInfo.getAsJsonObject("groups");
-		final JsonObject primary = groups.getAsJsonObject("primary");
-		return new Group(primary.get("id").getAsInt(), primary.get("name").getAsString(), true);
+		return false;
 	}
 	
-	public List<Group> getSecondaryGroups() throws NamelessException {
-		if (this.userInfo == null) {
-			this.loadUserInfo();
-		}
-		
-		final JsonObject groups = this.userInfo.getAsJsonObject("groups");
-		final List<Group> secondaryGroups = new ArrayList<>();
-		groups.getAsJsonArray("secondary").forEach(e -> {
-			final JsonObject group = e.getAsJsonObject();
-			secondaryGroups.add(new Group(group.get("id").getAsInt(), group.get("name").getAsString(), false));
-		});
-		return Collections.unmodifiableList(secondaryGroups);
-	}
-	
+	/**
+	 * @return List of the user's groups, sorted from low order to high order.
+	 * @throws NamelessException
+	 */
 	public List<Group> getGroups() throws NamelessException {
-		final List<Group> secondaryGroups = this.getSecondaryGroups();
-		final List<Group> list = new ArrayList<>(secondaryGroups.size() + 1);
-		list.add(this.getPrimaryGroup());
-		list.addAll(this.getSecondaryGroups());
-		return Collections.unmodifiableList(list);
+		if (this.userInfo == null) {
+			this.loadUserInfo();
+		}
+		
+		return StreamSupport.stream(this.userInfo.getAsJsonArray("groups").spliterator(), false)
+				.map(JsonElement::getAsJsonObject)
+				.map(Group::new)
+				.sorted()
+				.collect(Collectors.toList());
+	}
+	
+	/**
+	 * Same as doing {@link #getGroups()}.get(0), but with better performance
+	 * since it doesn't need to create and sort a list of group objects.
+	 * Empty if the user is not in any groups.
+	 * @return Player's group with lowest order
+	 * @throws NamelessException
+	 */
+	public Optional<Group> getPrimaryGroup() throws NamelessException {
+		if (this.userInfo == null) {
+			this.loadUserInfo();
+		}
+		
+		final JsonArray groups = this.userInfo.getAsJsonArray("groups");
+		if (groups.size() > 0) {
+			return Optional.of(new Group(groups.get(0).getAsJsonObject()));
+		} else {
+			return Optional.empty();
+		}
 	}
 	
 	public void addGroups(final Group... groups) throws NamelessException {
