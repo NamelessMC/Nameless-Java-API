@@ -126,6 +126,14 @@ public final class NamelessUser {
 		
 		return new Date(this.userInfo.get("registered_timestamp").getAsLong() * 1000);
 	}
+	
+	public Date getLastOnline() throws NamelessException {
+		if (this.userInfo == null) {
+			this.loadUserInfo();
+		}
+		
+		return new Date(this.userInfo.get("last_online_timestamp").getAsLong() * 1000);
+	}
 
 	/**
 	 * @return Whether this account is banned from the website.
