@@ -124,7 +124,7 @@ public final class NamelessUser {
 			this.loadUserInfo();
 		}
 		
-		return new Date(this.userInfo.get("registered_date").getAsLong() * 1000);
+		return new Date(this.userInfo.get("registered_timestamp").getAsLong() * 1000);
 	}
 
 	/**
