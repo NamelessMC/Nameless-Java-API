@@ -5,9 +5,7 @@ import static com.namelessmc.java_api.RequestHandler.RequestMethod.POST;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -15,8 +13,11 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.commons.io.IOUtils;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 public class RequestHandler {
 	
@@ -110,24 +111,39 @@ public class RequestHandler {
 			}
 		}
 		
-		JsonObject response;
+		String response;
 		
-		try (InputStream in = connection.getInputStream();
-				Reader reader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)){
-			response = JsonParser.parseReader(reader).getAsJsonObject();
+		try (InputStream in = connection.getInputStream()) {
+			response = IOUtils.toString(in, StandardCharsets.UTF_8);
+		}
+		
+		JsonObject json;
+		
+		try {
+			json = JsonParser.parseString(response).getAsJsonObject();
+		} catch (final JsonSyntaxException e) {
+			if (!response.endsWith("\n")) {
+				response = response + "\n";
+			}
+			final String message = e.getMessage() + "\n"
+					+ "Website response:\n"
+					+ "-----------------\n"
+					+ response
+					+ "-----------------\n";
+			throw new NamelessException(message, e);
 		}
 
 		connection.disconnect();
 		
-		if (!response.has("error")) {
+		if (!json.has("error")) {
 			throw new NamelessException("Unexpected response from website (missing json key 'error')");
 		}
 
-		if (response.get("error").getAsBoolean()) {
-			throw new ApiError(response.get("code").getAsInt());
+		if (json.get("error").getAsBoolean()) {
+			throw new ApiError(json.get("code").getAsInt());
 		}
 		
-		return response;
+		return json;
 	}
 	
 	public enum Action {
