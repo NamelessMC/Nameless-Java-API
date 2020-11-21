@@ -293,7 +293,13 @@ public final class NamelessAPI {
 	public void setDiscordBotUrl(final URL url) throws NamelessException {
 		final JsonObject json = new JsonObject();
 		json.addProperty("url", url.toString());
-		this.requests.post(Action.SET_DISCORD_BOT_URL, json);
+		this.requests.post(Action.UPDATE_DISCORD_BOT_SETTINGS, json);
+	}
+	
+	public void setDiscordGuildId(final long id) throws NamelessException {
+		final JsonObject json = new JsonObject();
+		json.addProperty("guild_id", id + "");
+		this.requests.post(Action.UPDATE_DISCORD_BOT_SETTINGS, json);
 	}
 
 	@Deprecated
