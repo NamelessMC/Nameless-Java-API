@@ -104,7 +104,7 @@ public final class NamelessUser {
 						uuidString.equals("")) {
 					this.uuid = Optional.empty();
 				} else {
-					Optional.of(NamelessAPI.websiteUuidToJavaUuid(uuidString));
+					this.uuid = Optional.of(NamelessAPI.websiteUuidToJavaUuid(uuidString));
 				}
 			} else {
 				this.uuid = Optional.empty();
