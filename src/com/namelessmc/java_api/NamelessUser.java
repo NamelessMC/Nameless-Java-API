@@ -98,7 +98,14 @@ public final class NamelessUser {
 		if (this.uuid == null) {
 			this.loadUserInfo();
 			if (this.userInfo.has("uuid")) {
-				this.uuid = Optional.of(NamelessAPI.websiteUuidToJavaUuid(this.userInfo.get("uuid").getAsString()));
+				final String uuidString = this.userInfo.get("uuid").getAsString();
+				if (uuidString == null ||
+						uuidString.equals("none") ||
+						uuidString.equals("")) {
+					this.uuid = Optional.empty();
+				} else {
+					Optional.of(NamelessAPI.websiteUuidToJavaUuid(uuidString));
+				}
 			} else {
 				this.uuid = Optional.empty();
 			}
