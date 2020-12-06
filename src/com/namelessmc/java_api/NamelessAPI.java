@@ -302,6 +302,40 @@ public final class NamelessAPI {
 		json.addProperty("guild_id", id + "");
 		this.requests.post(Action.UPDATE_DISCORD_BOT_SETTINGS, json);
 	}
+	
+	public void updateDiscordUsername(final long discordUserId, final String discordUsername) throws NamelessException {
+		final JsonObject user = new JsonObject();
+		user.addProperty("id", discordUserId);
+		user.addProperty("name", discordUsername);
+		final JsonArray users = new JsonArray();
+		users.add(user);
+		final JsonObject json = new JsonObject();
+		json.add("users", users);
+		this.requests.post(Action.UPDATE_DISCORD_USERNAMES, json);
+	}
+	
+	public void updateDiscordUsernames(final long[] discordUserIds, final String[] discordUsernames) throws NamelessException {
+		if (discordUserIds.length != discordUsernames.length) {
+			throw new IllegalArgumentException("discord user ids and discord usernames must be of same length");
+		}
+		
+		if (discordUserIds.length == 0) {
+			return;
+		}
+		
+		final JsonArray users = new JsonArray();
+		
+		for (int i = 0; i < discordUserIds.length; i++) {
+			final JsonObject user = new JsonObject();
+			user.addProperty("id", discordUserIds[i]);
+			user.addProperty("name", discordUsernames[i]);
+			users.add(user);
+		}
+		
+		final JsonObject json = new JsonObject();
+		json.add("users", users);
+		this.requests.post(Action.UPDATE_DISCORD_USERNAMES, json);
+	}
 
 	@Deprecated
 	static String[] jsonToArray(final JsonArray jsonArray) {

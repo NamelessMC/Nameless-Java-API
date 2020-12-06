@@ -164,6 +164,7 @@ public class RequestHandler {
 		INGAME_RANKS("ingameRanks", POST),
 		UPDATE_DISCORD_BOT_SETTINGS("updateDiscordBotSettings", POST),
 		VERIFY_DISCORD("verifyDiscord", POST),
+		UPDATE_DISCORD_USERNAMES("updateDiscordUsernames", POST),
 		GET_DISCORD_ID("getDiscordId", GET),
 		GET_DISCORD_ROLES("getDiscordRoles", GET),
 		GET_USER_BY_DISCORD_ID("getUserByDiscordId", GET),
