@@ -258,7 +258,7 @@ public final class NamelessUser {
 	
 	public void addGroups(final Group... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.addProperty("user", this.id);
+		post.addProperty("user", this.getId());
 		post.add("groups", groupsToJsonArray(groups));
 		this.requests.post(Action.ADD_GROUPS, post);
 		this.userInfo = null; // Groups modified, invalidate cache
@@ -266,7 +266,7 @@ public final class NamelessUser {
 	
 	public void removeGroups(final Group... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.addProperty("user", this.id);
+		post.addProperty("user", this.getId());
 		post.add("groups", groupsToJsonArray(groups));
 		this.requests.post(Action.REMOVE_GROUPS, post);
 		this.userInfo = null; // Groups modified, invalidate cache
@@ -281,12 +281,12 @@ public final class NamelessUser {
 	}
 	
 	public int getNotificationCount() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GET_NOTIFICATIONS, "user", this.id);
+		final JsonObject response = this.requests.get(Action.GET_NOTIFICATIONS, "user", this.getId());
 		return response.getAsJsonArray("notifications").size();
 	}
 	
 	public List<Notification> getNotifications() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GET_NOTIFICATIONS, "user", this.id);
+		final JsonObject response = this.requests.get(Action.GET_NOTIFICATIONS, "user", this.getId());
 		
 		final List<Notification> notifications = new ArrayList<>();
 		response.getAsJsonArray("notifications").forEach((element) -> {
@@ -307,7 +307,7 @@ public final class NamelessUser {
 	 */
 	public void createReport(final String username, final String reason) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.addProperty("reporter", this.id);
+		post.addProperty("reporter", this.getId());
 		post.addProperty("reported", username);
 		post.addProperty("content", reason);
 		this.requests.post(Action.CREATE_REPORT, post);
@@ -321,7 +321,7 @@ public final class NamelessUser {
 	 */
 	public boolean verifyMinecraft(final String code) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.addProperty("user", this.id);
+		post.addProperty("user", this.getId());
 		post.addProperty("code", code);
 		try {
 			this.requests.post(Action.VERIFY_MINECRAFT, post);
@@ -338,28 +338,28 @@ public final class NamelessUser {
 	}
 	
 	public long[] getDiscordRoles() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GET_DISCORD_ROLES, "user", this.id);
+		final JsonObject response = this.requests.get(Action.GET_DISCORD_ROLES, "user", this.getId());
 		return StreamSupport.stream(response.getAsJsonArray("roles").spliterator(), false)
 				.mapToLong(JsonElement::getAsLong).toArray();
 	}
 	
 	public void setDiscordRoles(final long[] roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.addProperty("user", this.id);
+		post.addProperty("user", this.getId());
 		post.add("roles", new Gson().toJsonTree(roleIds));
 		this.requests.post(Action.SET_DISCORD_ROLES, post);
 	}
 
 	public void addDiscordRoles(final long... roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.addProperty("user", this.id);
+		post.addProperty("user", this.getId());
 		post.add("roles", new Gson().toJsonTree(roleIds));
 		this.requests.post(Action.ADD_DISCORD_ROLES, post);
 	}
 	
 	public void removeDiscordRoles(final long... roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.addProperty("user", this.id);
+		post.addProperty("user", this.getId());
 		post.add("roles", new Gson().toJsonTree(roleIds));
 		this.requests.post(Action.REMOVE_DISCORD_ROLES, post);
 	}
