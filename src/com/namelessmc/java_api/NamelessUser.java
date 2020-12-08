@@ -50,6 +50,8 @@ public final class NamelessUser {
 			response = this.requests.get(Action.USER_INFO, "uuid", this.uuid.get());
 		} else if (this.username != null) {
 			response = this.requests.get(Action.USER_INFO, "username", this.username);
+		} else if (this.discordId != null) {
+			response = this.requests.get(Action.USER_INFO, "discord_id", this.discordId.get());
 		} else {
 			throw new IllegalStateException("ID, uuid, and username not known for this player.");
 		}
