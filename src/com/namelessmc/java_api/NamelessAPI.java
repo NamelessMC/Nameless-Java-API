@@ -153,7 +153,7 @@ public final class NamelessAPI {
 			} else {
 				uuid = Optional.empty();
 			}
-			users.add(new NamelessUser(this, id, username, uuid));
+			users.add(new NamelessUser(this, id, username, uuid, null));
 		};
 		return Collections.unmodifiableList(users);
 	}
@@ -185,37 +185,37 @@ public final class NamelessAPI {
 		}
 	}
 	
+	public Optional<NamelessUser> getUserByDiscordId(final long discordId) throws NamelessException {
+		final NamelessUser user = getUserLazyDiscord(discordId);
+		if (user.exists()) {
+			return Optional.of(user);
+		} else {
+			return Optional.empty();
+		}
+	}
+	
 	public NamelessUser getUserLazy(final int id) throws NamelessException {
-		return new NamelessUser(this, id, null, null);
+		return new NamelessUser(this, id, null, null, null);
 	}
 	
 	public NamelessUser getUserLazy(final String username) throws NamelessException {
-		return new NamelessUser(this, null, username, null);
+		return new NamelessUser(this, null, username, null, null);
 	}
 	
 	public NamelessUser getUserLazy(final UUID uuid) throws NamelessException {
-		return new NamelessUser(this, null, null, Optional.of(uuid));
+		return new NamelessUser(this, null, null, Optional.of(uuid), null);
 	}
 
 	public NamelessUser getUserLazy(final String username, final UUID uuid) throws NamelessException {
-		return new NamelessUser(this, null, null, Optional.of(uuid));
+		return new NamelessUser(this, null, null, Optional.of(uuid), null);
 	}
 	
 	public NamelessUser getUserLazy(final int id, final String username, final UUID uuid) throws NamelessException {
-		return new NamelessUser(this, id, username, Optional.of(uuid));
+		return new NamelessUser(this, id, username, Optional.of(uuid), null);
 	}
 	
-	public Optional<NamelessUser> getUserByDiscordId(final long id) throws NamelessException {
-		try {
-			final JsonObject response = this.requests.get(Action.GET_USER_BY_DISCORD_ID, "discord_id", id);
-			return Optional.of(new NamelessUser(this, response.get("id").getAsInt(), null, null));
-		} catch (final ApiError e) {
-			if (e.getError() == ApiError.UNABLE_TO_FIND_USER) {
-				return Optional.empty();
-			} else {
-				throw e;
-			}
-		}
+	public NamelessUser getUserLazyDiscord(final long discordId) throws NamelessException {
+		return new NamelessUser(this, null, null, null, discordId);
 	}
 	
 	public Optional<Group> getGroup(final int id) throws NamelessException {

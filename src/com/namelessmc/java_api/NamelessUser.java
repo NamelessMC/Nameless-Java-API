@@ -23,21 +23,23 @@ public final class NamelessUser {
 	private Integer id;
 	private String username;
 	private Optional<UUID> uuid;
+	private Optional<Long> discordId;
 
 	private JsonObject userInfo;
 	
-	// only one of id, username, uuid has to be provided
-	NamelessUser(final NamelessAPI api, final Integer id, final String username, final Optional<UUID> uuid) throws NamelessException {
+	// only one of id, username, uuid, discordId has to be provided
+	NamelessUser(final NamelessAPI api, final Integer id, final String username, final Optional<UUID> uuid, final Long discordId) throws NamelessException {
 		this.api = api;
 		this.requests = api.getRequestHandler();
 		
-		if (id == null && username == null && uuid == null) {
-			throw new IllegalArgumentException("You must specify at least one of ID, uuid, username");
+		if (id == null && username == null && uuid == null && discordId == null) {
+			throw new IllegalArgumentException("You must specify at least one of ID, uuid, username, discordId");
 		}
 		
 		this.id = id;
 		this.username = username;
 		this.uuid = uuid;
+		this.discordId = discordId != null ? Optional.of(discordId) : null;
 	}
 	
 	private void loadUserInfo() throws NamelessException {
@@ -112,6 +114,20 @@ public final class NamelessUser {
 		}
 		
 		return this.uuid;
+	}
+	
+	public Optional<Long> getDiscordId() throws NamelessException {
+		if (this.discordId == null) {
+			this.loadUserInfo();
+			if (this.userInfo.has("discord_id")) {
+				this.discordId = Optional.of(Long.valueOf(this.userInfo.get("discord_id").getAsLong()));
+			} else {
+				this.discordId = Optional.empty();
+			}
+			
+		}
+		
+		return this.discordId;
 	}
 	
 	public boolean exists() throws NamelessException {
@@ -317,15 +333,6 @@ public final class NamelessUser {
 			}
 		}
 		
-	}
-	
-	public Optional<Integer> getDiscordId() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GET_DISCORD_ID, "user", this.id);
-		if (response.has("discord_id")) {
-			return Optional.of(response.get("discord_id").getAsInt());
-		} else {
-			return Optional.empty();
-		}
 	}
 	
 	public long[] getDiscordRoles() throws NamelessException {
