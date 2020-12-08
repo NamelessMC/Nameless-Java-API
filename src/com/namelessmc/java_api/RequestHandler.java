@@ -23,10 +23,12 @@ public class RequestHandler {
 	
 	private final URL baseUrl;
 	private final String userAgent;
+	private final boolean debug;
 	
 	RequestHandler(final URL baseUrl, final String userAgent, final boolean debug) {
 		this.baseUrl = baseUrl;
 		this.userAgent = userAgent;
+		this.debug = debug;
 	}
 	
 	public URL getApiUrl() {
@@ -95,12 +97,23 @@ public class RequestHandler {
 		}
 	}
 	
+	private void debug(final String message, final Object... args) {
+		if (this.debug) {
+			System.out.println(String.format(message, args));
+		}
+	}
+	
 	private JsonObject makeConnection(final URL url, final JsonObject postBody) throws NamelessException, IOException {
 		final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		
+		debug("Making connection %s to url %s", postBody != null ? "POST" : "GET", url);
 
 		connection.addRequestProperty("User-Agent", this.userAgent);
 		
+		debug("Using User-Agent '%s'", this.userAgent);
+		
 		if (postBody != null) {
+			debug("Post body below\n-----------------\n%s\n-----------------", postBody);
 			connection.setRequestMethod("POST");
 			final byte[] encodedMessage = postBody.toString().getBytes(StandardCharsets.UTF_8);
 			connection.setRequestProperty("Content-Length", encodedMessage.length + "");
@@ -116,6 +129,8 @@ public class RequestHandler {
 		try (InputStream in = connection.getInputStream()) {
 			response = IOUtils.toString(in, StandardCharsets.UTF_8);
 		}
+		
+		debug("Website response below\n-----------------\n%s\n-----------------", response);
 		
 		JsonObject json;
 		
