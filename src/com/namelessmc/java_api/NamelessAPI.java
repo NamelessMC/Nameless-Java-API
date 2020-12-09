@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -317,6 +318,18 @@ public final class NamelessAPI {
 		json.addProperty("bot_username", username);
 		json.addProperty("bot_user_id", userId + "");
 		this.requests.post(Action.UPDATE_DISCORD_BOT_SETTINGS, json);
+	}
+	
+	public void submitDiscordRoleList(final Map<Long, String> discordRoles) throws NamelessException {
+		final JsonArray roles = new JsonArray();
+		discordRoles.forEach((id, name) -> {
+			final JsonObject role = new JsonObject();
+			role.addProperty("id", id);
+			role.addProperty("name", name);
+		});
+		final JsonObject json = new JsonObject();
+		json.add("roles", roles);
+		this.requests.post(Action.SUBMIT_DISCORD_ROLE_LIST, json);
 	}
 	
 	public void updateDiscordUsername(final long discordUserId, final String discordUsername) throws NamelessException {
