@@ -297,9 +297,25 @@ public final class NamelessAPI {
 		this.requests.post(Action.UPDATE_DISCORD_BOT_SETTINGS, json);
 	}
 	
-	public void setDiscordGuildId(final long id) throws NamelessException {
+	public void setDiscordGuildId(final long guildId) throws NamelessException {
 		final JsonObject json = new JsonObject();
-		json.addProperty("guild_id", id + "");
+		json.addProperty("guild_id", guildId + "");
+		this.requests.post(Action.UPDATE_DISCORD_BOT_SETTINGS, json);
+	}
+	
+	public void setDiscordBotUser(final String username, final long userId) throws NamelessException {
+		final JsonObject json = new JsonObject();
+		json.addProperty("bot_username", username);
+		json.addProperty("bot_user_id", userId + "");
+		this.requests.post(Action.UPDATE_DISCORD_BOT_SETTINGS, json);
+	}
+	
+	public void setDiscordBotSettings(final URL url, final long guildId, final String username, final long userId) throws NamelessException {
+		final JsonObject json = new JsonObject();
+		json.addProperty("url", url.toString());
+		json.addProperty("guild_id", guildId + "");
+		json.addProperty("bot_username", username);
+		json.addProperty("bot_user_id", userId + "");
 		this.requests.post(Action.UPDATE_DISCORD_BOT_SETTINGS, json);
 	}
 	
