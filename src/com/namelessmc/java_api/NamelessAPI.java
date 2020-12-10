@@ -11,6 +11,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -70,6 +72,17 @@ public final class NamelessAPI {
 	
 	public URL getApiUrl() {
 		return this.getRequestHandler().getApiUrl();
+	}
+	
+	public String getApiKey() {
+		return getApiKey(this.getApiKey().toString());
+	}
+	
+	private String getApiKey(final String url) {
+		if (url.endsWith("/")) {
+			return getApiKey(StringUtils.removeEnd(url, "/"));
+		}
+		return StringUtils.substringAfterLast("/", url);
 	}
 
 	/**
