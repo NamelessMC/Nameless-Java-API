@@ -339,6 +339,7 @@ public final class NamelessAPI {
 			final JsonObject role = new JsonObject();
 			role.addProperty("id", id);
 			role.addProperty("name", name);
+			roles.add(role);
 		});
 		final JsonObject json = new JsonObject();
 		json.add("roles", roles);
