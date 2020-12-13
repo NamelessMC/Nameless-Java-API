@@ -75,14 +75,15 @@ public final class NamelessAPI {
 	}
 	
 	public String getApiKey() {
-		return getApiKey(this.getApiKey().toString());
+		return getApiKey(this.getApiUrl().toString());
 	}
 	
 	private String getApiKey(final String url) {
 		if (url.endsWith("/")) {
 			return getApiKey(StringUtils.removeEnd(url, "/"));
 		}
-		return StringUtils.substringAfterLast("/", url);
+		
+		return StringUtils.substringAfterLast(url, "/");
 	}
 
 	/**
