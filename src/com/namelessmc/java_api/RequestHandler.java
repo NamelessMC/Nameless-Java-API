@@ -136,7 +136,7 @@ public class RequestHandler {
 		
 		try {
 			json = JsonParser.parseString(response).getAsJsonObject();
-		} catch (final JsonSyntaxException e) {
+		} catch (final JsonSyntaxException | IllegalStateException e) {
 			if (!response.endsWith("\n")) {
 				response = response + "\n";
 			}
