@@ -141,7 +141,7 @@ public class RequestHandler {
 				response = response + "\n";
 			}
 			final String message = e.getMessage() + "\n"
-					+ "Website response:\n"
+					+ "Unable to parse json. Received response code " + connection.getResponseCode() + ". Website response:\n"
 					+ "-----------------\n"
 					+ response
 					+ "-----------------\n";
