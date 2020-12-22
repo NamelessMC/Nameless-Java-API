@@ -87,7 +87,7 @@ public class RequestHandler {
 		try {
 			url = new URL(urlBuilder.toString());
 		} catch (final MalformedURLException e) {
-			throw new NamelessException("Error while building request URL: " + urlBuilder);
+			throw new NamelessException("Error while building request URL: " + urlBuilder, e);
 		}
 		
 		try {
@@ -105,6 +105,9 @@ public class RequestHandler {
 	
 	private JsonObject makeConnection(final URL url, final JsonObject postBody) throws NamelessException, IOException {
 		final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		
+		connection.setReadTimeout(10000);
+		connection.setConnectTimeout(10000);
 		
 		debug("Making connection %s to url %s", postBody != null ? "POST" : "GET", url);
 
