@@ -8,7 +8,7 @@ public class ApiError extends NamelessException {
 	public static final int INVALID_API_METHOD = 3;
 	public static final int NO_UNIQUE_SITE_ID_AVAILABLE = 4;
 	public static final int UNABLE_TO_CHECK_FOR_UPDATES = 5;
-	public static final int INVALID_POST_CONTENTS = 6;
+	public static final int INVALID_GET_POST_CONTENTS = 6;
 	public static final int INVALID_EMAIL_ADDRESS = 7;
 	public static final int INVALID_USERNAME = 8;
 	public static final int INVALID_UUID = 9;
@@ -28,11 +28,16 @@ public class ApiError extends NamelessException {
 	public static final int UNABLE_TO_CREATE_REPORT = 23;
 	public static final int UNABLE_TO_UPDATE_USERNAME = 24;
 	public static final int UNABLE_TO_UPDATE_SERVER_INFO = 25;
-	public static final int INVALID_GET_CONTENTS = 26;
+	public static final int CANNOT_REPORT_YOURSELF = 26;
 	public static final int INVALID_SERVER_ID = 27;
 	public static final int INVALID_VALIDATE_CODE = 28;
 	public static final int UNABLE_TO_SET_USER_DISCORD_ID = 29;
 	public static final int UNABLE_TO_SET_DISCORD_BOT_URL = 30;
+	
+	public static final int USER_ALREADY_ACTIVE = 32;
+	public static final int UNABLE_TO_SET_DISCORD_GUILD_ID = 33;
+	public static final int DISCORD_INTEGRATION_DISABLED = 34;
+	
 	
 	private static final long serialVersionUID = 3093028909912281912L;
 	
