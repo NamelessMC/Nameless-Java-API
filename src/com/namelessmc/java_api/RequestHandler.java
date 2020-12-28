@@ -99,7 +99,7 @@ public class RequestHandler {
 	
 	private void debug(final String message, final Object... args) {
 		if (this.debug) {
-			System.out.println(String.format(message, args));
+			System.out.println(String.format(message, args).replace(NamelessAPI.getApiKey(this.getApiUrl().toString()), "**API_KEY_REMOVED**"));
 		}
 	}
 	
