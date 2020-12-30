@@ -190,7 +190,7 @@ public final class NamelessUser {
 			this.loadUserInfo();
 		}
 		
-		return this.userInfo.get("verified").getAsBoolean();
+		return this.userInfo.get("validated").getAsBoolean();
 	}
 	
 	public String getLangage() throws NamelessException {
