@@ -20,7 +20,7 @@ import com.namelessmc.java_api.RequestHandler.Action;
 
 public final class NamelessAPI {
 
-	private static final String DEFAULT_USER_AGENT = "Nameless-Java-API/beta"; // TODO include mavenversion string
+	private static final String DEFAULT_USER_AGENT = "Nameless-Java-API";
 	
 	private final RequestHandler requests;
 
