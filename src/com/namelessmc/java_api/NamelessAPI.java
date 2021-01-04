@@ -149,13 +149,15 @@ public final class NamelessAPI {
 		return new Website(json);
 	}
 	
+	private static final Object[] EMPTY_ARRAY = new Object[] {};
+	
 	public List<NamelessUser> getRegisteredUsers(final UserFilter<?>... filters) throws NamelessException {
-		final List<String> parameters = new ArrayList<>();
+		final List<Object> parameters = new ArrayList<>();
 		for (final UserFilter<?> filter : filters) {
 			parameters.add(filter.getName());
 			parameters.add(filter.getValue().toString());
 		}
-		final JsonObject response = this.requests.get(Action.LIST_USERS, parameters);
+		final JsonObject response = this.requests.get(Action.LIST_USERS, parameters.toArray(EMPTY_ARRAY));
 		final JsonArray array = response.getAsJsonArray("users");
 		final List<NamelessUser> users = new ArrayList<>(array.size());
 		for (final JsonElement e : array) {
