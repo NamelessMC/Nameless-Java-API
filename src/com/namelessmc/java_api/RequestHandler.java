@@ -12,6 +12,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 
@@ -65,7 +67,8 @@ public class RequestHandler {
 		
 		if (parameters.length > 0) {
 			if (parameters.length % 2 != 0) {
-				throw new IllegalArgumentException("Parameter string varargs array length must be even");
+				final String paramString = Arrays.stream(parameters).map(Object::toString).collect(Collectors.joining("|"));
+				throw new IllegalArgumentException(String.format("Parameter string varargs array length must be even (length is %s - %s)", parameters.length, paramString));
 			}
 			
 			for (int i = 0; i < parameters.length; i++) {
