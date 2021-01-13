@@ -14,6 +14,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.Notification.NotificationType;
 import com.namelessmc.java_api.RequestHandler.Action;
+import com.namelessmc.java_api.exception.AccountAlreadyActivatedException;
+import com.namelessmc.java_api.exception.InvalidValidateCodeException;
 
 public final class NamelessUser {
 
@@ -314,27 +316,29 @@ public final class NamelessUser {
 	}
 	
 	/**
+	 * Verifies a user's Minecraft account
 	 * @param code
-	 * @return True if the user could be validated successfully, false if the provided code is wrong
 	 * @throws NamelessException
-	 * @throws
+	 * @throws AccountAlreadyActivatedException
+	 * @throws InvalidValidateCodeException
 	 */
-	public boolean verifyMinecraft(final String code) throws NamelessException {
+	public void verifyMinecraft(final String code) throws NamelessException, InvalidValidateCodeException, AccountAlreadyActivatedException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
 		post.addProperty("code", code);
 		try {
 			this.requests.post(Action.VERIFY_MINECRAFT, post);
 			this.userInfo = null;
-			return true;
 		} catch (final ApiError e) {
-			if (e.getError() == ApiError.INVALID_VALIDATE_CODE) {
-				return false;
-			} else {
-				throw e;
+			switch (e.getError()) {
+				case ApiError.INVALID_VALIDATE_CODE:
+					throw new InvalidValidateCodeException();
+				case ApiError.ACCOUNT_ALREADY_ACTIVATED:
+					throw new AccountAlreadyActivatedException();
+				default:
+					throw e;
 			}
 		}
-		
 	}
 	
 	public long[] getDiscordRoles() throws NamelessException {

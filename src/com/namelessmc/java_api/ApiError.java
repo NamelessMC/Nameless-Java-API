@@ -34,7 +34,7 @@ public class ApiError extends NamelessException {
 	public static final int UNABLE_TO_SET_USER_DISCORD_ID = 29;
 	public static final int UNABLE_TO_SET_DISCORD_BOT_URL = 30;
 	
-	public static final int USER_ALREADY_ACTIVE = 32;
+	public static final int ACCOUNT_ALREADY_ACTIVATED = 32;
 	public static final int UNABLE_TO_SET_DISCORD_GUILD_ID = 33;
 	public static final int DISCORD_INTEGRATION_DISABLED = 34;
 	

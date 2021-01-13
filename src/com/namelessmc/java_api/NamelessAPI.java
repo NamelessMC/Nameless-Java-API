@@ -17,6 +17,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.RequestHandler.Action;
+import com.namelessmc.java_api.exception.InvalidUsernameException;
 
 public final class NamelessAPI {
 
@@ -278,8 +279,9 @@ public final class NamelessAPI {
 	 * @return Email verification disabled: A link which the user needs to click to complete registration
 	 * <br>Email verification enabled: An empty string (the user needs to check their email to complete registration)
 	 * @throws NamelessException
+	 * @throws InvalidUsernameException
 	 */
-	public Optional<String> registerUser(final String username, final String email, final UUID uuid) throws NamelessException {
+	public Optional<String> registerUser(final String username, final String email, final UUID uuid) throws NamelessException, InvalidUsernameException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("username", username);
 		post.addProperty("email", email);
@@ -287,16 +289,24 @@ public final class NamelessAPI {
 			post.addProperty("uuid", uuid.toString());
 		}
 		
-		final JsonObject response = this.requests.post(Action.REGISTER, post);
-		
-		if (response.has("link")) {
-			return Optional.of(response.get("link").getAsString());
-		} else {
-			return Optional.empty();
+		try {
+			final JsonObject response = this.requests.post(Action.REGISTER, post);
+			
+			if (response.has("link")) {
+				return Optional.of(response.get("link").getAsString());
+			} else {
+				return Optional.empty();
+			}
+		} catch (final ApiError e) {
+			if (e.getError() == ApiError.INVALID_USERNAME) {
+				throw new InvalidUsernameException();
+			} else {
+				throw e;
+			}
 		}
 	}
 	
-	public Optional<String> registerUser(final String username, final String email) throws NamelessException {
+	public Optional<String> registerUser(final String username, final String email) throws NamelessException, InvalidUsernameException {
 		return registerUser(username, email, null);
 	}
 	
