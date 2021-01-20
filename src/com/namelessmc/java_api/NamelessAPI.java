@@ -17,6 +17,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.RequestHandler.Action;
+import com.namelessmc.java_api.exception.CannotSendEmailException;
 import com.namelessmc.java_api.exception.InvalidUsernameException;
 
 public final class NamelessAPI {
@@ -280,8 +281,9 @@ public final class NamelessAPI {
 	 * <br>Email verification enabled: An empty string (the user needs to check their email to complete registration)
 	 * @throws NamelessException
 	 * @throws InvalidUsernameException
+	 * @throws CannotSendEmailException
 	 */
-	public Optional<String> registerUser(final String username, final String email, final UUID uuid) throws NamelessException, InvalidUsernameException {
+	public Optional<String> registerUser(final String username, final String email, final UUID uuid) throws NamelessException, InvalidUsernameException, CannotSendEmailException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("username", username);
 		post.addProperty("email", email);
@@ -300,13 +302,15 @@ public final class NamelessAPI {
 		} catch (final ApiError e) {
 			if (e.getError() == ApiError.INVALID_USERNAME) {
 				throw new InvalidUsernameException();
+			} else if (e.getError() == ApiError.UNABLE_TO_SEND_REGISTRATION_EMAIL) {
+				throw new CannotSendEmailException();
 			} else {
 				throw e;
 			}
 		}
 	}
 	
-	public Optional<String> registerUser(final String username, final String email) throws NamelessException, InvalidUsernameException {
+	public Optional<String> registerUser(final String username, final String email) throws NamelessException, InvalidUsernameException, CannotSendEmailException {
 		return registerUser(username, email, null);
 	}
 	
