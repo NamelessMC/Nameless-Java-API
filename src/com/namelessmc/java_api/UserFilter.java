@@ -3,8 +3,8 @@ package com.namelessmc.java_api;
 public class UserFilter<FilterValue> {
 	
 	public static UserFilter<Boolean> BANNED = new UserFilter<>("banned", true);
-	public static UserFilter<Boolean> UNBANNED = new UserFilter<>("banned", true);
-	public static UserFilter<Boolean> VERIFIED = new UserFilter<>("verified", false);
+	public static UserFilter<Boolean> UNBANNED = new UserFilter<>("banned", false);
+	public static UserFilter<Boolean> VERIFIED = new UserFilter<>("verified", true);
 	public static UserFilter<Boolean> UNVERIFIED = new UserFilter<>("verified", false);
 	
 	private final String filterName;
