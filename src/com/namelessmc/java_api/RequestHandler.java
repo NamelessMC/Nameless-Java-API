@@ -146,11 +146,15 @@ public class RequestHandler {
 			if (!response.endsWith("\n")) {
 				response = response + "\n";
 			}
-			final String message = e.getMessage() + "\n"
-					+ "Unable to parse json. Received response code " + connection.getResponseCode() + ". Website response:\n"
+			final int code = connection.getResponseCode();
+			String message = e.getMessage() + "\n"
+					+ "Unable to parse json. Received response code " + code + ". Website response:\n"
 					+ "-----------------\n"
 					+ response
 					+ "-----------------\n";
+			if (code == 301 || code == 302 || code == 303) {
+				message += "LIKELY FIX: The URL results in a redirect. If your URL uses http://, change to https://. If your website forces www., make sure to add www. to the url";
+			}
 			throw new NamelessException(message, e);
 		}
 
