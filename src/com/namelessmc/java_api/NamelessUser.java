@@ -15,7 +15,10 @@ import com.google.gson.JsonObject;
 import com.namelessmc.java_api.Notification.NotificationType;
 import com.namelessmc.java_api.RequestHandler.Action;
 import com.namelessmc.java_api.exception.AccountAlreadyActivatedException;
+import com.namelessmc.java_api.exception.AlreadyHasOpenReportException;
 import com.namelessmc.java_api.exception.InvalidValidateCodeException;
+import com.namelessmc.java_api.exception.ReportUserBannedException;
+import com.namelessmc.java_api.exception.UnableToCreateReportException;
 
 public final class NamelessUser {
 
@@ -306,13 +309,28 @@ public final class NamelessUser {
 	 * @param username Username of the player or user to report
 	 * @param reason Reason why this player has been reported
 	 * @throws NamelessException
+	 * @throws AlreadyHasOpenReportException
+	 * @throws ReportUserBannedException
+	 * @throws UnableToCreateReportException
 	 */
-	public void createReport(final String username, final String reason) throws NamelessException {
+	public void createReport(final String username, final String reason) throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, UnableToCreateReportException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("reporter", this.getId());
 		post.addProperty("reported", username);
 		post.addProperty("content", reason);
-		this.requests.post(Action.CREATE_REPORT, post);
+		try {
+			this.requests.post(Action.CREATE_REPORT, post);
+		} catch (final ApiError e) {
+			if (e.getError() == ApiError.USER_CREATING_REPORT_BANNED) {
+				throw new ReportUserBannedException();
+			} else if (e.getError() == ApiError.USER_ALREADY_HAS_OPEN_REPORT) {
+				throw new AlreadyHasOpenReportException();
+			} else if (e.getError() == ApiError.UNABLE_TO_CREATE_REPORT) {
+				throw new UnableToCreateReportException();
+			} else {
+				throw e;
+			}
+		}
 	}
 	
 	/**
