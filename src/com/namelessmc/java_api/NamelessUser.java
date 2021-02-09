@@ -131,7 +131,6 @@ public final class NamelessUser {
 			} else {
 				this.discordId = Optional.empty();
 			}
-			
 		}
 		
 		return this.discordId;
