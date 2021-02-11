@@ -12,7 +12,7 @@ public class Group implements Comparable<Group> {
 	Group(final JsonObject group) {
 		this.id = group.get("id").getAsInt();
 		this.name = group.get("name").getAsString();
-		this.order = group.has("order") ? group.get("order").getAsInt() : -1;
+		this.order = group.get("order").getAsInt();
 		this.staff = group.has("staff") && group.get("staff").getAsBoolean();
 	}
 
