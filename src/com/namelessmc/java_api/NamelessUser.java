@@ -6,9 +6,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.Notification.NotificationType;
 import com.namelessmc.java_api.RequestHandler.Action;
-import com.namelessmc.java_api.exception.*;
+import com.namelessmc.java_api.exception.AccountAlreadyActivatedException;
+import com.namelessmc.java_api.exception.AlreadyHasOpenReportException;
+import com.namelessmc.java_api.exception.InvalidValidateCodeException;
+import com.namelessmc.java_api.exception.ReportUserBannedException;
+import com.namelessmc.java_api.exception.UnableToCreateReportException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
