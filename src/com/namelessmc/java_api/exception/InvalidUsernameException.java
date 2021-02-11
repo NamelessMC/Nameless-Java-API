@@ -4,10 +4,10 @@ import com.namelessmc.java_api.ApiError;
 
 public class InvalidUsernameException extends ApiErrorException {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public InvalidUsernameException() {
-		super(ApiError.INVALID_USERNAME);
-	}
+    public InvalidUsernameException() {
+        super(ApiError.INVALID_USERNAME);
+    }
 
 }
