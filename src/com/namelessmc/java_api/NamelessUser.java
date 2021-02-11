@@ -25,18 +25,24 @@ public final class NamelessUser {
     private JsonObject userInfo;
 
     // only one of id, username, uuid, discordId has to be provided
-    NamelessUser(final NamelessAPI api, final Integer id, final String username, final Optional<UUID> uuid, final Long discordId) throws NamelessException {
+    @Deprecated
+    NamelessUser(final NamelessAPI api, final Integer id, final String username, final Optional<UUID> uuid, final Long discordId) {
+        this(api, id, username, uuid.orElse(null), discordId);
+    }
+
+    // only one of id, username, uuid, discordId has to be provided
+    NamelessUser(final NamelessAPI api, final int id, final String username, final UUID uuid, final long discordId) {
         this.api = api;
         this.requests = api.getRequestHandler();
 
-        if (id == null && username == null && (uuid == null || !uuid.isPresent()) && discordId == null) {
+        if (id == -1 && username == null && uuid == null && discordId == -1) {
             throw new IllegalArgumentException("You must specify at least one of ID, uuid, username, discordId");
         }
 
         this.id = id;
         this.username = username;
-        this.uuid = uuid;
-        this.discordId = discordId != null ? Optional.of(discordId) : Optional.empty();
+        this.uuid = Optional.ofNullable(uuid);
+        this.discordId = discordId == -1 ? Optional.empty() : Optional.of(discordId);
     }
 
     private void loadUserInfo() throws NamelessException {
@@ -96,7 +102,7 @@ public final class NamelessUser {
     }
 
     public Optional<UUID> getUniqueId() throws NamelessException {
-        if (!this.uuid.isPresent()) {
+        if (this.uuid != null) {
             this.loadUserInfo();
             if (this.userInfo.has("uuid")) {
                 final String uuidString = this.userInfo.get("uuid").getAsString();

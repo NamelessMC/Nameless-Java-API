@@ -152,15 +152,15 @@ public final class NamelessAPI {
             final JsonObject o = e.getAsJsonObject();
             final int id = o.get("id").getAsInt();
             final String username = o.get("username").getAsString();
-            Optional<UUID> uuid;
+            final UUID uuid;
             if (o.has("uuid")) {
-                uuid = Optional.of(NamelessAPI.websiteUuidToJavaUuid(o.get("uuid").getAsString()));
+                uuid = NamelessAPI.websiteUuidToJavaUuid(o.get("uuid").getAsString());
             } else {
-                uuid = Optional.empty();
+                uuid = null;
             }
-            users.add(new NamelessUser(this, id, username, uuid, null));
+            users.add(new NamelessUser(this, id, username, uuid, -1));
         }
-        ;
+
         return Collections.unmodifiableList(users);
     }
 
@@ -200,28 +200,28 @@ public final class NamelessAPI {
         }
     }
 
-    public NamelessUser getUserLazy(final int id) throws NamelessException {
-        return new NamelessUser(this, id, null, null, null);
+    public NamelessUser getUserLazy(final int id) {
+        return new NamelessUser(this, id, null, null, -1);
     }
 
-    public NamelessUser getUserLazy(final String username) throws NamelessException {
-        return new NamelessUser(this, null, username, null, null);
+    public NamelessUser getUserLazy(final String username) {
+        return new NamelessUser(this, -1, username, null, -1);
     }
 
-    public NamelessUser getUserLazy(final UUID uuid) throws NamelessException {
-        return new NamelessUser(this, null, null, Optional.of(uuid), null);
+    public NamelessUser getUserLazy(final UUID uuid) {
+        return new NamelessUser(this, -1, null, uuid, -1);
     }
 
-    public NamelessUser getUserLazy(final String username, final UUID uuid) throws NamelessException {
-        return new NamelessUser(this, null, null, Optional.of(uuid), null);
+    public NamelessUser getUserLazy(final String username, final UUID uuid) {
+        return new NamelessUser(this, -1, null, uuid, -1);
     }
 
-    public NamelessUser getUserLazy(final int id, final String username, final UUID uuid) throws NamelessException {
-        return new NamelessUser(this, id, username, Optional.of(uuid), null);
+    public NamelessUser getUserLazy(final int id, final String username, final UUID uuid) {
+        return new NamelessUser(this, id, username, uuid, -1);
     }
 
-    public NamelessUser getUserLazyDiscord(final long discordId) throws NamelessException {
-        return new NamelessUser(this, null, null, null, discordId);
+    public NamelessUser getUserLazyDiscord(final long discordId) {
+        return new NamelessUser(this, -1, null, null, discordId);
     }
 
     public Optional<Group> getGroup(final int id) throws NamelessException {
