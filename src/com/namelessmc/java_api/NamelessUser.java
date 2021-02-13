@@ -8,6 +8,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.apache.commons.lang3.Validate;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -305,17 +307,19 @@ public final class NamelessUser {
 
 	/**
 	 * Reports a player
-	 * @param username Username of the player or user to report
+	 * @param user User to report. Lazy loading possible, only the ID is used.
 	 * @param reason Reason why this player has been reported
 	 * @throws NamelessException
 	 * @throws AlreadyHasOpenReportException
 	 * @throws ReportUserBannedException
 	 * @throws UnableToCreateReportException
+	 * @throws IllegalArgumentException Report reason is too long (>255 characters)
 	 */
-	public void createReport(final String username, final String reason) throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, UnableToCreateReportException {
+	public void createReport(final NamelessUser user, final String reason) throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, UnableToCreateReportException {
+		Validate.isTrue(reason.length() < 255, "Report reason too long");
 		final JsonObject post = new JsonObject();
 		post.addProperty("reporter", this.getId());
-		post.addProperty("reported", username);
+		post.addProperty("reported", user.getId());
 		post.addProperty("content", reason);
 		try {
 			this.requests.post(Action.CREATE_REPORT, post);
