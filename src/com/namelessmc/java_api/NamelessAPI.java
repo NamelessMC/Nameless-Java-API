@@ -414,10 +414,13 @@ public final class NamelessAPI {
 	static UUID websiteUuidToJavaUuid(final String uuid) {
 		// Website sends UUIDs without dashses, so we can't use UUID#fromString
 		// https://stackoverflow.com/a/30760478
-		final BigInteger a = new BigInteger(uuid.substring(0, 16), 16);
-		final BigInteger b = new BigInteger(uuid.substring(16, 32), 16);
-		return new UUID(a.longValue(), b.longValue());
+		try {
+			final BigInteger a = new BigInteger(uuid.substring(0, 16), 16);
+			final BigInteger b = new BigInteger(uuid.substring(16, 32), 16);
+			return new UUID(a.longValue(), b.longValue());
+		} catch (final IndexOutOfBoundsException e) {
+			throw new IllegalArgumentException("Invalid uuid: '" + uuid + "'", e);
+		}
 	}
-
 
 }
