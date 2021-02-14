@@ -170,7 +170,12 @@ public final class NamelessAPI {
 			final String username = o.get("username").getAsString();
 			Optional<UUID> uuid;
 			if (o.has("uuid")) {
-				uuid = Optional.of(NamelessAPI.websiteUuidToJavaUuid(o.get("uuid").getAsString()));
+				final String uuidString = o.get("uuid").getAsString();
+				if (uuidString == null || uuidString.equals("none") || uuidString.equals("")) {
+					uuid = Optional.empty();
+				} else {
+					uuid = Optional.of(NamelessAPI.websiteUuidToJavaUuid(uuidString));
+				}
 			} else {
 				uuid = Optional.empty();
 			}
