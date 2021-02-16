@@ -33,21 +33,21 @@ public class ApiError extends NamelessException {
 	public static final int INVALID_VALIDATE_CODE = 28;
 	public static final int UNABLE_TO_SET_USER_DISCORD_ID = 29;
 	public static final int UNABLE_TO_SET_DISCORD_BOT_URL = 30;
-	
+
 	public static final int ACCOUNT_ALREADY_ACTIVATED = 32;
 	public static final int UNABLE_TO_SET_DISCORD_GUILD_ID = 33;
 	public static final int DISCORD_INTEGRATION_DISABLED = 34;
-	
-	
+
+
 	private static final long serialVersionUID = 3093028909912281912L;
-	
+
 	private final int code;
-	
+
 	public ApiError(final int code) {
 		super("An API error occured with error code " + code);
 		this.code = code;
 	}
-	
+
 	public int getError() {
 		return this.code;
 	}

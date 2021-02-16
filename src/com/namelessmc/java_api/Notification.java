@@ -24,7 +24,7 @@ public class Notification {
 		return this.type;
 	}
 
-	public static enum NotificationType {
+	public enum NotificationType {
 
 		TAG,
 		MESSAGE,
