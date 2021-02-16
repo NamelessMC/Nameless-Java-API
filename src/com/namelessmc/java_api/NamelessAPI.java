@@ -137,9 +137,7 @@ public final class NamelessAPI {
 	}
 
 	private <T> List<T> jsonArrayToList(JsonArray array, Function<JsonElement, T> elementSupplier) {
-		final List<T> announcements = new ArrayList<>();
-		array.forEach(element -> announcements.add(elementSupplier.apply(element)));
-		return announcements;
+		return StreamSupport.stream(array.spliterator(), false).map(elementSupplier).collect(Collectors.toList());
 	}
 
 	public void submitServerInfo(final JsonObject jsonData) throws NamelessException {
