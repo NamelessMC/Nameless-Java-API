@@ -12,7 +12,13 @@ import org.apache.commons.lang3.Validate;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -104,7 +110,7 @@ public final class NamelessAPI {
 	public List<Announcement> getAnnouncements() throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GET_ANNOUNCEMENTS);
 
-		return jsonArrayToList(response.getAsJsonArray());
+		return getAnnouncements(response);
 	}
 
 	/**
@@ -117,18 +123,22 @@ public final class NamelessAPI {
 	public List<Announcement> getAnnouncements(final NamelessUser user) throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GET_ANNOUNCEMENTS, "id", user.getId());
 
-		return jsonArrayToList(response.get("announcements").getAsJsonArray());
+		return getAnnouncements(response);
 	}
 
-	private List<Announcement> jsonArrayToList(JsonArray array) {
-		final List<Announcement> announcements = new ArrayList<>();
-		array.forEach((element) -> {
+	private List<Announcement> getAnnouncements(JsonObject response) {
+		return jsonArrayToList(response.get("announcements").getAsJsonArray(), element -> {
 			final JsonObject announcementJson = element.getAsJsonObject();
 			final String content = announcementJson.get("content").getAsString();
 			final String[] display = jsonToArray(announcementJson.get("display").getAsJsonArray());
 			final String[] permissions = jsonToArray(announcementJson.get("permissions").getAsJsonArray());
-			announcements.add(new Announcement(content, display, permissions));
+			return new Announcement(content, display, permissions);
 		});
+	}
+
+	private <T> List<T> jsonArrayToList(JsonArray array, Function<JsonElement, T> elementSupplier) {
+		final List<T> announcements = new ArrayList<>();
+		array.forEach(element -> announcements.add(elementSupplier.apply(element)));
 		return announcements;
 	}
 
@@ -163,7 +173,7 @@ public final class NamelessAPI {
 					uuid = Optional.of(NamelessAPI.websiteUuidToJavaUuid(uuidString));
 				}
 			} else {
-				uuid = null;
+				uuid = Optional.empty();
 			}
 			users.add(new NamelessUser(this, id, username, uuid, -1L));
 		}
@@ -216,15 +226,15 @@ public final class NamelessAPI {
 	}
 
 	public NamelessUser getUserLazy(final UUID uuid) {
-		return new NamelessUser(this, -1, null, Optional.ofNullable(uuid), -1L);
+		return new NamelessUser(this, -1, null, Optional.of(uuid), -1L);
 	}
 
 	public NamelessUser getUserLazy(final String username, final UUID uuid) {
-		return new NamelessUser(this, -1, null, Optional.ofNullable(uuid), -1L);
+		return new NamelessUser(this, -1, null, Optional.of(uuid), -1L);
 	}
 
 	public NamelessUser getUserLazy(final int id, final String username, final UUID uuid) {
-		return new NamelessUser(this, id, username, Optional.ofNullable(uuid), -1L);
+		return new NamelessUser(this, id, username, Optional.of(uuid), -1L);
 	}
 
 	public NamelessUser getUserLazyDiscord(final long discordId) {

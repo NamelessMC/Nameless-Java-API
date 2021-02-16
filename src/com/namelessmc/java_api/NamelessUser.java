@@ -6,10 +6,18 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.Notification.NotificationType;
 import com.namelessmc.java_api.RequestHandler.Action;
-import com.namelessmc.java_api.exception.*;
+import com.namelessmc.java_api.exception.AccountAlreadyActivatedException;
+import com.namelessmc.java_api.exception.AlreadyHasOpenReportException;
+import com.namelessmc.java_api.exception.InvalidValidateCodeException;
+import com.namelessmc.java_api.exception.ReportUserBannedException;
+import com.namelessmc.java_api.exception.UnableToCreateReportException;
 import org.apache.commons.lang3.Validate;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -26,7 +34,7 @@ public final class NamelessUser {
 	private JsonObject userInfo;
 
 	// only one of id, username, uuid, discordId has to be provided
-	NamelessUser(final NamelessAPI api, final Integer id, final String username, final Optional<UUID> uuid, final Long discordId) {
+	NamelessUser(final NamelessAPI api, final int id, final String username, final Optional<UUID> uuid, final long discordId) {
 		this.api = api;
 		this.requests = api.getRequestHandler();
 
@@ -37,7 +45,7 @@ public final class NamelessUser {
 		this.id = id;
 		this.username = username;
 		this.uuid = uuid;
-		this.discordId = discordId == -1 ? Optional.empty() : Optional.of(discordId);
+		this.discordId = discordId == -1 ? null : Optional.of(discordId);
 	}
 
 	private void loadUserInfo() throws NamelessException {
@@ -48,7 +56,7 @@ public final class NamelessUser {
 			response = this.requests.get(Action.USER_INFO, "uuid", this.uuid.get());
 		} else if (this.username != null) {
 			response = this.requests.get(Action.USER_INFO, "username", this.username);
-		} else if (this.discordId.isPresent()) {
+		} else if (this.discordId != null && this.discordId.isPresent()) {
 			response = this.requests.get(Action.USER_INFO, "discord_id", this.discordId.get());
 		} else {
 			throw new IllegalStateException("ID, uuid, and username not known for this player.");
@@ -97,7 +105,7 @@ public final class NamelessUser {
 	}
 
 	public Optional<UUID> getUniqueId() throws NamelessException {
-		if (this.uuid != null) {
+		if (this.uuid == null) {
 			this.loadUserInfo();
 			if (this.userInfo.has("uuid")) {
 				final String uuidString = this.userInfo.get("uuid").getAsString();
@@ -117,7 +125,7 @@ public final class NamelessUser {
 	}
 
 	public Optional<Long> getDiscordId() throws NamelessException {
-		if (!this.discordId.isPresent()) {
+		if (this.discordId == null) {
 			this.loadUserInfo();
 			if (this.userInfo.has("discord_id")) {
 				this.discordId = Optional.of(this.userInfo.get("discord_id").getAsLong());
