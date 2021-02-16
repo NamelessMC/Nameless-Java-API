@@ -1,26 +1,20 @@
 package com.namelessmc.java_api;
 
-import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.RequestHandler.Action;
-import com.namelessmc.java_api.exception.InvalidUsernameException;
 import com.namelessmc.java_api.exception.CannotSendEmailException;
+import com.namelessmc.java_api.exception.InvalidUsernameException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+
+import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public final class NamelessAPI {
 
@@ -160,18 +154,18 @@ public final class NamelessAPI {
 			final JsonObject o = e.getAsJsonObject();
 			final int id = o.get("id").getAsInt();
 			final String username = o.get("username").getAsString();
-			final UUID uuid;
+			final Optional<UUID> uuid;
 			if (o.has("uuid")) {
 				final String uuidString = o.get("uuid").getAsString();
 				if (uuidString == null || uuidString.equals("none") || uuidString.equals("")) {
 					uuid = Optional.empty();
 				} else {
-				}
 					uuid = Optional.of(NamelessAPI.websiteUuidToJavaUuid(uuidString));
+				}
 			} else {
 				uuid = null;
 			}
-			users.add(new NamelessUser(this, id, username, uuid, -1));
+			users.add(new NamelessUser(this, id, username, uuid, -1L));
 		}
 
 		return Collections.unmodifiableList(users);
@@ -214,23 +208,23 @@ public final class NamelessAPI {
 	}
 
 	public NamelessUser getUserLazy(final int id) {
-		return new NamelessUser(this, id, null, null, -1);
+		return new NamelessUser(this, id, null, null, -1L);
 	}
 
 	public NamelessUser getUserLazy(final String username) {
-		return new NamelessUser(this, -1, username, null, -1);
+		return new NamelessUser(this, -1, username, null, -1L);
 	}
 
 	public NamelessUser getUserLazy(final UUID uuid) {
-		return new NamelessUser(this, -1, null, uuid, -1);
+		return new NamelessUser(this, -1, null, Optional.ofNullable(uuid), -1L);
 	}
 
 	public NamelessUser getUserLazy(final String username, final UUID uuid) {
-		return new NamelessUser(this, -1, null, uuid, -1);
+		return new NamelessUser(this, -1, null, Optional.ofNullable(uuid), -1L);
 	}
 
 	public NamelessUser getUserLazy(final int id, final String username, final UUID uuid) {
-		return new NamelessUser(this, id, username, uuid, -1);
+		return new NamelessUser(this, id, username, Optional.ofNullable(uuid), -1L);
 	}
 
 	public NamelessUser getUserLazyDiscord(final long discordId) {
