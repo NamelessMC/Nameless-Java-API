@@ -1,13 +1,6 @@
 package com.namelessmc.java_api;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.namelessmc.java_api.RequestHandler.Action;
-import com.namelessmc.java_api.exception.CannotSendEmailException;
-import com.namelessmc.java_api.exception.InvalidUsernameException;
-import org.apache.commons.lang3.StringUtils;
-
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -18,6 +11,16 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.namelessmc.java_api.RequestHandler.Action;
+import com.namelessmc.java_api.exception.InvalidUsernameException;
+import com.namelessmc.java_api.exception.CannotSendEmailException;
 
 public final class NamelessAPI {
 
@@ -159,7 +162,12 @@ public final class NamelessAPI {
 			final String username = o.get("username").getAsString();
 			final UUID uuid;
 			if (o.has("uuid")) {
-				uuid = NamelessAPI.websiteUuidToJavaUuid(o.get("uuid").getAsString());
+				final String uuidString = o.get("uuid").getAsString();
+				if (uuidString == null || uuidString.equals("none") || uuidString.equals("")) {
+					uuid = Optional.empty();
+				} else {
+				}
+					uuid = Optional.of(NamelessAPI.websiteUuidToJavaUuid(uuidString));
 			} else {
 				uuid = null;
 			}
@@ -269,19 +277,24 @@ public final class NamelessAPI {
 	 * Registers a new account. The user will be sent an email to set a password.
 	 *
 	 * @param username Username
-	 * @param email    Email address
+	 * @param email Email address
+	 * @param uuid (for minecraft integration)
 	 * @return Email verification disabled: A link which the user needs to click to complete registration
 	 * <br>Email verification enabled: An empty string (the user needs to check their email to complete registration)
 	 * @throws NamelessException
 	 * @throws InvalidUsernameException
 	 * @throws CannotSendEmailException
 	 */
-	public Optional<String> registerUser(final String username, final String email, final UUID uuid) throws NamelessException, InvalidUsernameException, CannotSendEmailException {
+	public Optional<String> registerUser(final String username, final String email, final Optional<UUID> uuid) throws NamelessException, InvalidUsernameException, CannotSendEmailException {
+		Validate.notNull(username);
+		Validate.notNull(email);
+		Validate.notNull(uuid);
+		
 		final JsonObject post = new JsonObject();
 		post.addProperty("username", username);
 		post.addProperty("email", email);
-		if (uuid != null) {
-			post.addProperty("uuid", uuid.toString());
+		if (uuid.isPresent()) {
+			post.addProperty("uuid", uuid.get().toString());
 		}
 
 		try {
@@ -398,22 +411,15 @@ public final class NamelessAPI {
 	}
 
 	static UUID websiteUuidToJavaUuid(final String uuid) {
-		// Add dashes to uuid
-		// https://bukkit.org/threads/java-adding-dashes-back-to-minecrafts-uuids.272746/
-		StringBuffer sb = new StringBuffer(uuid);
-		sb.insert(8, "-");
-
-		sb = new StringBuffer(sb.toString());
-		sb.insert(13, "-");
-
-		sb = new StringBuffer(sb.toString());
-		sb.insert(18, "-");
-
-		sb = new StringBuffer(sb.toString());
-		sb.insert(23, "-");
-
-		return UUID.fromString(sb.toString());
+		// Website sends UUIDs without dashses, so we can't use UUID#fromString
+		// https://stackoverflow.com/a/30760478
+		try {
+			final BigInteger a = new BigInteger(uuid.substring(0, 16), 16);
+			final BigInteger b = new BigInteger(uuid.substring(16, 32), 16);
+			return new UUID(a.longValue(), b.longValue());
+		} catch (final IndexOutOfBoundsException e) {
+			throw new IllegalArgumentException("Invalid uuid: '" + uuid + "'", e);
+		}
 	}
-
 
 }
