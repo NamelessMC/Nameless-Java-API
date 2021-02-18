@@ -88,7 +88,7 @@ public final class NamelessUser {
 	}
 
 	public int getId() throws NamelessException {
-		if (this.id == null) {
+		if (this.id == -1) {
 			this.loadUserInfo();
 			this.id = this.userInfo.get("id").getAsInt();
 		}
