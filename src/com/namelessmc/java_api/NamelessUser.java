@@ -1,15 +1,5 @@
 package com.namelessmc.java_api;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import org.apache.commons.lang3.Validate;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -21,34 +11,43 @@ import com.namelessmc.java_api.exception.AlreadyHasOpenReportException;
 import com.namelessmc.java_api.exception.InvalidValidateCodeException;
 import com.namelessmc.java_api.exception.ReportUserBannedException;
 import com.namelessmc.java_api.exception.UnableToCreateReportException;
+import org.apache.commons.lang3.Validate;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public final class NamelessUser {
 
 	private final NamelessAPI api;
 	private final RequestHandler requests;
-	
+
 	private Integer id;
 	private String username;
 	private Optional<UUID> uuid;
 	private Optional<Long> discordId;
 
 	private JsonObject userInfo;
-	
+
 	// only one of id, username, uuid, discordId has to be provided
-	NamelessUser(final NamelessAPI api, final Integer id, final String username, final Optional<UUID> uuid, final Long discordId) throws NamelessException {
+	NamelessUser(final NamelessAPI api, final int id, final String username, final Optional<UUID> uuid, final long discordId) {
 		this.api = api;
 		this.requests = api.getRequestHandler();
-		
-		if (id == null && username == null && uuid == null && discordId == null) {
+
+		if (id == -1 && username == null && uuid == null && discordId == -1) {
 			throw new IllegalArgumentException("You must specify at least one of ID, uuid, username, discordId");
 		}
-		
+
 		this.id = id;
 		this.username = username;
 		this.uuid = uuid;
-		this.discordId = discordId != null ? Optional.of(discordId) : null;
+		this.discordId = discordId == -1 ? null : Optional.of(discordId);
 	}
-	
+
 	private void loadUserInfo() throws NamelessException {
 		final JsonObject response;
 		if (this.id != null) {
@@ -57,23 +56,23 @@ public final class NamelessUser {
 			response = this.requests.get(Action.USER_INFO, "uuid", this.uuid.get());
 		} else if (this.username != null) {
 			response = this.requests.get(Action.USER_INFO, "username", this.username);
-		} else if (this.discordId != null) {
+		} else if (this.discordId != null && this.discordId.isPresent()) {
 			response = this.requests.get(Action.USER_INFO, "discord_id", this.discordId.get());
 		} else {
 			throw new IllegalStateException("ID, uuid, and username not known for this player.");
 		}
-		
+
 		if (!response.get("exists").getAsBoolean()) {
 			throw new UserNotExistException();
 		}
-		
+
 		this.userInfo = response;
 	}
 
 	public NamelessAPI getApi() {
 		return this.api;
 	}
-	
+
 	/**
 	 * The API method `userInfo` is only called once to improve performance.
 	 * This means that if something changes on the website, methods that use
@@ -86,25 +85,25 @@ public final class NamelessUser {
 	public void invalidateCache() {
 		this.userInfo = null;
 	}
-	
+
 	public int getId() throws NamelessException {
 		if (this.id == null) {
 			this.loadUserInfo();
 			this.id = this.userInfo.get("id").getAsInt();
 		}
-		
+
 		return this.id;
 	}
-	
+
 	public String getUsername() throws NamelessException {
 		if (this.username == null) {
 			this.loadUserInfo();
 			this.username = this.userInfo.get("username").getAsString();
 		}
-		
+
 		return this.username;
 	}
-	
+
 	public Optional<UUID> getUniqueId() throws NamelessException {
 		if (this.uuid == null) {
 			this.loadUserInfo();
@@ -121,23 +120,23 @@ public final class NamelessUser {
 				this.uuid = Optional.empty();
 			}
 		}
-		
+
 		return this.uuid;
 	}
-	
+
 	public Optional<Long> getDiscordId() throws NamelessException {
 		if (this.discordId == null) {
 			this.loadUserInfo();
 			if (this.userInfo.has("discord_id")) {
-				this.discordId = Optional.of(Long.valueOf(this.userInfo.get("discord_id").getAsLong()));
+				this.discordId = Optional.of(this.userInfo.get("discord_id").getAsLong());
 			} else {
 				this.discordId = Optional.empty();
 			}
 		}
-		
+
 		return this.discordId;
 	}
-	
+
 	public boolean exists() throws NamelessException {
 		if (this.userInfo == null) {
 			try {
@@ -146,7 +145,7 @@ public final class NamelessUser {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -154,7 +153,7 @@ public final class NamelessUser {
 		if (this.userInfo == null) {
 			this.loadUserInfo();
 		}
-		
+
 		return this.userInfo.get("displayname").getAsString();
 	}
 
@@ -167,15 +166,15 @@ public final class NamelessUser {
 		if (this.userInfo == null) {
 			this.loadUserInfo();
 		}
-		
+
 		return new Date(this.userInfo.get("registered_timestamp").getAsLong() * 1000);
 	}
-	
+
 	public Date getLastOnline() throws NamelessException {
 		if (this.userInfo == null) {
 			this.loadUserInfo();
 		}
-		
+
 		return new Date(this.userInfo.get("last_online_timestamp").getAsLong() * 1000);
 	}
 
@@ -187,32 +186,32 @@ public final class NamelessUser {
 		if (this.userInfo == null) {
 			this.loadUserInfo();
 		}
-		
+
 		return this.userInfo.get("banned").getAsBoolean();
 	}
-	
+
 	public boolean isVerified() throws NamelessException {
 		if (this.userInfo == null) {
 			this.loadUserInfo();
 		}
-		
+
 		return this.userInfo.get("validated").getAsBoolean();
 	}
-	
+
 	public String getLangage() throws NamelessException {
 		if (this.userInfo == null) {
 			this.loadUserInfo();
 		}
-		
+
 		return this.userInfo.get("language").getAsString();
 	}
-	
+
 	public VerificationInfo getVerificationInfo() throws NamelessException {
 		final boolean verified = isVerified();
 		final JsonObject verification = this.userInfo.getAsJsonObject("verification");
 		return new VerificationInfo(verified, verification);
 	}
-	
+
 	/**
 	 * @return True if the user is member of at least one staff group, otherwise false
 	 * @throws NamelessException
@@ -225,7 +224,7 @@ public final class NamelessUser {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * @return List of the user's groups, sorted from low order to high order.
 	 * @throws NamelessException
@@ -234,18 +233,19 @@ public final class NamelessUser {
 		if (this.userInfo == null) {
 			this.loadUserInfo();
 		}
-		
+
 		return StreamSupport.stream(this.userInfo.getAsJsonArray("groups").spliterator(), false)
 				.map(JsonElement::getAsJsonObject)
 				.map(Group::new)
 				.sorted()
 				.collect(Collectors.toList());
 	}
-	
+
 	/**
 	 * Same as doing {@link #getGroups()}.get(0), but with better performance
 	 * since it doesn't need to create and sort a list of group objects.
 	 * Empty if the user is not in any groups.
+	 *
 	 * @return Player's group with lowest order
 	 * @throws NamelessException
 	 */
@@ -253,7 +253,7 @@ public final class NamelessUser {
 		if (this.userInfo == null) {
 			this.loadUserInfo();
 		}
-		
+
 		final JsonArray groups = this.userInfo.getAsJsonArray("groups");
 		if (groups.size() > 0) {
 			return Optional.of(new Group(groups.get(0).getAsJsonObject()));
@@ -261,23 +261,23 @@ public final class NamelessUser {
 			return Optional.empty();
 		}
 	}
-	
+
 	public void addGroups(final Group... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
 		post.add("groups", groupsToJsonArray(groups));
 		this.requests.post(Action.ADD_GROUPS, post);
-		this.userInfo = null; // Groups modified, invalidate cache
+		invalidateCache(); // Groups modified, invalidate cache
 	}
-	
+
 	public void removeGroups(final Group... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
 		post.add("groups", groupsToJsonArray(groups));
 		this.requests.post(Action.REMOVE_GROUPS, post);
-		this.userInfo = null; // Groups modified, invalidate cache
+		invalidateCache(); // Groups modified, invalidate cache
 	}
-	
+
 	private JsonArray groupsToJsonArray(final Group[] groups) {
 		final JsonArray array = new JsonArray();
 		for (final Group group : groups) {
@@ -285,15 +285,15 @@ public final class NamelessUser {
 		}
 		return array;
 	}
-	
+
 	public int getNotificationCount() throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GET_NOTIFICATIONS, "user", this.getId());
 		return response.getAsJsonArray("notifications").size();
 	}
-	
+
 	public List<Notification> getNotifications() throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GET_NOTIFICATIONS, "user", this.getId());
-		
+
 		final List<Notification> notifications = new ArrayList<>();
 		response.getAsJsonArray("notifications").forEach((element) -> {
 			final String message = element.getAsJsonObject().get("message").getAsString();
@@ -301,7 +301,7 @@ public final class NamelessUser {
 			final NotificationType type = NotificationType.fromString(element.getAsJsonObject().get("type").getAsString());
 			notifications.add(new Notification(message, url, type));
 		});
-		
+
 		return notifications;
 	}
 
@@ -335,9 +335,10 @@ public final class NamelessUser {
 			}
 		}
 	}
-	
+
 	/**
 	 * Verifies a user's Minecraft account
+	 *
 	 * @param code
 	 * @throws NamelessException
 	 * @throws AccountAlreadyActivatedException
@@ -361,13 +362,13 @@ public final class NamelessUser {
 			}
 		}
 	}
-	
+
 	public long[] getDiscordRoles() throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GET_DISCORD_ROLES, "user", this.getId());
 		return StreamSupport.stream(response.getAsJsonArray("roles").spliterator(), false)
 				.mapToLong(JsonElement::getAsLong).toArray();
 	}
-	
+
 	public void setDiscordRoles(final long[] roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
@@ -381,7 +382,7 @@ public final class NamelessUser {
 		post.add("roles", new Gson().toJsonTree(roleIds));
 		this.requests.post(Action.ADD_DISCORD_ROLES, post);
 	}
-	
+
 	public void removeDiscordRoles(final long... roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());

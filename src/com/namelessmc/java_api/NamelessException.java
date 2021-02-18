@@ -10,7 +10,7 @@ public class NamelessException extends Exception {
 	public NamelessException(final String message) {
 		super(message);
 	}
-	
+
 	public NamelessException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
