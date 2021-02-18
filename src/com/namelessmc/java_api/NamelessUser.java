@@ -1,5 +1,15 @@
 package com.namelessmc.java_api;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import org.apache.commons.lang3.Validate;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -11,25 +21,16 @@ import com.namelessmc.java_api.exception.AlreadyHasOpenReportException;
 import com.namelessmc.java_api.exception.InvalidValidateCodeException;
 import com.namelessmc.java_api.exception.ReportUserBannedException;
 import com.namelessmc.java_api.exception.UnableToCreateReportException;
-import org.apache.commons.lang3.Validate;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public final class NamelessUser {
 
 	private final NamelessAPI api;
 	private final RequestHandler requests;
 
-	private Integer id;
-	private String username;
-	private Optional<UUID> uuid;
-	private Optional<Long> discordId;
+	private int id; // -1 if unknown
+	private String username; // null if unknown
+	private Optional<UUID> uuid; // null if unknown, empty if known not present
+	private Optional<Long> discordId; // null if unknown, empty if known not present
 
 	private JsonObject userInfo;
 
@@ -50,7 +51,7 @@ public final class NamelessUser {
 
 	private void loadUserInfo() throws NamelessException {
 		final JsonObject response;
-		if (this.id != null) {
+		if (this.id != -1) {
 			response = this.requests.get(Action.USER_INFO, "id", this.id);
 		} else if (this.uuid != null && this.uuid.isPresent()) {
 			response = this.requests.get(Action.USER_INFO, "uuid", this.uuid.get());
