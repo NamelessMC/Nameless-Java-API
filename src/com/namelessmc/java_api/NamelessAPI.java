@@ -220,30 +220,72 @@ public final class NamelessAPI {
 		}
 	}
 	
+	/**
+	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
+	 * @param id NamelessMC user id
+	 * @return Nameless user object, never null
+	 * @throws NamelessException
+	 */
 	public NamelessUser getUserLazy(final int id) throws NamelessException {
 		return new NamelessUser(this, id, null, null, null);
 	}
 	
+	/**
+	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
+	 * @param username NamelessMC user
+	 * @return Nameless user object, never null
+	 * @throws NamelessException
+	 */
 	public NamelessUser getUserLazy(final String username) throws NamelessException {
 		return new NamelessUser(this, null, username, null, null);
 	}
 	
+	/**
+	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
+	 * @param uuid Minecraft UUID
+	 * @return Nameless user object, never null
+	 * @throws NamelessException
+	 */
 	public NamelessUser getUserLazy(final UUID uuid) throws NamelessException {
 		return new NamelessUser(this, null, null, Optional.of(uuid), null);
 	}
 
+	/**
+	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
+	 * @param id
+	 * @return Nameless user object, never null
+	 * @throws NamelessException
+	 */
 	public NamelessUser getUserLazy(final String username, final UUID uuid) throws NamelessException {
 		return new NamelessUser(this, null, null, Optional.of(uuid), null);
 	}
 	
+	/**
+	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
+	 * @param id
+	 * @return Nameless user object, never null
+	 * @throws NamelessException
+	 */
 	public NamelessUser getUserLazy(final int id, final String username, final UUID uuid) throws NamelessException {
 		return new NamelessUser(this, id, username, Optional.of(uuid), null);
 	}
 	
+	/**
+	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
+	 * @param discordId Discord user id
+	 * @return Nameless user object, never null
+	 * @throws NamelessException
+	 */
 	public NamelessUser getUserLazyDiscord(final long discordId) throws NamelessException {
 		return new NamelessUser(this, null, null, null, discordId);
 	}
 	
+	/**
+	 * Get NamelessMC group by ID
+	 * @param id Group id
+	 * @return Optional with a group if the group exists, empty optional if it doesn't
+	 * @throws NamelessException
+	 */
 	public Optional<Group> getGroup(final int id) throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GROUP_INFO, "id", id);
 		final JsonArray array = response.getAsJsonArray("groups");
@@ -254,17 +296,28 @@ public final class NamelessAPI {
 		}
 	}
 	
+	/**
+	 * Get NamelessMC groups by name
+	 * @param name NamelessMC groups name
+	 * @return List of groups with this name, empty if there are no groups with this name.
+	 * @throws NamelessException
+	 */
 	public List<Group> getGroup(final String name) throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GROUP_INFO, "name", name);
 		return groupListFromJsonArray(response.getAsJsonArray("groups"));
 	}
 	
+	/**
+	 * Get a list of all groups on the website
+	 * @return list of groups
+	 * @throws NamelessException
+	 */
 	public List<Group> getAllGroups() throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GROUP_INFO);
 		return groupListFromJsonArray(response.getAsJsonArray("groups"));
 		
 	}
-	
+
 	public int[] getAllGroupIds() throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GROUP_INFO);
 		return StreamSupport.stream(response.getAsJsonArray("groups").spliterator(), false)
