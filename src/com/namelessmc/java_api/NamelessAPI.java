@@ -1,14 +1,5 @@
 package com.namelessmc.java_api;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.namelessmc.java_api.RequestHandler.Action;
-import com.namelessmc.java_api.exception.CannotSendEmailException;
-import com.namelessmc.java_api.exception.InvalidUsernameException;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
-
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -16,11 +7,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.namelessmc.java_api.RequestHandler.Action;
+import com.namelessmc.java_api.exception.CannotSendEmailException;
+import com.namelessmc.java_api.exception.InvalidUsernameException;
 
 public final class NamelessAPI {
 
@@ -52,6 +53,7 @@ public final class NamelessAPI {
 	 */
 	public NamelessAPI(final String host, final String apiKey, final String userAgent, final boolean debug) throws MalformedURLException {
 		this(new URL(host + "/index.php?route=/api/v2/" + apiKey), userAgent, debug);
+		Objects.requireNonNull(apiKey, "API key is null");
 	}
 
 	public NamelessAPI(final String host, final String apiKey, final boolean debug) throws MalformedURLException {
@@ -67,6 +69,8 @@ public final class NamelessAPI {
 	}
 
 	public NamelessAPI(final URL apiUrl, final String userAgent, final boolean debug) {
+		Objects.requireNonNull(apiUrl, "API url is null");
+		Objects.requireNonNull(userAgent, "User agent is null");
 		this.requests = new RequestHandler(apiUrl, userAgent, debug);
 	}
 
@@ -126,7 +130,7 @@ public final class NamelessAPI {
 		return getAnnouncements(response);
 	}
 
-	private List<Announcement> getAnnouncements(JsonObject response) {
+	private List<Announcement> getAnnouncements(final JsonObject response) {
 		return jsonArrayToList(response.get("announcements").getAsJsonArray(), element -> {
 			final JsonObject announcementJson = element.getAsJsonObject();
 			final String content = announcementJson.get("content").getAsString();
@@ -136,7 +140,7 @@ public final class NamelessAPI {
 		});
 	}
 
-	private <T> List<T> jsonArrayToList(JsonArray array, Function<JsonElement, T> elementSupplier) {
+	private <T> List<T> jsonArrayToList(final JsonArray array, final Function<JsonElement, T> elementSupplier) {
 		return StreamSupport.stream(array.spliterator(), false).map(elementSupplier).collect(Collectors.toList());
 	}
 
@@ -298,6 +302,7 @@ public final class NamelessAPI {
 	 * @throws NamelessException
 	 */
 	public List<Group> getGroup(final String name) throws NamelessException {
+		Objects.requireNonNull(name, "Group name is null");
 		final JsonObject response = this.requests.get(Action.GROUP_INFO, "name", name);
 		return groupListFromJsonArray(response.getAsJsonArray("groups"));
 	}
@@ -341,9 +346,9 @@ public final class NamelessAPI {
 	 * @throws CannotSendEmailException
 	 */
 	public Optional<String> registerUser(final String username, final String email, final Optional<UUID> uuid) throws NamelessException, InvalidUsernameException, CannotSendEmailException {
-		Validate.notNull(username);
-		Validate.notNull(email);
-		Validate.notNull(uuid);
+		Objects.requireNonNull(username, "Username is null");
+		Objects.requireNonNull(email, "Email address is null");
+		Objects.requireNonNull(uuid, "UUDI optional is null");
 
 		final JsonObject post = new JsonObject();
 		post.addProperty("username", username);
@@ -376,6 +381,9 @@ public final class NamelessAPI {
 	}
 
 	public void verifyDiscord(final String verificationToken, final long discordUserId, final String discordUsername) throws NamelessException {
+		Objects.requireNonNull(verificationToken, "Verification token is null");
+		Objects.requireNonNull(discordUsername, "Discord username is null");
+
 		final JsonObject json = new JsonObject();
 		json.addProperty("token", verificationToken);
 		json.addProperty("discord_id", discordUserId + ""); // website needs it as a string
@@ -384,6 +392,8 @@ public final class NamelessAPI {
 	}
 
 	public void setDiscordBotUrl(final URL url) throws NamelessException {
+		Objects.requireNonNull(url, "Bot url is null");
+
 		final JsonObject json = new JsonObject();
 		json.addProperty("url", url.toString());
 		this.requests.post(Action.UPDATE_DISCORD_BOT_SETTINGS, json);
@@ -396,6 +406,8 @@ public final class NamelessAPI {
 	}
 
 	public void setDiscordBotUser(final String username, final long userId) throws NamelessException {
+		Objects.requireNonNull(username, "Bot username is null");
+
 		final JsonObject json = new JsonObject();
 		json.addProperty("bot_username", username);
 		json.addProperty("bot_user_id", userId + "");
@@ -403,6 +415,9 @@ public final class NamelessAPI {
 	}
 
 	public void setDiscordBotSettings(final URL url, final long guildId, final String username, final long userId) throws NamelessException {
+		Objects.requireNonNull(url, "Bot url is null");
+		Objects.requireNonNull(username, "Bot username is null");
+
 		final JsonObject json = new JsonObject();
 		json.addProperty("url", url.toString());
 		json.addProperty("guild_id", guildId + "");
@@ -425,6 +440,8 @@ public final class NamelessAPI {
 	}
 
 	public void updateDiscordUsername(final long discordUserId, final String discordUsername) throws NamelessException {
+		Objects.requireNonNull(discordUsername, "Discord username is null");
+
 		final JsonObject user = new JsonObject();
 		user.addProperty("id", discordUserId);
 		user.addProperty("name", discordUsername);
@@ -436,6 +453,9 @@ public final class NamelessAPI {
 	}
 
 	public void updateDiscordUsernames(final long[] discordUserIds, final String[] discordUsernames) throws NamelessException {
+		Objects.requireNonNull(discordUserIds, "User ids array is null");
+		Objects.requireNonNull(discordUsernames, "Usernames array is null");
+
 		if (discordUserIds.length != discordUsernames.length) {
 			throw new IllegalArgumentException("discord user ids and discord usernames must be of same length");
 		}
@@ -466,6 +486,7 @@ public final class NamelessAPI {
 	}
 
 	static UUID websiteUuidToJavaUuid(final String uuid) {
+		Objects.requireNonNull(uuid, "UUID string is null");
 		// Website sends UUIDs without dashses, so we can't use UUID#fromString
 		// https://stackoverflow.com/a/30760478
 		try {

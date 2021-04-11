@@ -3,6 +3,7 @@ package com.namelessmc.java_api;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -317,6 +318,8 @@ public final class NamelessUser {
 	 * @throws IllegalArgumentException Report reason is too long (>255 characters)
 	 */
 	public void createReport(final NamelessUser user, final String reason) throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, UnableToCreateReportException {
+		Objects.requireNonNull(user, "User to report is null");
+		Objects.requireNonNull(reason, "Report reason is null");
 		Validate.isTrue(reason.length() < 255, "Report reason too long");
 		final JsonObject post = new JsonObject();
 		post.addProperty("reporter", this.getId());
@@ -346,6 +349,7 @@ public final class NamelessUser {
 	 * @throws InvalidValidateCodeException
 	 */
 	public void verifyMinecraft(final String code) throws NamelessException, InvalidValidateCodeException, AccountAlreadyActivatedException {
+		Objects.requireNonNull(code, "Verification code is null");
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
 		post.addProperty("code", code);
