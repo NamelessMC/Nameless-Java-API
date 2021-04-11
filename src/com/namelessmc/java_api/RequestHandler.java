@@ -1,9 +1,7 @@
 package com.namelessmc.java_api;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
-import org.apache.commons.io.IOUtils;
+import static com.namelessmc.java_api.RequestHandler.RequestMethod.GET;
+import static com.namelessmc.java_api.RequestHandler.RequestMethod.POST;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,8 +15,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import static com.namelessmc.java_api.RequestHandler.RequestMethod.GET;
-import static com.namelessmc.java_api.RequestHandler.RequestMethod.POST;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 public class RequestHandler {
 
@@ -132,7 +131,8 @@ public class RequestHandler {
 		String response;
 
 		try (InputStream in = connection.getInputStream()) {
-			response = IOUtils.toString(in, StandardCharsets.UTF_8);
+			final byte[] bytes = in.readAllBytes();
+			response = new String(bytes, StandardCharsets.UTF_8);
 		}
 
 		debug("Website response below\n-----------------\n%s\n-----------------", response);
