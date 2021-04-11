@@ -6,22 +6,22 @@ public class Announcement {
 	private final String[] displayPages;
 	private final String[] displayRanks;
 
-	public Announcement(String content, String[] displayPages, String[] displayRanks) {
+	Announcement(final String content, final String[] displayPages, final String[] displayRanks) {
 		this.content = content;
 		this.displayPages = displayPages;
 		this.displayRanks = displayRanks;
 	}
 
 	public String getContent() {
-		return content;
+		return this.content;
 	}
 
 	public String[] getDisplayPages() {
-		return displayPages;
+		return this.displayPages;
 	}
 
 	public String[] getDisplayRanks() {
-		return displayRanks;
+		return this.displayRanks;
 	}
 
 }
