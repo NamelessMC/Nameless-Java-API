@@ -3,6 +3,7 @@ package com.namelessmc.java_api;
 import static com.namelessmc.java_api.RequestHandler.RequestMethod.GET;
 import static com.namelessmc.java_api.RequestHandler.RequestMethod.POST;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -131,11 +132,11 @@ public class RequestHandler {
 		final byte[] bytes;
 		if (connection.getResponseCode() >= 400) {
 			try (InputStream in = connection.getErrorStream()) {
-				bytes = in.readAllBytes();
+				bytes = getBytesFromInputStream(in);
 			}
 		} else {
 			try (InputStream in = connection.getInputStream()) {
-				bytes = in.readAllBytes();
+				bytes = getBytesFromInputStream(in);
 			}
 		}
 
@@ -174,6 +175,15 @@ public class RequestHandler {
 		}
 
 		return json;
+	}
+
+	private static byte[] getBytesFromInputStream(final InputStream is) throws IOException {
+	    final ByteArrayOutputStream os = new ByteArrayOutputStream();
+	    final byte[] buffer = new byte[0xFFFF];
+	    for (int len = is.read(buffer); len != -1; len = is.read(buffer)) {
+	        os.write(buffer, 0, len);
+	    }
+	    return os.toByteArray();
 	}
 
 	public enum Action {
