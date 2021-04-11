@@ -128,12 +128,18 @@ public class RequestHandler {
 			}
 		}
 
-		String response;
-
-		try (InputStream in = connection.getInputStream()) {
-			final byte[] bytes = in.readAllBytes();
-			response = new String(bytes, StandardCharsets.UTF_8);
+		final byte[] bytes;
+		if (connection.getResponseCode() >= 400) {
+			try (InputStream in = connection.getErrorStream()) {
+				bytes = in.readAllBytes();
+			}
+		} else {
+			try (InputStream in = connection.getInputStream()) {
+				bytes = in.readAllBytes();
+			}
 		}
+
+		String response = new String(bytes, StandardCharsets.UTF_8);
 
 		debug("Website response below\n-----------------\n%s\n-----------------", response);
 
