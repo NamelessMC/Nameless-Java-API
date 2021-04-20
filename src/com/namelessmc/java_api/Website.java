@@ -1,9 +1,10 @@
 package com.namelessmc.java_api;
 
+import java.util.Objects;
+import java.util.stream.StreamSupport;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
-import java.util.stream.StreamSupport;
 
 public class Website {
 
@@ -13,6 +14,8 @@ public class Website {
 	private final String language;
 
 	Website(final JsonObject json) {
+		Objects.requireNonNull(json, "Provided json object is null");
+
 		this.version = json.get("nameless_version").getAsString();
 
 		this.modules = StreamSupport.stream(json.get("modules").getAsJsonArray().spliterator(), false)
@@ -34,6 +37,10 @@ public class Website {
 
 	public String getVersion() {
 		return this.version;
+	}
+
+	public NamelessVersion getParsedVersion() {
+		return NamelessVersion.parse(this.version);
 	}
 
 	/**
@@ -67,6 +74,10 @@ public class Website {
 
 		public String getVersion() {
 			return this.version;
+		}
+
+		public NamelessVersion getParsedVersion() {
+			return NamelessVersion.parse(this.version);
 		}
 
 	}
