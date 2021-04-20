@@ -1,6 +1,7 @@
 package com.namelessmc.java_api;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 import com.google.gson.JsonElement;
@@ -9,7 +10,7 @@ import com.google.gson.JsonObject;
 public class Website {
 
 	private final String version;
-	private final Update update;
+	private final Optional<Update> update;
 	private final String[] modules;
 	private final String language;
 
@@ -27,9 +28,9 @@ public class Website {
 		if (updateAvailable) {
 			final String updateVersion = updateJson.get("version").getAsString();
 			final boolean isUrgent = updateJson.get("urgent").getAsBoolean();
-			this.update = new Update(isUrgent, updateVersion);
+			this.update = Optional.of(new Update(isUrgent, updateVersion));
 		} else {
-			this.update = null;
+			this.update = Optional.empty();
 		}
 
 		this.language = json.get("language").getAsString();
@@ -46,7 +47,7 @@ public class Website {
 	/**
 	 * @return Information about an update, or null if no update is available.
 	 */
-	public Update getUpdate() {
+	public Optional<Update> getUpdate() {
 		return this.update;
 	}
 
