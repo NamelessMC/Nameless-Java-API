@@ -25,10 +25,12 @@ import com.namelessmc.java_api.exception.InvalidUsernameException;
 
 public final class NamelessAPI {
 
+	@Deprecated
 	private static final String DEFAULT_USER_AGENT = "Nameless-Java-API";
 
 	private final RequestHandler requests;
 
+	@Deprecated
 	public NamelessAPI(final URL apiUrl) {
 		this(apiUrl, DEFAULT_USER_AGENT);
 	}
@@ -37,10 +39,12 @@ public final class NamelessAPI {
 	 * @param apiUrl URL of API to connect to, in the format http(s)://yoursite.com/index.php?route=/api/v2/API_KEY
 	 * @param debug
 	 */
+	@Deprecated
 	public NamelessAPI(final URL apiUrl, final boolean debug) {
 		this(apiUrl, DEFAULT_USER_AGENT, debug);
 	}
 
+	@Deprecated
 	public NamelessAPI(final URL apiUrl, final String userAgent) {
 		this(apiUrl, userAgent, false);
 	}
@@ -51,27 +55,36 @@ public final class NamelessAPI {
 	 * @param debug
 	 * @throws MalformedURLException
 	 */
+	@Deprecated
 	public NamelessAPI(final String host, final String apiKey, final String userAgent, final boolean debug) throws MalformedURLException {
 		this(new URL(host + "/index.php?route=/api/v2/" + apiKey), userAgent, debug);
 		Objects.requireNonNull(apiKey, "API key is null");
 	}
 
+	@Deprecated
 	public NamelessAPI(final String host, final String apiKey, final boolean debug) throws MalformedURLException {
 		this(host, apiKey, DEFAULT_USER_AGENT, debug);
 	}
 
+	@Deprecated
 	public NamelessAPI(final String host, final String apiKey, final String userAgent) throws MalformedURLException {
 		this(host, apiKey, userAgent, false);
 	}
 
+	@Deprecated
 	public NamelessAPI(final String host, final String apiKey) throws MalformedURLException {
 		this(host, apiKey, DEFAULT_USER_AGENT);
 	}
 
+	@Deprecated
 	public NamelessAPI(final URL apiUrl, final String userAgent, final boolean debug) {
 		Objects.requireNonNull(apiUrl, "API url is null");
 		Objects.requireNonNull(userAgent, "User agent is null");
 		this.requests = new RequestHandler(apiUrl, userAgent, debug);
+	}
+
+	NamelessAPI(final RequestHandler requests) {
+		this.requests = Objects.requireNonNull(requests, "Request handler is null");
 	}
 
 	RequestHandler getRequestHandler() {
@@ -496,6 +509,10 @@ public final class NamelessAPI {
 		} catch (final IndexOutOfBoundsException e) {
 			throw new IllegalArgumentException("Invalid uuid: '" + uuid + "'", e);
 		}
+	}
+
+	public static NamelessApiBuilder builder() {
+		return new NamelessApiBuilder();
 	}
 
 }
