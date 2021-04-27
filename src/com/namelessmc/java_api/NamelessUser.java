@@ -19,6 +19,7 @@ import com.namelessmc.java_api.Notification.NotificationType;
 import com.namelessmc.java_api.RequestHandler.Action;
 import com.namelessmc.java_api.exception.AccountAlreadyActivatedException;
 import com.namelessmc.java_api.exception.AlreadyHasOpenReportException;
+import com.namelessmc.java_api.exception.CannotReportSelfException;
 import com.namelessmc.java_api.exception.InvalidValidateCodeException;
 import com.namelessmc.java_api.exception.ReportUserBannedException;
 import com.namelessmc.java_api.exception.UnableToCreateReportException;
@@ -315,9 +316,10 @@ public final class NamelessUser {
 	 * @throws AlreadyHasOpenReportException
 	 * @throws ReportUserBannedException
 	 * @throws UnableToCreateReportException
+	 * @throws CannotReportSelfException
 	 * @throws IllegalArgumentException Report reason is too long (>255 characters)
 	 */
-	public void createReport(final NamelessUser user, final String reason) throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, UnableToCreateReportException {
+	public void createReport(final NamelessUser user, final String reason) throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, UnableToCreateReportException, CannotReportSelfException {
 		Objects.requireNonNull(user, "User to report is null");
 		Objects.requireNonNull(reason, "Report reason is null");
 		Validate.isTrue(reason.length() < 255, "Report reason too long");
@@ -334,6 +336,8 @@ public final class NamelessUser {
 				throw new AlreadyHasOpenReportException();
 			} else if (e.getError() == ApiError.UNABLE_TO_CREATE_REPORT) {
 				throw new UnableToCreateReportException();
+			} else if (e.getError() == ApiError.CANNOT_REPORT_YOURSELF) {
+				throw new CannotReportSelfException();
 			} else {
 				throw e;
 			}
