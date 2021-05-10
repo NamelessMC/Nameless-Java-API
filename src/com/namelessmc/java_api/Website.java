@@ -23,12 +23,16 @@ public class Website {
 				.map(JsonElement::getAsString)
 				.toArray(String[]::new);
 
-		final JsonObject updateJson = json.get("version_update").getAsJsonObject();
-		final boolean updateAvailable = updateJson.get("update").getAsBoolean();
-		if (updateAvailable) {
-			final String updateVersion = updateJson.get("version").getAsString();
-			final boolean isUrgent = updateJson.get("urgent").getAsBoolean();
-			this.update = Optional.of(new Update(isUrgent, updateVersion));
+		if (json.has("version_update")) {
+			final JsonObject updateJson = json.get("version_update").getAsJsonObject();
+			final boolean updateAvailable = updateJson.get("update").getAsBoolean();
+			if (updateAvailable) {
+				final String updateVersion = updateJson.get("version").getAsString();
+				final boolean isUrgent = updateJson.get("urgent").getAsBoolean();
+				this.update = Optional.of(new Update(isUrgent, updateVersion));
+			} else {
+				this.update = Optional.empty();
+			}
 		} else {
 			this.update = Optional.empty();
 		}
