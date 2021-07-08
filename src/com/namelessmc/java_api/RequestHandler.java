@@ -132,7 +132,11 @@ public class RequestHandler {
 		final byte[] bytes;
 		if (connection.getResponseCode() >= 400) {
 			try (InputStream in = connection.getErrorStream()) {
-				bytes = getBytesFromInputStream(in);
+				if (in == null) {
+					throw new NamelessException("Website sent empty response with code " + connection.getResponseCode());
+				} else {
+					bytes = getBytesFromInputStream(in);
+				}
 			}
 		} else {
 			try (InputStream in = connection.getInputStream()) {
