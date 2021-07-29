@@ -14,6 +14,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.google.gson.JsonObject;
@@ -175,7 +176,14 @@ public class RequestHandler {
 		}
 
 		if (json.get("error").getAsBoolean()) {
-			throw new ApiError(json.get("code").getAsInt());
+			String meta = null;
+			if (json.has("meta")) {
+				meta = json.get("meta").getAsString();
+				if (meta.isEmpty()) {
+					meta = null;
+				}
+			}
+			throw new ApiError(json.get("code").getAsInt(), Optional.ofNullable(meta));
 		}
 
 		return json;
