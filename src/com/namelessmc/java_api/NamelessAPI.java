@@ -53,8 +53,10 @@ public final class NamelessAPI {
 
 	/**
 	 * Checks if a web API connection can be established
-	 * throws {@link NamelessException} if the connection was unsuccessful
+	 * throws {@link NamelessException} if the connection was unsuccessful\
+	 * @deprecated Use {@link #getWebsite()} instead and catch NamelessException there. Also use {@link Website#getParsedVersion()} to check if the version is compatible.
 	 */
+	@Deprecated
 	public void checkWebAPIConnection() throws NamelessException {
 		final JsonObject response = this.requests.get(Action.INFO);
 		if (!response.has("nameless_version")) {
