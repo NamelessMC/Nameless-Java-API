@@ -177,11 +177,8 @@ public class RequestHandler {
 
 		if (json.get("error").getAsBoolean()) {
 			String meta = null;
-			if (json.has("meta")) {
+			if (json.has("meta") && !json.get("meta").isJsonNull()) {
 				meta = json.get("meta").getAsString();
-				if (meta.isEmpty()) {
-					meta = null;
-				}
 			}
 			throw new ApiError(json.get("code").getAsInt(), Optional.ofNullable(meta));
 		}
