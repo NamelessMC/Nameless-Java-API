@@ -20,17 +20,18 @@ import java.util.stream.Collectors;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import com.namelessmc.java_api.logger.ApiLogger;
 
 public class RequestHandler {
 
 	private final URL baseUrl;
 	private final String userAgent;
-	private final boolean debug;
+	private final Optional<ApiLogger> debugLogger;
 
-	RequestHandler(final URL baseUrl, final String userAgent, final boolean debug) {
+	RequestHandler(final URL baseUrl, final String userAgent, final Optional<ApiLogger> debugLogger) {
 		this.baseUrl = baseUrl;
 		this.userAgent = userAgent;
-		this.debug = debug;
+		this.debugLogger = debugLogger;
 	}
 
 	public URL getApiUrl() {
@@ -101,8 +102,8 @@ public class RequestHandler {
 	}
 
 	private void debug(final String message, final Object... args) {
-		if (this.debug) {
-			System.out.println(String.format(message, args).replace(NamelessAPI.getApiKey(this.getApiUrl().toString()), "**API_KEY_REMOVED**"));
+		if (this.debugLogger.isPresent()) {
+			this.debugLogger.get().log(String.format(message, args).replace(NamelessAPI.getApiKey(this.getApiUrl().toString()), "**API_KEY_REMOVED**"));
 		}
 	}
 

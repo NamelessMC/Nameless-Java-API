@@ -2,6 +2,12 @@ package com.namelessmc.java_api;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Objects;
+import java.util.Optional;
+
+import com.namelessmc.java_api.logger.ApiLogger;
+import com.namelessmc.java_api.logger.PrintStreamLogger;
+import com.namelessmc.java_api.logger.Slf4jLogger;
 
 public class NamelessApiBuilder {
 
@@ -9,7 +15,7 @@ public class NamelessApiBuilder {
 
 	private String userAgent = DEFAULT_USER_AGENT;
 	private URL apiUrl = null;
-	private boolean debug = false;
+	private Optional<ApiLogger> debugLogger = Optional.empty();
 
 	NamelessApiBuilder() {
 	}
@@ -42,8 +48,33 @@ public class NamelessApiBuilder {
 		return this;
 	}
 
+	@Deprecated
 	public NamelessApiBuilder debug(final boolean debug) {
-		this.debug = debug;
+		if (debug) {
+			return this.withStdErrDebugLogging();
+		} else {
+			this.debugLogger = Optional.empty();
+			return this;
+		}
+	}
+
+	public NamelessApiBuilder withStdErrDebugLogging() {
+		this.debugLogger = Optional.of(PrintStreamLogger.DEFAULT_INSTANCE);
+		return this;
+	}
+
+	public NamelessApiBuilder withSlf4jDebugLogging() {
+		this.debugLogger = Optional.of(Slf4jLogger.DEFAULT_INSTANCE);
+		return this;
+	}
+
+	public NamelessApiBuilder withCustomDebugLogger(final ApiLogger debugLogger) {
+		this.debugLogger = Optional.of(Objects.requireNonNull(debugLogger, "Provided debug logger is null"));
+		return this;
+	}
+
+	public NamelessApiBuilder withCustomDebugLogger(final Optional<ApiLogger> debugLogger) {
+		this.debugLogger = Objects.requireNonNull(debugLogger);
 		return this;
 	}
 
@@ -52,7 +83,7 @@ public class NamelessApiBuilder {
 			throw new IllegalStateException("No API URL specified");
 		}
 
-		return new NamelessAPI(new RequestHandler(this.apiUrl, this.userAgent, this.debug));
+		return new NamelessAPI(new RequestHandler(this.apiUrl, this.userAgent, this.debugLogger));
 	}
 
 }
