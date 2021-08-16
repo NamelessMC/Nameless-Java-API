@@ -27,11 +27,13 @@ public class RequestHandler {
 	private final URL baseUrl;
 	private final String userAgent;
 	private final Optional<ApiLogger> debugLogger;
+	private final int timeout;
 
-	RequestHandler(final URL baseUrl, final String userAgent, final Optional<ApiLogger> debugLogger) {
+	RequestHandler(final URL baseUrl, final String userAgent, final Optional<ApiLogger> debugLogger, final int timeout) {
 		this.baseUrl = baseUrl;
 		this.userAgent = userAgent;
 		this.debugLogger = debugLogger;
+		this.timeout = timeout;
 	}
 
 	public URL getApiUrl() {
@@ -110,8 +112,8 @@ public class RequestHandler {
 	private JsonObject makeConnection(final URL url, final JsonObject postBody) throws NamelessException, IOException {
 		final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-		connection.setReadTimeout(10000);
-		connection.setConnectTimeout(10000);
+		connection.setReadTimeout(this.timeout);
+		connection.setConnectTimeout(this.timeout);
 
 		debug("Making connection %s to url %s", postBody != null ? "POST" : "GET", url);
 

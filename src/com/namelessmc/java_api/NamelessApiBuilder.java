@@ -16,6 +16,7 @@ public class NamelessApiBuilder {
 	private String userAgent = DEFAULT_USER_AGENT;
 	private URL apiUrl = null;
 	private Optional<ApiLogger> debugLogger = Optional.empty();
+	private int timeout = 5000;
 
 	NamelessApiBuilder() {
 	}
@@ -78,12 +79,17 @@ public class NamelessApiBuilder {
 		return this;
 	}
 
+	public NamelessApiBuilder withTimeoutMillis(final int timeout) {
+		this.timeout = timeout;
+		return this;
+	}
+
 	public NamelessAPI build() {
 		if (this.apiUrl == null) {
 			throw new IllegalStateException("No API URL specified");
 		}
 
-		return new NamelessAPI(new RequestHandler(this.apiUrl, this.userAgent, this.debugLogger));
+		return new NamelessAPI(new RequestHandler(this.apiUrl, this.userAgent, this.debugLogger, this.timeout));
 	}
 
 }
