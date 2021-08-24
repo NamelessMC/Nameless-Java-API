@@ -9,6 +9,8 @@ public enum NamelessVersion {
 	V2_0_0_PR_8("2.0.0-pr8", 2, 0, true),
 	V2_0_0_PR_9("2.0.0-pr9", 2, 0, true),
 	V2_0_0_PR_10("2.0.0-pr10", 2, 0, true),
+	V2_0_0_PR_11("2.0.0-pr11", 2, 0, true),
+	V2_0_0_PR_12("2.0.0-pr12", 2, 0, true),
 
 	;
 
