@@ -157,6 +157,10 @@ public class RequestHandler {
 		try {
 			json = JsonParser.parseString(response).getAsJsonObject();
 		} catch (final JsonSyntaxException | IllegalStateException e) {
+			if (response.length() > 50_000) {
+				response = response.substring(0, 50_000) + "\n[response truncated to 50k characters]";
+			}
+
 			if (!response.endsWith("\n")) {
 				response = response + "\n";
 			}
