@@ -6,6 +6,7 @@ import java.util.stream.StreamSupport;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.namelessmc.java_api.exception.UnknownNamelessVersionException;
 
 public class Website {
 
@@ -44,7 +45,7 @@ public class Website {
 		return this.version;
 	}
 
-	public NamelessVersion getParsedVersion() {
+	public NamelessVersion getParsedVersion() throws UnknownNamelessVersionException {
 		return NamelessVersion.parse(this.version);
 	}
 
@@ -81,7 +82,7 @@ public class Website {
 			return this.version;
 		}
 
-		public NamelessVersion getParsedVersion() {
+		public NamelessVersion getParsedVersion() throws UnknownNamelessVersionException {
 			return NamelessVersion.parse(this.version);
 		}
 

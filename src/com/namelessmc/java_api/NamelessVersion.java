@@ -3,6 +3,8 @@ package com.namelessmc.java_api;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.namelessmc.java_api.exception.UnknownNamelessVersionException;
+
 public enum NamelessVersion {
 
 	V2_0_0_PR_7("2.0.0-pr7", 2, 0, true),
@@ -58,10 +60,10 @@ public enum NamelessVersion {
 		}
 	}
 
-	public static NamelessVersion parse(final String versionName) {
+	public static NamelessVersion parse(final String versionName) throws UnknownNamelessVersionException {
 		final NamelessVersion version = BY_NAME.get(versionName);
 		if (version == null) {
-			throw new IllegalArgumentException("Unknown NamelessMC version: '" + versionName + "'");
+			throw new UnknownNamelessVersionException(versionName);
 		}
 		return version;
 	}
