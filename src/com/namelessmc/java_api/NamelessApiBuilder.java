@@ -26,12 +26,8 @@ public class NamelessApiBuilder {
 		return this;
 	}
 
-	public NamelessApiBuilder apiUrl(final String apiUrl) {
-		try {
-			return apiUrl(new URL(apiUrl));
-		} catch (final MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
+	public NamelessApiBuilder apiUrl(final String apiUrl) throws MalformedURLException {
+		return apiUrl(new URL(apiUrl));
 	}
 
 	/**
@@ -39,8 +35,9 @@ public class NamelessApiBuilder {
 	 *
 	 * @param host   hostname, for example namelessmc.com
 	 * @param apiKey api key
+	 * @throws MalformedURLException
 	 */
-	public NamelessApiBuilder apiUrl(final String host, final String apiKey) {
+	public NamelessApiBuilder apiUrl(final String host, final String apiKey) throws MalformedURLException {
 		return apiUrl("https://" + host + "/index.php?route=/api/v2/" + apiKey);
 	}
 
