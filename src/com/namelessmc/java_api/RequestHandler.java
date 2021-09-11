@@ -171,7 +171,9 @@ public class RequestHandler {
 					+ response
 					+ "-----------------\n";
 			if (code == 301 || code == 302 || code == 303) {
-				message += "LIKELY FIX: The URL results in a redirect. If your URL uses http://, change to https://. If your website forces www., make sure to add www. to the url";
+				message += "HINT: The URL results in a redirect. If your URL uses http://, change to https://. If your website forces www., make sure to add www. to the url";
+			} else if (code == 521) {
+				message += "HINT: Status code 521 is sent by CloudFlare when the backend webserver is down.";
 			}
 			throw new NamelessException(message, e);
 		}
