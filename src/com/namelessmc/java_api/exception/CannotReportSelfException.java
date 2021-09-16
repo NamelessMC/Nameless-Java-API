@@ -4,10 +4,10 @@ import com.namelessmc.java_api.ApiError;
 
 public class CannotReportSelfException extends ApiErrorException {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public CannotReportSelfException() {
-		super(ApiError.CANNOT_REPORT_YOURSELF);
-	}
+    public CannotReportSelfException() {
+        super(ApiError.CANNOT_REPORT_YOURSELF);
+    }
 
 }
