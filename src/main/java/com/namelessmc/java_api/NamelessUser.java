@@ -43,13 +43,13 @@ public final class NamelessUser {
 	private void loadUserInfo() throws NamelessException {
 		final JsonObject response;
 		if (this.id != -1) {
-			response = this.requests.get(Action.USER_INFO, "id", this.id);
+			response = this.requests.get(RequestHandler.Action.USER_INFO, "id", this.id);
 		} else if (this.uuid != null && this.uuid.isPresent()) {
-			response = this.requests.get(Action.USER_INFO, "uuid", this.uuid.get());
+			response = this.requests.get(RequestHandler.Action.USER_INFO, "uuid", this.uuid.get());
 		} else if (this.username != null) {
-			response = this.requests.get(Action.USER_INFO, "username", this.username);
+			response = this.requests.get(RequestHandler.Action.USER_INFO, "username", this.username);
 		} else if (this.discordId != null && this.discordId.isPresent()) {
-			response = this.requests.get(Action.USER_INFO, "discord_id", this.discordId.get());
+			response = this.requests.get(RequestHandler.Action.USER_INFO, "discord_id", this.discordId.get());
 		} else {
 			throw new IllegalStateException("ID, uuid, and username not known for this player.");
 		}
@@ -265,7 +265,7 @@ public final class NamelessUser {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
 		post.add("groups", groupsToJsonArray(groups));
-		this.requests.post(Action.ADD_GROUPS, post);
+		this.requests.post(RequestHandler.Action.ADD_GROUPS, post);
 		invalidateCache(); // Groups modified, invalidate cache
 	}
 
@@ -273,7 +273,7 @@ public final class NamelessUser {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
 		post.add("groups", groupsToJsonArray(groups));
-		this.requests.post(Action.REMOVE_GROUPS, post);
+		this.requests.post(RequestHandler.Action.REMOVE_GROUPS, post);
 		invalidateCache(); // Groups modified, invalidate cache
 	}
 
@@ -286,12 +286,12 @@ public final class NamelessUser {
 	}
 
 	public int getNotificationCount() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GET_NOTIFICATIONS, "user", this.getId());
+		final JsonObject response = this.requests.get(RequestHandler.Action.GET_NOTIFICATIONS, "user", this.getId());
 		return response.getAsJsonArray("notifications").size();
 	}
 
 	public List<Notification> getNotifications() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GET_NOTIFICATIONS, "user", this.getId());
+		final JsonObject response = this.requests.get(RequestHandler.Action.GET_NOTIFICATIONS, "user", this.getId());
 
 		final List<Notification> notifications = new ArrayList<>();
 		response.getAsJsonArray("notifications").forEach((element) -> {
@@ -324,7 +324,7 @@ public final class NamelessUser {
 		post.addProperty("reported", user.getId());
 		post.addProperty("content", reason);
 		try {
-			this.requests.post(Action.CREATE_REPORT, post);
+			this.requests.post(RequestHandler.Action.CREATE_REPORT, post);
 		} catch (final ApiError e) {
 			if (e.getError() == ApiError.USER_CREATING_REPORT_BANNED) {
 				throw new ReportUserBannedException();
@@ -354,7 +354,7 @@ public final class NamelessUser {
 		post.addProperty("user", this.getId());
 		post.addProperty("code", code);
 		try {
-			this.requests.post(Action.VERIFY_MINECRAFT, post);
+			this.requests.post(RequestHandler.Action.VERIFY_MINECRAFT, post);
 			this.userInfo = null;
 		} catch (final ApiError e) {
 			switch (e.getError()) {
@@ -369,7 +369,7 @@ public final class NamelessUser {
 	}
 
 	public long[] getDiscordRoles() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GET_DISCORD_ROLES, "user", this.getId());
+		final JsonObject response = this.requests.get(RequestHandler.Action.GET_DISCORD_ROLES, "user", this.getId());
 		return StreamSupport.stream(response.getAsJsonArray("roles").spliterator(), false)
 				.mapToLong(JsonElement::getAsLong).toArray();
 	}
@@ -378,21 +378,21 @@ public final class NamelessUser {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
 		post.add("roles", new Gson().toJsonTree(roleIds));
-		this.requests.post(Action.SET_DISCORD_ROLES, post);
+		this.requests.post(RequestHandler.Action.SET_DISCORD_ROLES, post);
 	}
 
 	public void addDiscordRoles(final long... roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
 		post.add("roles", new Gson().toJsonTree(roleIds));
-		this.requests.post(Action.ADD_DISCORD_ROLES, post);
+		this.requests.post(RequestHandler.Action.ADD_DISCORD_ROLES, post);
 	}
 
 	public void removeDiscordRoles(final long... roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
 		post.add("roles", new Gson().toJsonTree(roleIds));
-		this.requests.post(Action.REMOVE_DISCORD_ROLES, post);
+		this.requests.post(RequestHandler.Action.REMOVE_DISCORD_ROLES, post);
 	}
 
 }

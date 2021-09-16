@@ -13,14 +13,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import com.namelessmc.java_api.exception.CannotSendEmailException;
+import com.namelessmc.java_api.exception.InvalidUsernameException;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.namelessmc.java_api.RequestHandler.Action;
-import com.namelessmc.java_api.exception.CannotSendEmailException;
-import com.namelessmc.java_api.exception.InvalidUsernameException;
 
 public final class NamelessAPI {
 
@@ -57,7 +56,7 @@ public final class NamelessAPI {
 	 */
 	@Deprecated
 	public void checkWebAPIConnection() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.INFO);
+		final JsonObject response = this.requests.get(RequestHandler.Action.INFO);
 		if (!response.has("nameless_version")) {
 			throw new NamelessException("Invalid response: " + response.getAsString());
 		}
@@ -70,7 +69,7 @@ public final class NamelessAPI {
 	 * @throws NamelessException if there is an error in the request
 	 */
 	public List<Announcement> getAnnouncements() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GET_ANNOUNCEMENTS);
+		final JsonObject response = this.requests.get(RequestHandler.Action.GET_ANNOUNCEMENTS);
 
 		return getAnnouncements(response);
 	}
@@ -83,7 +82,7 @@ public final class NamelessAPI {
 	 * @throws NamelessException if there is an error in the request
 	 */
 	public List<Announcement> getAnnouncements(final NamelessUser user) throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GET_ANNOUNCEMENTS, "id", user.getId());
+		final JsonObject response = this.requests.get(RequestHandler.Action.GET_ANNOUNCEMENTS, "id", user.getId());
 
 		return getAnnouncements(response);
 	}
@@ -103,11 +102,11 @@ public final class NamelessAPI {
 	}
 
 	public void submitServerInfo(final JsonObject jsonData) throws NamelessException {
-		this.requests.post(Action.SERVER_INFO, jsonData);
+		this.requests.post(RequestHandler.Action.SERVER_INFO, jsonData);
 	}
 
 	public Website getWebsite() throws NamelessException {
-		final JsonObject json = this.requests.get(Action.INFO);
+		final JsonObject json = this.requests.get(RequestHandler.Action.INFO);
 		return new Website(json);
 	}
 
@@ -117,7 +116,7 @@ public final class NamelessAPI {
 			parameters.add(filter.getName());
 			parameters.add(filter.getValue().toString());
 		}
-		final JsonObject response = this.requests.get(Action.LIST_USERS, parameters.toArray());
+		final JsonObject response = this.requests.get(RequestHandler.Action.LIST_USERS, parameters.toArray());
 		final JsonArray array = response.getAsJsonArray("users");
 		final List<NamelessUser> users = new ArrayList<>(array.size());
 		for (final JsonElement e : array) {
@@ -244,7 +243,7 @@ public final class NamelessAPI {
 	 * @throws NamelessException
 	 */
 	public Optional<Group> getGroup(final int id) throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GROUP_INFO, "id", id);
+		final JsonObject response = this.requests.get(RequestHandler.Action.GROUP_INFO, "id", id);
 		final JsonArray array = response.getAsJsonArray("groups");
 		if (array.size() == 0) {
 			return Optional.empty();
@@ -261,7 +260,7 @@ public final class NamelessAPI {
 	 */
 	public List<Group> getGroup(final String name) throws NamelessException {
 		Objects.requireNonNull(name, "Group name is null");
-		final JsonObject response = this.requests.get(Action.GROUP_INFO, "name", name);
+		final JsonObject response = this.requests.get(RequestHandler.Action.GROUP_INFO, "name", name);
 		return groupListFromJsonArray(response.getAsJsonArray("groups"));
 	}
 
@@ -271,13 +270,13 @@ public final class NamelessAPI {
 	 * @throws NamelessException
 	 */
 	public List<Group> getAllGroups() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GROUP_INFO);
+		final JsonObject response = this.requests.get(RequestHandler.Action.GROUP_INFO);
 		return groupListFromJsonArray(response.getAsJsonArray("groups"));
 
 	}
 
 	public int[] getAllGroupIds() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GROUP_INFO);
+		final JsonObject response = this.requests.get(RequestHandler.Action.GROUP_INFO);
 		return StreamSupport.stream(response.getAsJsonArray("groups").spliterator(), false)
 				.map(JsonElement::getAsJsonObject)
 				.mapToInt(o -> o.get("id").getAsInt())
@@ -316,7 +315,7 @@ public final class NamelessAPI {
 		}
 
 		try {
-			final JsonObject response = this.requests.post(Action.REGISTER, post);
+			final JsonObject response = this.requests.post(RequestHandler.Action.REGISTER, post);
 
 			if (response.has("link")) {
 				return Optional.of(response.get("link").getAsString());
@@ -346,7 +345,7 @@ public final class NamelessAPI {
 		json.addProperty("token", verificationToken);
 		json.addProperty("discord_id", discordUserId + ""); // website needs it as a string
 		json.addProperty("discord_username", discordUsername);
-		this.requests.post(Action.VERIFY_DISCORD, json);
+		this.requests.post(RequestHandler.Action.VERIFY_DISCORD, json);
 	}
 
 	public void setDiscordBotUrl(final URL url) throws NamelessException {
@@ -354,13 +353,13 @@ public final class NamelessAPI {
 
 		final JsonObject json = new JsonObject();
 		json.addProperty("url", url.toString());
-		this.requests.post(Action.UPDATE_DISCORD_BOT_SETTINGS, json);
+		this.requests.post(RequestHandler.Action.UPDATE_DISCORD_BOT_SETTINGS, json);
 	}
 
 	public void setDiscordGuildId(final long guildId) throws NamelessException {
 		final JsonObject json = new JsonObject();
 		json.addProperty("guild_id", guildId + "");
-		this.requests.post(Action.UPDATE_DISCORD_BOT_SETTINGS, json);
+		this.requests.post(RequestHandler.Action.UPDATE_DISCORD_BOT_SETTINGS, json);
 	}
 
 	public void setDiscordBotUser(final String username, final long userId) throws NamelessException {
@@ -369,7 +368,7 @@ public final class NamelessAPI {
 		final JsonObject json = new JsonObject();
 		json.addProperty("bot_username", username);
 		json.addProperty("bot_user_id", userId + "");
-		this.requests.post(Action.UPDATE_DISCORD_BOT_SETTINGS, json);
+		this.requests.post(RequestHandler.Action.UPDATE_DISCORD_BOT_SETTINGS, json);
 	}
 
 	public void setDiscordBotSettings(final URL url, final long guildId, final String username, final long userId) throws NamelessException {
@@ -381,7 +380,7 @@ public final class NamelessAPI {
 		json.addProperty("guild_id", guildId + "");
 		json.addProperty("bot_username", username);
 		json.addProperty("bot_user_id", userId + "");
-		this.requests.post(Action.UPDATE_DISCORD_BOT_SETTINGS, json);
+		this.requests.post(RequestHandler.Action.UPDATE_DISCORD_BOT_SETTINGS, json);
 	}
 
 	public void submitDiscordRoleList(final Map<Long, String> discordRoles) throws NamelessException {
@@ -394,7 +393,7 @@ public final class NamelessAPI {
 		});
 		final JsonObject json = new JsonObject();
 		json.add("roles", roles);
-		this.requests.post(Action.SUBMIT_DISCORD_ROLE_LIST, json);
+		this.requests.post(RequestHandler.Action.SUBMIT_DISCORD_ROLE_LIST, json);
 	}
 
 	public void updateDiscordUsername(final long discordUserId, final String discordUsername) throws NamelessException {
@@ -407,7 +406,7 @@ public final class NamelessAPI {
 		users.add(user);
 		final JsonObject json = new JsonObject();
 		json.add("users", users);
-		this.requests.post(Action.UPDATE_DISCORD_USERNAMES, json);
+		this.requests.post(RequestHandler.Action.UPDATE_DISCORD_USERNAMES, json);
 	}
 
 	public void updateDiscordUsernames(final long[] discordUserIds, final String[] discordUsernames) throws NamelessException {
@@ -433,7 +432,7 @@ public final class NamelessAPI {
 
 		final JsonObject json = new JsonObject();
 		json.add("users", users);
-		this.requests.post(Action.UPDATE_DISCORD_USERNAMES, json);
+		this.requests.post(RequestHandler.Action.UPDATE_DISCORD_USERNAMES, json);
 	}
 
 	@Deprecated
