@@ -1,26 +1,19 @@
 package com.namelessmc.java_api;
 
-import java.math.BigInteger;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.RequestHandler.Action;
 import com.namelessmc.java_api.exception.CannotSendEmailException;
 import com.namelessmc.java_api.exception.InvalidUsernameException;
+import org.apache.commons.lang3.StringUtils;
+
+import java.math.BigInteger;
+import java.net.URL;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public final class NamelessAPI {
 
@@ -245,11 +238,11 @@ public final class NamelessAPI {
 	 */
 	public Optional<Group> getGroup(final int id) throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GROUP_INFO, "id", id);
-		List<Group> groups = this.groupListFromJsonArray(response.getAsJsonArray("groups"));
-		if (groups.size() != 1) {
+		JsonArray jsonArray = response.getAsJsonArray("groups");
+		if (jsonArray.size() != 1) {
 			return Optional.empty();
 		} else {
-			return Optional.of(groups.get(0));
+			return Optional.of(new Group(jsonArray.get(0).getAsJsonObject()));
 		}
 	}
 
