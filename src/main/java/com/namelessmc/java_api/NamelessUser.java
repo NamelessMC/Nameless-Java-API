@@ -1,27 +1,17 @@
 package com.namelessmc.java_api;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import org.apache.commons.lang3.Validate;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.Notification.NotificationType;
-import com.namelessmc.java_api.exception.AccountAlreadyActivatedException;
-import com.namelessmc.java_api.exception.AlreadyHasOpenReportException;
-import com.namelessmc.java_api.exception.CannotReportSelfException;
-import com.namelessmc.java_api.exception.InvalidValidateCodeException;
-import com.namelessmc.java_api.exception.ReportUserBannedException;
-import com.namelessmc.java_api.exception.UnableToCreateReportException;
+import com.namelessmc.java_api.RequestHandler.Action;
+import com.namelessmc.java_api.exception.*;
+import org.apache.commons.lang3.Validate;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public final class NamelessUser {
 
@@ -104,6 +94,13 @@ public final class NamelessUser {
 		}
 
 		return this.username;
+	}
+
+	public void updateUsername(String username) throws NamelessException {
+		JsonObject post = new JsonObject();
+		post.addProperty("user", this.getId());
+		post.addProperty("username", username);
+		this.requests.post(Action.UPDATE_USERNAME, post);
 	}
 
 	public Optional<UUID> getUniqueId() throws NamelessException {
