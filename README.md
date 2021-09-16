@@ -1,7 +1,2 @@
-# Nameless-Plugin-API
-The official Java library for interacting with a NamelessMC Website
-Used in the official NamelessMC Plugin
-
-# Contributors
-@IsS127
-@Derkades
+# Nameless-Java-API
+Java library for interacting with a NamelessMC website. It is used by for example the NamelessMC Spigot plugin and Nameless-Link Discord bot.
