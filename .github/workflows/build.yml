@@ -21,6 +21,9 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: "adopt"
+          server-id: github
+          server-username: PACKAGES_USERNAME
+          server-password: PACKAGES_PASSWORD
 
       - name: Cache local Maven repository
         uses: actions/cache@v2
@@ -31,3 +34,6 @@ jobs:
 
       - name: Build with Maven
         run: mvn -B --update-snapshots package
+        env:
+          PACKAGES_USERNAME: $GITHUB_ACTOR
+          PACKAGES_PASSWORD: ${{ github.token }}
