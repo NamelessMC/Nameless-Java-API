@@ -245,11 +245,11 @@ public final class NamelessAPI {
 	 */
 	public Optional<Group> getGroup(final int id) throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GROUP_INFO, "id", id);
-		final JsonArray array = response.getAsJsonArray("groups");
-		if (array.size() == 0) {
+		List<Group> groups = this.groupListFromJsonArray(response.getAsJsonArray("groups"));
+		if (groups.size() != 1) {
 			return Optional.empty();
 		} else {
-			return Optional.of(new Group(response.getAsJsonObject("group")));
+			return Optional.of(groups.get(0));
 		}
 	}
 
