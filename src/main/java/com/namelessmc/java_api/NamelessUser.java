@@ -1,4 +1,4 @@
-package main.java.com.namelessmc.java_api;
+package com.namelessmc.java_api;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,13 +15,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import main.java.com.namelessmc.java_api.Notification.NotificationType;
-import main.java.com.namelessmc.java_api.exception.AccountAlreadyActivatedException;
-import main.java.com.namelessmc.java_api.exception.AlreadyHasOpenReportException;
-import main.java.com.namelessmc.java_api.exception.CannotReportSelfException;
-import main.java.com.namelessmc.java_api.exception.InvalidValidateCodeException;
-import main.java.com.namelessmc.java_api.exception.ReportUserBannedException;
-import main.java.com.namelessmc.java_api.exception.UnableToCreateReportException;
+import com.namelessmc.java_api.Notification.NotificationType;
+import com.namelessmc.java_api.exception.AccountAlreadyActivatedException;
+import com.namelessmc.java_api.exception.AlreadyHasOpenReportException;
+import com.namelessmc.java_api.exception.CannotReportSelfException;
+import com.namelessmc.java_api.exception.InvalidValidateCodeException;
+import com.namelessmc.java_api.exception.ReportUserBannedException;
+import com.namelessmc.java_api.exception.UnableToCreateReportException;
 
 public final class NamelessUser {
 

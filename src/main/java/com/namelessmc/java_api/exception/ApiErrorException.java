@@ -1,4 +1,4 @@
-package main.java.com.namelessmc.java_api.exception;
+package com.namelessmc.java_api.exception;
 
 public class ApiErrorException extends Exception {
 

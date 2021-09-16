@@ -1,13 +1,13 @@
-package main.java.com.namelessmc.java_api;
+package com.namelessmc.java_api;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
 import java.util.Optional;
 
-import main.java.com.namelessmc.java_api.logger.ApiLogger;
-import main.java.com.namelessmc.java_api.logger.PrintStreamLogger;
-import main.java.com.namelessmc.java_api.logger.Slf4jLogger;
+import com.namelessmc.java_api.logger.ApiLogger;
+import com.namelessmc.java_api.logger.PrintStreamLogger;
+import com.namelessmc.java_api.logger.Slf4jLogger;
 
 public class NamelessApiBuilder {
 

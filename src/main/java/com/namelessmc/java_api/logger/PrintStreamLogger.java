@@ -1,4 +1,4 @@
-package main.java.com.namelessmc.java_api.logger;
+package com.namelessmc.java_api.logger;
 
 import java.io.PrintStream;
 

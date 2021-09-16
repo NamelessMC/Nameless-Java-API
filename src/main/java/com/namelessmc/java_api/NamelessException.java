@@ -1,4 +1,4 @@
-package main.java.com.namelessmc.java_api;
+package com.namelessmc.java_api;
 
 /**
  * Generic exception thrown by many methods in the Nameless API

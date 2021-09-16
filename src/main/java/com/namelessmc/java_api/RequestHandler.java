@@ -1,7 +1,7 @@
-package main.java.com.namelessmc.java_api;
+package com.namelessmc.java_api;
 
-import static main.java.com.namelessmc.java_api.RequestHandler.RequestMethod.GET;
-import static main.java.com.namelessmc.java_api.RequestHandler.RequestMethod.POST;
+import static com.namelessmc.java_api.RequestHandler.RequestMethod.GET;
+import static com.namelessmc.java_api.RequestHandler.RequestMethod.POST;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import main.java.com.namelessmc.java_api.logger.ApiLogger;
+import com.namelessmc.java_api.logger.ApiLogger;
 
 public class RequestHandler {
 

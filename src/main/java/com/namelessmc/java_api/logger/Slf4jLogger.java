@@ -1,4 +1,4 @@
-package main.java.com.namelessmc.java_api.logger;
+package com.namelessmc.java_api.logger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

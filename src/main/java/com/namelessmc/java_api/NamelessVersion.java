@@ -1,9 +1,9 @@
-package main.java.com.namelessmc.java_api;
+package com.namelessmc.java_api;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import main.java.com.namelessmc.java_api.exception.UnknownNamelessVersionException;
+import com.namelessmc.java_api.exception.UnknownNamelessVersionException;
 
 public enum NamelessVersion {
 

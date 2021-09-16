@@ -1,4 +1,4 @@
-package main.java.com.namelessmc.java_api;
+package com.namelessmc.java_api;
 
 import java.util.Optional;
 

@@ -1,6 +1,6 @@
-package main.java.com.namelessmc.java_api.exception;
+package com.namelessmc.java_api.exception;
 
-import main.java.com.namelessmc.java_api.ApiError;
+import com.namelessmc.java_api.ApiError;
 
 public class InvalidUsernameException extends ApiErrorException {
 

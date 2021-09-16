@@ -1,4 +1,4 @@
-package main.java.com.namelessmc.java_api;
+package com.namelessmc.java_api;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -6,7 +6,7 @@ import java.util.stream.StreamSupport;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import main.java.com.namelessmc.java_api.exception.UnknownNamelessVersionException;
+import com.namelessmc.java_api.exception.UnknownNamelessVersionException;
 
 public class Website {
 

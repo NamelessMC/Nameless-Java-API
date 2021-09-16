@@ -1,4 +1,4 @@
-package main.java.com.namelessmc.java_api;
+package com.namelessmc.java_api;
 
 import java.math.BigInteger;
 import java.net.URL;
@@ -13,8 +13,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import main.java.com.namelessmc.java_api.exception.CannotSendEmailException;
-import main.java.com.namelessmc.java_api.exception.InvalidUsernameException;
+import com.namelessmc.java_api.exception.CannotSendEmailException;
+import com.namelessmc.java_api.exception.InvalidUsernameException;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.gson.JsonArray;
