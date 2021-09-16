@@ -1,13 +1,11 @@
 package com.namelessmc.java_api;
 
-import static com.namelessmc.java_api.RequestHandler.RequestMethod.GET;
-import static com.namelessmc.java_api.RequestHandler.RequestMethod.POST;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
+import com.namelessmc.java_api.logger.ApiLogger;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -17,10 +15,8 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
-import com.namelessmc.java_api.logger.ApiLogger;
+import static com.namelessmc.java_api.RequestHandler.RequestMethod.GET;
+import static com.namelessmc.java_api.RequestHandler.RequestMethod.POST;
 
 public class RequestHandler {
 
@@ -187,7 +183,7 @@ public class RequestHandler {
 		if (json.get("error").getAsBoolean()) {
 			String meta = null;
 			if (json.has("meta") && !json.get("meta").isJsonNull()) {
-				meta = json.get("meta").getAsString();
+				meta = json.get("meta").toString();
 			}
 			throw new ApiError(json.get("code").getAsInt(), Optional.ofNullable(meta));
 		}
