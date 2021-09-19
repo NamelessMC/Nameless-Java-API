@@ -1,12 +1,14 @@
 package com.namelessmc.java_api;
 
+import java.util.Set;
+
 public class Announcement {
 
 	private final String content;
-	private final String[] displayPages;
-	private final String[] displayRanks;
+	private final Set<String> displayPages;
+	private final Set<String> displayRanks;
 
-	Announcement(final String content, final String[] displayPages, final String[] displayRanks) {
+	Announcement(final String content, final Set<String> displayPages, final Set<String> displayRanks) {
 		this.content = content;
 		this.displayPages = displayPages;
 		this.displayRanks = displayRanks;
@@ -16,11 +18,11 @@ public class Announcement {
 		return this.content;
 	}
 
-	public String[] getDisplayPages() {
+	public Set<String> getDisplayPages() {
 		return this.displayPages;
 	}
 
-	public String[] getDisplayRanks() {
+	public Set<String> getDisplayRanks() {
 		return this.displayRanks;
 	}
 

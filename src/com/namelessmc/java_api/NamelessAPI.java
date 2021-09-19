@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -89,13 +90,17 @@ public final class NamelessAPI {
 		return getAnnouncements(response);
 	}
 
+	private static Set<String> toStringSet(final JsonArray jsonArray) {
+		return StreamSupport.stream(jsonArray.spliterator(), false).map(JsonElement::getAsString).collect(Collectors.toSet());
+	}
+
 	private List<Announcement> getAnnouncements(final JsonObject response) {
 		return jsonArrayToList(response.get("announcements").getAsJsonArray(), element -> {
 			final JsonObject announcementJson = element.getAsJsonObject();
 			final String content = announcementJson.get("content").getAsString();
-			final String[] display = jsonToArray(announcementJson.get("display").getAsJsonArray());
-			final String[] permissions = jsonToArray(announcementJson.get("permissions").getAsJsonArray());
-			return new Announcement(content, display, permissions);
+			final Set<String> displayPages = toStringSet(announcementJson.get("display").getAsJsonArray());
+			final Set<String> displayRanks = toStringSet(announcementJson.get("permissions").getAsJsonArray());
+			return new Announcement(content, displayPages, displayRanks);
 		});
 	}
 
@@ -452,13 +457,6 @@ public final class NamelessAPI {
 		final JsonObject json = new JsonObject();
 		json.add("users", users);
 		this.requests.post(Action.UPDATE_DISCORD_USERNAMES, json);
-	}
-
-	@Deprecated
-	static String[] jsonToArray(final JsonArray jsonArray) {
-		final List<String> list = new ArrayList<>();
-		jsonArray.iterator().forEachRemaining((element) -> list.add(element.getAsString()));
-		return list.toArray(new String[]{});
 	}
 
 	static UUID websiteUuidToJavaUuid(final String uuid) {
