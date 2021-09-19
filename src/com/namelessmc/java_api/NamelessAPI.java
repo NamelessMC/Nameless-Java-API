@@ -1,19 +1,27 @@
 package com.namelessmc.java_api;
 
+import java.math.BigInteger;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.RequestHandler.Action;
 import com.namelessmc.java_api.exception.CannotSendEmailException;
 import com.namelessmc.java_api.exception.InvalidUsernameException;
-import org.apache.commons.lang3.StringUtils;
-
-import java.math.BigInteger;
-import java.net.URL;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import com.namelessmc.java_api.exception.UuidAlreadyExistsException;
 
 public final class NamelessAPI {
 
@@ -238,7 +246,7 @@ public final class NamelessAPI {
 	 */
 	public Optional<Group> getGroup(final int id) throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GROUP_INFO, "id", id);
-		JsonArray jsonArray = response.getAsJsonArray("groups");
+		final JsonArray jsonArray = response.getAsJsonArray("groups");
 		if (jsonArray.size() != 1) {
 			return Optional.empty();
 		} else {
@@ -296,17 +304,16 @@ public final class NamelessAPI {
 	 * @throws InvalidUsernameException
 	 * @throws CannotSendEmailException
 	 */
-	public Optional<String> registerUser(final String username, final String email, final Optional<UUID> uuid) throws NamelessException, InvalidUsernameException, CannotSendEmailException {
+	public Optional<String> registerUser(final String username, final String email, final UUID uuid)
+			throws NamelessException, InvalidUsernameException, CannotSendEmailException, UuidAlreadyExistsException {
 		Objects.requireNonNull(username, "Username is null");
 		Objects.requireNonNull(email, "Email address is null");
-		Objects.requireNonNull(uuid, "UUDI optional is null");
+		Objects.requireNonNull(uuid, "UUDI is null");
 
 		final JsonObject post = new JsonObject();
 		post.addProperty("username", username);
 		post.addProperty("email", email);
-		if (uuid.isPresent()) {
-			post.addProperty("uuid", uuid.get().toString());
-		}
+		post.addProperty("uuid", uuid.toString());
 
 		try {
 			final JsonObject response = this.requests.post(Action.REGISTER, post);
@@ -321,14 +328,21 @@ public final class NamelessAPI {
 				throw new InvalidUsernameException();
 			} else if (e.getError() == ApiError.UNABLE_TO_SEND_REGISTRATION_EMAIL) {
 				throw new CannotSendEmailException();
+			} else if (e.getError() == ApiError.UUID_ALREADY_EXISTS) {
+				throw new UuidAlreadyExistsException();
 			} else {
 				throw e;
 			}
 		}
 	}
 
-	public Optional<String> registerUser(final String username, final String email) throws NamelessException, InvalidUsernameException, CannotSendEmailException {
-		return registerUser(username, email, null);
+	public Optional<String> registerUser(final String username, final String email)
+			throws NamelessException, InvalidUsernameException, CannotSendEmailException {
+		try {
+			return registerUser(username, email, null);
+		} catch (final UuidAlreadyExistsException e) {
+			throw new IllegalStateException("Website said duplicate uuid but we haven't specified a uuid?", e);
+		}
 	}
 
 	public void verifyDiscord(final String verificationToken, final long discordUserId, final String discordUsername) throws NamelessException {
