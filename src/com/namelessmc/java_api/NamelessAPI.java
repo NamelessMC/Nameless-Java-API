@@ -308,7 +308,7 @@ public final class NamelessAPI {
 			throws NamelessException, InvalidUsernameException, CannotSendEmailException, UuidAlreadyExistsException {
 		Objects.requireNonNull(username, "Username is null");
 		Objects.requireNonNull(email, "Email address is null");
-		Objects.requireNonNull(uuid, "UUDI is null");
+		Objects.requireNonNull(uuid, "UUID is null");
 
 		final JsonObject post = new JsonObject();
 		post.addProperty("username", username);
