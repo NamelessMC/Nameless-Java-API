@@ -295,25 +295,27 @@ public final class NamelessAPI {
 	/**
 	 * Registers a new account. The user will be sent an email to set a password.
 	 *
-	 * @param username Username
+	 * @param username Username (this should match the user's in-game username when specifying a uuid)
 	 * @param email Email address
-	 * @param uuid (for minecraft integration)
+	 * @param uuid Mojang UUID, if you wish to use the Minecraft integration. Nullable.
 	 * @return Email verification disabled: A link which the user needs to click to complete registration
 	 * <br>Email verification enabled: An empty string (the user needs to check their email to complete registration)
 	 * @throws NamelessException
 	 * @throws InvalidUsernameException
 	 * @throws CannotSendEmailException
+	 * @see #registerUser(String, String)
 	 */
 	public Optional<String> registerUser(final String username, final String email, final UUID uuid)
 			throws NamelessException, InvalidUsernameException, CannotSendEmailException, UuidAlreadyExistsException {
 		Objects.requireNonNull(username, "Username is null");
 		Objects.requireNonNull(email, "Email address is null");
-		Objects.requireNonNull(uuid, "UUID is null");
 
 		final JsonObject post = new JsonObject();
 		post.addProperty("username", username);
 		post.addProperty("email", email);
-		post.addProperty("uuid", uuid.toString());
+		if (uuid != null) {
+			post.addProperty("uuid", uuid.toString());
+		}
 
 		try {
 			final JsonObject response = this.requests.post(Action.REGISTER, post);
@@ -336,6 +338,15 @@ public final class NamelessAPI {
 		}
 	}
 
+	/**
+	 * Convenience method for {@link #registerUser(String, String, UUID)} with null UUID.
+	 * @param username
+	 * @param email
+	 * @return
+	 * @throws NamelessException
+	 * @throws InvalidUsernameException
+	 * @throws CannotSendEmailException
+	 */
 	public Optional<String> registerUser(final String username, final String email)
 			throws NamelessException, InvalidUsernameException, CannotSendEmailException {
 		try {
