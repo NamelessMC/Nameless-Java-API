@@ -1,11 +1,13 @@
 package com.namelessmc.java_api;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
-import com.namelessmc.java_api.logger.ApiLogger;
+import static com.namelessmc.java_api.RequestHandler.RequestMethod.GET;
+import static com.namelessmc.java_api.RequestHandler.RequestMethod.POST;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -15,8 +17,10 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.namelessmc.java_api.RequestHandler.RequestMethod.GET;
-import static com.namelessmc.java_api.RequestHandler.RequestMethod.POST;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
+import com.namelessmc.java_api.logger.ApiLogger;
 
 public class RequestHandler {
 
@@ -168,8 +172,8 @@ public class RequestHandler {
 					+ "-----------------\n";
 			if (code == 301 || code == 302 || code == 303) {
 				message += "HINT: The URL results in a redirect. If your URL uses http://, change to https://. If your website forces www., make sure to add www. to the url";
-			} else if (code == 521) {
-				message += "HINT: Status code 521 is sent by CloudFlare when the backend webserver is down.";
+			} else if (code == 520 || code == 521) {
+				message += "HINT: Status code 520/521 is sent by CloudFlare when the backend webserver is down or having issues.";
 			}
 			throw new NamelessException(message, e);
 		}
