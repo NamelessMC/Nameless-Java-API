@@ -52,11 +52,7 @@ public class RequestHandler {
 			throw new NamelessException("Invalid URL or parameter string");
 		}
 
-		try {
-			return makeConnection(url, postData);
-		} catch (final IOException e) {
-			throw new NamelessException(e);
-		}
+		return makeConnection(url, postData);
 	}
 
 	public JsonObject get(final Action action, final Object... parameters) throws NamelessException {
@@ -96,11 +92,7 @@ public class RequestHandler {
 			throw new NamelessException("Error while building request URL: " + urlBuilder, e);
 		}
 
-		try {
-			return makeConnection(url, null);
-		} catch (final IOException e) {
-			throw new NamelessException(e);
-		}
+		return makeConnection(url, null);
 	}
 
 	private void debug(final String message, final Object... args) {
@@ -109,43 +101,52 @@ public class RequestHandler {
 		}
 	}
 
-	private JsonObject makeConnection(final URL url, final JsonObject postBody) throws NamelessException, IOException {
-		final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-		connection.setReadTimeout(this.timeout);
-		connection.setConnectTimeout(this.timeout);
-
-		debug("Making connection %s to url %s", postBody != null ? "POST" : "GET", url);
-
-		connection.addRequestProperty("User-Agent", this.userAgent);
-
-		debug("Using User-Agent '%s'", this.userAgent);
-
-		if (postBody != null) {
-			debug("Post body below\n-----------------\n%s\n-----------------", postBody);
-			connection.setRequestMethod("POST");
-			final byte[] encodedMessage = postBody.toString().getBytes(StandardCharsets.UTF_8);
-			connection.setRequestProperty("Content-Length", encodedMessage.length + "");
-			connection.setRequestProperty("Content-Type", "application/json");
-			connection.setDoOutput(true);
-			try (OutputStream out = connection.getOutputStream()) {
-				out.write(encodedMessage);
-			}
-		}
-
+	private JsonObject makeConnection(final URL url, final JsonObject postBody) throws NamelessException {
+		final HttpURLConnection connection;
 		final byte[] bytes;
-		if (connection.getResponseCode() >= 400) {
-			try (InputStream in = connection.getErrorStream()) {
-				if (in == null) {
-					throw new NamelessException("Website sent empty response with code " + connection.getResponseCode());
-				} else {
+		try {
+			connection = (HttpURLConnection) url.openConnection();
+
+			connection.setReadTimeout(this.timeout);
+			connection.setConnectTimeout(this.timeout);
+
+			debug("Making connection %s to url %s", postBody != null ? "POST" : "GET", url);
+
+			connection.addRequestProperty("User-Agent", this.userAgent);
+
+			debug("Using User-Agent '%s'", this.userAgent);
+
+			if (postBody != null) {
+				debug("Post body below\n-----------------\n%s\n-----------------", postBody);
+				connection.setRequestMethod("POST");
+				final byte[] encodedMessage = postBody.toString().getBytes(StandardCharsets.UTF_8);
+				connection.setRequestProperty("Content-Length", encodedMessage.length + "");
+				connection.setRequestProperty("Content-Type", "application/json");
+				connection.setDoOutput(true);
+				try (OutputStream out = connection.getOutputStream()) {
+					out.write(encodedMessage);
+				}
+			}
+
+			if (connection.getResponseCode() >= 400) {
+				try (InputStream in = connection.getErrorStream()) {
+					if (in == null) {
+						throw new NamelessException("Website sent empty response with code " + connection.getResponseCode());
+					} else {
+						bytes = getBytesFromInputStream(in);
+					}
+				}
+			} else {
+				try (InputStream in = connection.getInputStream()) {
 					bytes = getBytesFromInputStream(in);
 				}
 			}
-		} else {
-			try (InputStream in = connection.getInputStream()) {
-				bytes = getBytesFromInputStream(in);
+		} catch (final IOException e) {
+			String message = "IOException: " + e.getMessage();
+			if (e.getMessage().contains("unable to find valid certification path to requested target")) {
+				message += "\nHINT: Ensure your website uses a fullchain certificate";
 			}
+			throw new NamelessException(message, e);
 		}
 
 		String response = new String(bytes, StandardCharsets.UTF_8);
@@ -164,7 +165,12 @@ public class RequestHandler {
 			if (!response.endsWith("\n")) {
 				response = response + "\n";
 			}
-			final int code = connection.getResponseCode();
+			int code;
+			try {
+				code = connection.getResponseCode();
+			} catch (final IOException e1) {
+				throw new NamelessException(e1);
+			}
 			String message = e.getMessage() + "\n"
 					+ "Unable to parse json. Received response code " + code + ". Website response:\n"
 					+ "-----------------\n"
@@ -177,8 +183,6 @@ public class RequestHandler {
 			}
 			throw new NamelessException(message, e);
 		}
-
-		connection.disconnect();
 
 		if (!json.has("error")) {
 			throw new NamelessException("Unexpected response from website (missing json key 'error')");
