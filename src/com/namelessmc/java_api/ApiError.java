@@ -2,6 +2,8 @@ package com.namelessmc.java_api;
 
 import java.util.Optional;
 
+import org.jetbrains.annotations.NotNull;
+
 public class ApiError extends NamelessException {
 
 	public static final int UNKNOWN_ERROR = 0;
@@ -44,9 +46,10 @@ public class ApiError extends NamelessException {
 	private static final long serialVersionUID = 3093028909912281912L;
 
 	private final int code;
+	@NotNull
 	private final Optional<String> meta;
 
-	public ApiError(final int code, Optional<String> meta) {
+	public ApiError(final int code, @NotNull Optional<String> meta) {
 		super("An unexpected API error occured with error code " + code + (meta.isPresent() ? (" and meta " + meta.get()) : " and no meta"));
 		this.code = code;
 		this.meta = meta;
@@ -56,6 +59,7 @@ public class ApiError extends NamelessException {
 		return this.code;
 	}
 	
+	@NotNull
 	public Optional<String> getMeta() {
 		return meta;
 	}

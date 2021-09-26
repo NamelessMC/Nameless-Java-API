@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
@@ -55,6 +57,7 @@ public class RequestHandler {
 		return makeConnection(url, postData);
 	}
 
+	@NotNull
 	public JsonObject get(final Action action, final Object... parameters) throws NamelessException {
 		if (action.method != RequestMethod.GET) {
 			throw new IllegalArgumentException("Cannot GET a POST API method");
@@ -235,10 +238,12 @@ public class RequestHandler {
 
 		;
 
+		@NotNull
 		RequestMethod method;
+		@NotNull
 		String name;
 
-		Action(final String name, final RequestMethod post) {
+		Action(@NotNull final String name, @NotNull final RequestMethod post) {
 			this.name = name;
 			this.method = post;
 		}

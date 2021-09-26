@@ -2,27 +2,35 @@ package com.namelessmc.java_api;
 
 import java.util.Set;
 
+import org.jetbrains.annotations.NotNull;
+
 public class Announcement {
 
+	@NotNull
 	private final String content;
-	private final Set<String> displayPages;
-	private final Set<String> displayRanks;
+	@NotNull
+	private final Set<@NotNull String> displayPages;
+	@NotNull
+	private final Set<@NotNull String> displayRanks;
 
-	Announcement(final String content, final Set<String> displayPages, final Set<String> displayRanks) {
+	Announcement(@NotNull final String content, @NotNull final Set<@NotNull String> displayPages, @NotNull final Set<@NotNull String> displayRanks) {
 		this.content = content;
 		this.displayPages = displayPages;
 		this.displayRanks = displayRanks;
 	}
 
+	@NotNull
 	public String getContent() {
 		return this.content;
 	}
 
-	public Set<String> getDisplayPages() {
+	@NotNull
+	public Set<@NotNull String> getDisplayPages() {
 		return this.displayPages;
 	}
 
-	public Set<String> getDisplayRanks() {
+	@NotNull
+	public Set<@NotNull String> getDisplayRanks() {
 		return this.displayRanks;
 	}
 

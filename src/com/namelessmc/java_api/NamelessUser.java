@@ -1,32 +1,51 @@
 package com.namelessmc.java_api;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.Notification.NotificationType;
 import com.namelessmc.java_api.RequestHandler.Action;
-import com.namelessmc.java_api.exception.*;
-import org.apache.commons.lang3.Validate;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import com.namelessmc.java_api.exception.AccountAlreadyActivatedException;
+import com.namelessmc.java_api.exception.AlreadyHasOpenReportException;
+import com.namelessmc.java_api.exception.CannotReportSelfException;
+import com.namelessmc.java_api.exception.InvalidValidateCodeException;
+import com.namelessmc.java_api.exception.ReportUserBannedException;
+import com.namelessmc.java_api.exception.UnableToCreateReportException;
 
 public final class NamelessUser {
 
+	@NotNull
 	private final NamelessAPI api;
+	@NotNull
 	private final RequestHandler requests;
 
 	private int id; // -1 if unknown
+	@Nullable
 	private String username; // null if unknown
+	@Nullable
 	private Optional<UUID> uuid; // null if unknown, empty if known not present
+	@Nullable
 	private Optional<Long> discordId; // null if unknown, empty if known not present
 
+	@Nullable
 	private JsonObject userInfo;
 
 	// only one of id, username, uuid, discordId has to be provided
-	NamelessUser(final NamelessAPI api, final int id, final String username, final Optional<UUID> uuid, final long discordId) {
+	NamelessUser(@NotNull final NamelessAPI api, final int id, @Nullable final String username, @Nullable final Optional<UUID> uuid, final long discordId) {
 		this.api = api;
 		this.requests = api.getRequestHandler();
 
@@ -40,6 +59,7 @@ public final class NamelessUser {
 		this.discordId = discordId == -1 ? null : Optional.of(discordId);
 	}
 
+	@SuppressWarnings("null")
 	private void loadUserInfo() throws NamelessException {
 		final JsonObject response;
 		if (this.id != -1) {
@@ -61,6 +81,7 @@ public final class NamelessUser {
 		this.userInfo = response;
 	}
 
+	@NotNull
 	public NamelessAPI getApi() {
 		return this.api;
 	}
@@ -74,10 +95,12 @@ public final class NamelessUser {
 	 * this method multiple times while the cache is already cleared has no
 	 * effect.
 	 */
+	@NotNull
 	public void invalidateCache() {
 		this.userInfo = null;
 	}
 
+	@SuppressWarnings("null")
 	public int getId() throws NamelessException {
 		if (this.id == -1) {
 			this.loadUserInfo();
@@ -87,6 +110,7 @@ public final class NamelessUser {
 		return this.id;
 	}
 
+	@SuppressWarnings("null")
 	public String getUsername() throws NamelessException {
 		if (this.username == null) {
 			this.loadUserInfo();
@@ -103,6 +127,7 @@ public final class NamelessUser {
 		this.requests.post(Action.UPDATE_USERNAME, post);
 	}
 
+	@SuppressWarnings("null")
 	public Optional<UUID> getUniqueId() throws NamelessException {
 		if (this.uuid == null) {
 			this.loadUserInfo();
@@ -123,6 +148,7 @@ public final class NamelessUser {
 		return this.uuid;
 	}
 
+	@SuppressWarnings("null")
 	public Optional<Long> getDiscordId() throws NamelessException {
 		if (this.discordId == null) {
 			this.loadUserInfo();
@@ -148,6 +174,8 @@ public final class NamelessUser {
 		return true;
 	}
 
+	@SuppressWarnings("null")
+	@NotNull
 	public String getDisplayName() throws NamelessException {
 		if (this.userInfo == null) {
 			this.loadUserInfo();
@@ -161,6 +189,8 @@ public final class NamelessUser {
 	 * @return The date the user registered on the website.
 	 * @throws NamelessException
 	 */
+	@SuppressWarnings("null")
+	@NotNull
 	public Date getRegisteredDate() throws NamelessException {
 		if (this.userInfo == null) {
 			this.loadUserInfo();
@@ -169,6 +199,7 @@ public final class NamelessUser {
 		return new Date(this.userInfo.get("registered_timestamp").getAsLong() * 1000);
 	}
 
+	@NotNull
 	public Date getLastOnline() throws NamelessException {
 		if (this.userInfo == null) {
 			this.loadUserInfo();
@@ -228,7 +259,8 @@ public final class NamelessUser {
 	 * @return List of the user's groups, sorted from low order to high order.
 	 * @throws NamelessException
 	 */
-	public List<Group> getGroups() throws NamelessException {
+	@NotNull
+	public List<@NotNull Group> getGroups() throws NamelessException {
 		if (this.userInfo == null) {
 			this.loadUserInfo();
 		}
@@ -248,7 +280,8 @@ public final class NamelessUser {
 	 * @return Player's group with lowest order
 	 * @throws NamelessException
 	 */
-	public Optional<Group> getPrimaryGroup() throws NamelessException {
+	@NotNull
+	public Optional<@NotNull Group> getPrimaryGroup() throws NamelessException {
 		if (this.userInfo == null) {
 			this.loadUserInfo();
 		}
@@ -348,7 +381,7 @@ public final class NamelessUser {
 	 * @throws AccountAlreadyActivatedException
 	 * @throws InvalidValidateCodeException
 	 */
-	public void verifyMinecraft(final String code) throws NamelessException, InvalidValidateCodeException, AccountAlreadyActivatedException {
+	public void verifyMinecraft(@NotNull final String code) throws NamelessException, InvalidValidateCodeException, AccountAlreadyActivatedException {
 		Objects.requireNonNull(code, "Verification code is null");
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());

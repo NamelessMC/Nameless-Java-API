@@ -5,6 +5,10 @@ import java.net.URL;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.namelessmc.java_api.logger.ApiLogger;
 import com.namelessmc.java_api.logger.PrintStreamLogger;
 import com.namelessmc.java_api.logger.Slf4jLogger;
@@ -13,20 +17,25 @@ public class NamelessApiBuilder {
 
 	private static final String DEFAULT_USER_AGENT = "Nameless-Java-API";
 
+	@NotNull
 	private String userAgent = DEFAULT_USER_AGENT;
+	@Nullable
 	private URL apiUrl = null;
-	private Optional<ApiLogger> debugLogger = Optional.empty();
+	@NotNull
+	private Optional<@NotNull ApiLogger> debugLogger = Optional.empty();
 	private int timeout = 5000;
 
 	NamelessApiBuilder() {
 	}
 
-	public NamelessApiBuilder apiUrl(final URL apiUrl) {
+	@NotNull
+	public NamelessApiBuilder apiUrl(@NotNull final URL apiUrl) {
 		this.apiUrl = apiUrl;
 		return this;
 	}
 
-	public NamelessApiBuilder apiUrl(final String apiUrl) throws MalformedURLException {
+	@NotNull
+	public NamelessApiBuilder apiUrl(@NotNull final String apiUrl) throws MalformedURLException {
 		return apiUrl(new URL(apiUrl));
 	}
 
@@ -37,11 +46,13 @@ public class NamelessApiBuilder {
 	 * @param apiKey api key
 	 * @throws MalformedURLException
 	 */
-	public NamelessApiBuilder apiUrl(final String host, final String apiKey) throws MalformedURLException {
+	@NotNull
+	public NamelessApiBuilder apiUrl(@NotNull final String host, @NotNull final String apiKey) throws MalformedURLException {
 		return apiUrl("https://" + host + "/index.php?route=/api/v2/" + apiKey);
 	}
 
-	public NamelessApiBuilder userAgent(final String userAgent) {
+	@NotNull
+	public NamelessApiBuilder userAgent(@NotNull final String userAgent) {
 		this.userAgent = userAgent;
 		return this;
 	}
@@ -66,12 +77,12 @@ public class NamelessApiBuilder {
 		return this;
 	}
 
-	public NamelessApiBuilder withCustomDebugLogger(final ApiLogger debugLogger) {
+	public NamelessApiBuilder withCustomDebugLogger(@NotNull final ApiLogger debugLogger) {
 		this.debugLogger = Optional.of(Objects.requireNonNull(debugLogger, "Provided debug logger is null"));
 		return this;
 	}
 
-	public NamelessApiBuilder withCustomDebugLogger(final Optional<ApiLogger> debugLogger) {
+	public NamelessApiBuilder withCustomDebugLogger(final Optional<@NotNull ApiLogger> debugLogger) {
 		this.debugLogger = Objects.requireNonNull(debugLogger);
 		return this;
 	}

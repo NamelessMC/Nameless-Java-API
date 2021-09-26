@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -26,24 +27,29 @@ import com.namelessmc.java_api.exception.UuidAlreadyExistsException;
 
 public final class NamelessAPI {
 
+	@NotNull
 	private final RequestHandler requests;
 
 	NamelessAPI(final RequestHandler requests) {
 		this.requests = Objects.requireNonNull(requests, "Request handler is null");
 	}
 
+	@NotNull
 	RequestHandler getRequestHandler() {
 		return this.requests;
 	}
 
+	@NotNull
 	public URL getApiUrl() {
 		return this.getRequestHandler().getApiUrl();
 	}
 
+	@NotNull
 	public String getApiKey() {
 		return getApiKey(this.getApiUrl().toString());
 	}
 
+	@NotNull
 	static String getApiKey(final String url) {
 		if (url.endsWith("/")) {
 			return getApiKey(StringUtils.removeEnd(url, "/"));
@@ -53,25 +59,13 @@ public final class NamelessAPI {
 	}
 
 	/**
-	 * Checks if a web API connection can be established
-	 * throws {@link NamelessException} if the connection was unsuccessful\
-	 * @deprecated Use {@link #getWebsite()} instead and catch NamelessException there. Also use {@link Website#getParsedVersion()} to check if the version is compatible.
-	 */
-	@Deprecated
-	public void checkWebAPIConnection() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.INFO);
-		if (!response.has("nameless_version")) {
-			throw new NamelessException("Invalid response: " + response.getAsString());
-		}
-	}
-
-	/**
 	 * Get all announcements
 	 *
 	 * @return list of current announcements
 	 * @throws NamelessException if there is an error in the request
 	 */
-	public List<Announcement> getAnnouncements() throws NamelessException {
+	@NotNull
+	public List<@NotNull Announcement> getAnnouncements() throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GET_ANNOUNCEMENTS);
 
 		return getAnnouncements(response);
@@ -84,17 +78,20 @@ public final class NamelessAPI {
 	 * @return list of current announcements visible to the player
 	 * @throws NamelessException if there is an error in the request
 	 */
-	public List<Announcement> getAnnouncements(final NamelessUser user) throws NamelessException {
+	@NotNull
+	public List<@NotNull Announcement> getAnnouncements(@NotNull final NamelessUser user) throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GET_ANNOUNCEMENTS, "id", user.getId());
 
 		return getAnnouncements(response);
 	}
 
-	private static Set<String> toStringSet(final JsonArray jsonArray) {
+	@NotNull
+	private static Set<@NotNull String> toStringSet(@NotNull final JsonArray jsonArray) {
 		return StreamSupport.stream(jsonArray.spliterator(), false).map(JsonElement::getAsString).collect(Collectors.toSet());
 	}
 
-	private List<Announcement> getAnnouncements(final JsonObject response) {
+	@NotNull
+	private List<@NotNull Announcement> getAnnouncements(@NotNull final JsonObject response) {
 		return jsonArrayToList(response.get("announcements").getAsJsonArray(), element -> {
 			final JsonObject announcementJson = element.getAsJsonObject();
 			final String content = announcementJson.get("content").getAsString();
@@ -249,7 +246,8 @@ public final class NamelessAPI {
 	 * @return Optional with a group if the group exists, empty optional if it doesn't
 	 * @throws NamelessException
 	 */
-	public Optional<Group> getGroup(final int id) throws NamelessException {
+	@NotNull
+	public Optional<@NotNull Group> getGroup(final int id) throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GROUP_INFO, "id", id);
 		final JsonArray jsonArray = response.getAsJsonArray("groups");
 		if (jsonArray.size() != 1) {
@@ -265,7 +263,8 @@ public final class NamelessAPI {
 	 * @return List of groups with this name, empty if there are no groups with this name.
 	 * @throws NamelessException
 	 */
-	public List<Group> getGroup(final String name) throws NamelessException {
+	@NotNull
+	public List<@NotNull Group> getGroup(@NotNull final String name) throws NamelessException {
 		Objects.requireNonNull(name, "Group name is null");
 		final JsonObject response = this.requests.get(Action.GROUP_INFO, "name", name);
 		return groupListFromJsonArray(response.getAsJsonArray("groups"));

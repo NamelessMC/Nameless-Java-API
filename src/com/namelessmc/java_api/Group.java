@@ -1,15 +1,18 @@
 package com.namelessmc.java_api;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.google.gson.JsonObject;
 
 public class Group implements Comparable<Group> {
 
 	private final int id;
+	@NotNull
 	private final String name;
 	private final int order;
 	private final boolean staff;
 
-	Group(final JsonObject group) {
+	Group(@NotNull final JsonObject group) {
 		this.id = group.get("id").getAsInt();
 		this.name = group.get("name").getAsString();
 		this.order = group.get("order").getAsInt();
@@ -20,6 +23,7 @@ public class Group implements Comparable<Group> {
 		return this.id;
 	}
 
+	@NotNull
 	public String getName() {
 		return this.name;
 	}

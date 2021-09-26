@@ -3,6 +3,8 @@ package com.namelessmc.java_api;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.namelessmc.java_api.exception.UnknownNamelessVersionException;
 
 public enum NamelessVersion {
@@ -16,18 +18,20 @@ public enum NamelessVersion {
 
 	;
 
+	@NotNull
 	private String name;
 	private int major;
 	private int minor;
 	private boolean isBeta;
 
-	NamelessVersion(final String name, final int major, final int minor, final boolean isBeta) {
+	NamelessVersion(@NotNull final String name, final int major, final int minor, final boolean isBeta) {
 		this.name = name;
 		this.major = major;
 		this.minor = minor;
 		this.isBeta = isBeta;
 	}
 
+	@NotNull
 	public String getName() {
 		return this.name;
 	}
@@ -60,7 +64,8 @@ public enum NamelessVersion {
 		}
 	}
 
-	public static NamelessVersion parse(final String versionName) throws UnknownNamelessVersionException {
+	@NotNull
+	public static NamelessVersion parse(@NotNull final String versionName) throws UnknownNamelessVersionException {
 		final NamelessVersion version = BY_NAME.get(versionName);
 		if (version == null) {
 			throw new UnknownNamelessVersionException(versionName);

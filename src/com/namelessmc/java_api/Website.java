@@ -4,18 +4,24 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.exception.UnknownNamelessVersionException;
 
 public class Website {
 
+	@NotNull
 	private final String version;
+	@NotNull
 	private final Optional<Update> update;
-	private final String[] modules;
+	@NotNull
+	private final String@NotNull[] modules;
+	@NotNull
 	private final String language;
 
-	Website(final JsonObject json) {
+	Website(@NotNull final JsonObject json) {
 		Objects.requireNonNull(json, "Provided json object is null");
 
 		this.version = json.get("nameless_version").getAsString();
@@ -41,10 +47,12 @@ public class Website {
 		this.language = json.get("language").getAsString();
 	}
 
+	@NotNull
 	public String getVersion() {
 		return this.version;
 	}
 
+	@NotNull
 	public NamelessVersion getParsedVersion() throws UnknownNamelessVersionException {
 		return NamelessVersion.parse(this.version);
 	}
@@ -52,6 +60,7 @@ public class Website {
 	/**
 	 * @return Information about an update, or null if no update is available.
 	 */
+	@NotNull
 	public Optional<Update> getUpdate() {
 		return this.update;
 	}
