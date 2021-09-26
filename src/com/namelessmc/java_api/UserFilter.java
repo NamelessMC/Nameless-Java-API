@@ -1,21 +1,23 @@
 package com.namelessmc.java_api;
 
-public class UserFilter<FilterValue> {
+public class UserFilter<FilterValueType> {
 
 	public static UserFilter<Boolean> BANNED = new UserFilter<>("banned", true);
 	public static UserFilter<Boolean> UNBANNED = new UserFilter<>("banned", false);
 	public static UserFilter<Boolean> VERIFIED = new UserFilter<>("verified", true);
 	public static UserFilter<Boolean> UNVERIFIED = new UserFilter<>("verified", false);
+	public static UserFilter<Boolean> DISCORD_LINKED = new UserFilter<>("discord_linked", true);
+	public static UserFilter<Boolean> DISCORD_UNLINKED = new UserFilter<>("discord_linked", false);
 
 	private final String filterName;
-	private FilterValue value;
+	private FilterValueType value;
 
-	public UserFilter(final String filterName, final FilterValue defaultValue) {
+	public UserFilter(final String filterName, final FilterValueType defaultValue) {
 		this.filterName = filterName;
 		this.value = defaultValue;
 	}
 
-	public void value(final FilterValue value) {
+	public void value(final FilterValueType value) {
 		this.value = value;
 	}
 
@@ -23,7 +25,7 @@ public class UserFilter<FilterValue> {
 		return this.filterName;
 	}
 
-	public FilterValue getValue() {
+	public FilterValueType getValue() {
 		return this.value;
 	}
 
