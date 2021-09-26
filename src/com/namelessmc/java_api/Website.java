@@ -58,7 +58,7 @@ public class Website {
 	}
 
 	/**
-	 * @return Information about an update, or null if no update is available.
+	 * @return Information about an update, or empty if no update is available.
 	 */
 	@NotNull
 	public Optional<Update> getUpdate() {
@@ -69,7 +69,7 @@ public class Website {
 		return this.modules;
 	}
 
-	public String getLanguage() {
+	public @NotNull String getLanguage() {
 		return this.language;
 	}
 

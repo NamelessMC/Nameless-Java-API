@@ -99,9 +99,7 @@ public class RequestHandler {
 	}
 
 	private void debug(final String message, final Object... args) {
-		if (this.debugLogger.isPresent()) {
-			this.debugLogger.get().log(String.format(message, args).replace(NamelessAPI.getApiKey(this.getApiUrl().toString()), "**API_KEY_REMOVED**"));
-		}
+		this.debugLogger.ifPresent(apiLogger -> apiLogger.log(String.format(message, args).replace(NamelessAPI.getApiKey(this.getApiUrl().toString()), "**API_KEY_REMOVED**")));
 	}
 
 	private JsonObject makeConnection(final URL url, final JsonObject postBody) throws NamelessException {
@@ -226,7 +224,6 @@ public class RequestHandler {
 		UPDATE_USERNAME("updateUsername", POST),
 		VERIFY_MINECRAFT("verifyMinecraft", POST),
 		LIST_USERS("listUsers", GET),
-		INGAME_RANKS("ingameRanks", POST),
 		UPDATE_DISCORD_BOT_SETTINGS("updateDiscordBotSettings", POST),
 		VERIFY_DISCORD("verifyDiscord", POST),
 		UPDATE_DISCORD_USERNAMES("updateDiscordUsernames", POST),
@@ -239,9 +236,9 @@ public class RequestHandler {
 		;
 
 		@NotNull
-		RequestMethod method;
+		private final RequestMethod method;
 		@NotNull
-		String name;
+		private final String name;
 
 		Action(@NotNull final String name, @NotNull final RequestMethod post) {
 			this.name = name;

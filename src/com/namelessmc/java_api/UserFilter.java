@@ -21,7 +21,6 @@ public class UserFilter<FilterValueType> {
 		this.value = defaultValue;
 	}
 
-	@NotNull
 	@Deprecated
 	public void value(@NotNull final FilterValueType value) {
 		this.value = value;

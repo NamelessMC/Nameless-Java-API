@@ -49,6 +49,7 @@ public final class NamelessUser {
 		this.api = api;
 		this.requests = api.getRequestHandler();
 
+		//noinspection OptionalAssignedToNull
 		if (id == -1 && username == null && uuid == null && discordId == -1) {
 			throw new IllegalArgumentException("You must specify at least one of ID, uuid, username, discordId");
 		}
@@ -59,7 +60,6 @@ public final class NamelessUser {
 		this.discordId = discordId == -1 ? null : Optional.of(discordId);
 	}
 
-	@SuppressWarnings("null")
 	private void loadUserInfo() throws NamelessException {
 		final JsonObject response;
 		if (this.id != -1) {
@@ -95,12 +95,10 @@ public final class NamelessUser {
 	 * this method multiple times while the cache is already cleared has no
 	 * effect.
 	 */
-	@NotNull
 	public void invalidateCache() {
 		this.userInfo = null;
 	}
 
-	@SuppressWarnings("null")
 	public int getId() throws NamelessException {
 		if (this.id == -1) {
 			this.loadUserInfo();
@@ -110,7 +108,6 @@ public final class NamelessUser {
 		return this.id;
 	}
 
-	@SuppressWarnings("null")
 	public String getUsername() throws NamelessException {
 		if (this.username == null) {
 			this.loadUserInfo();
@@ -127,7 +124,6 @@ public final class NamelessUser {
 		this.requests.post(Action.UPDATE_USERNAME, post);
 	}
 
-	@SuppressWarnings("null")
 	public Optional<UUID> getUniqueId() throws NamelessException {
 		if (this.uuid == null) {
 			this.loadUserInfo();
@@ -148,7 +144,6 @@ public final class NamelessUser {
 		return this.uuid;
 	}
 
-	@SuppressWarnings("null")
 	public Optional<Long> getDiscordId() throws NamelessException {
 		if (this.discordId == null) {
 			this.loadUserInfo();
@@ -174,7 +169,6 @@ public final class NamelessUser {
 		return true;
 	}
 
-	@SuppressWarnings("null")
 	@NotNull
 	public String getDisplayName() throws NamelessException {
 		if (this.userInfo == null) {
@@ -189,7 +183,6 @@ public final class NamelessUser {
 	 * @return The date the user registered on the website.
 	 * @throws NamelessException
 	 */
-	@SuppressWarnings("null")
 	@NotNull
 	public Date getRegisteredDate() throws NamelessException {
 		if (this.userInfo == null) {

@@ -19,10 +19,10 @@ public enum NamelessVersion {
 	;
 
 	@NotNull
-	private String name;
-	private int major;
-	private int minor;
-	private boolean isBeta;
+	private final String name;
+	private final int major;
+	private final int minor;
+	private final boolean isBeta;
 
 	NamelessVersion(@NotNull final String name, final int major, final int minor, final boolean isBeta) {
 		this.name = name;

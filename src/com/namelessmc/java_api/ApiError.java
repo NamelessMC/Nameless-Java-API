@@ -50,7 +50,7 @@ public class ApiError extends NamelessException {
 	private final Optional<String> meta;
 
 	public ApiError(final int code, @NotNull Optional<String> meta) {
-		super("An unexpected API error occured with error code " + code + (meta.isPresent() ? (" and meta " + meta.get()) : " and no meta"));
+		super("An unexpected API error occured with error code " + code + " and " + (meta.map(s -> ("meta " + s)).orElse("no meta")));
 		this.code = code;
 		this.meta = meta;
 	}

@@ -184,9 +184,8 @@ public final class NamelessAPI {
 	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
 	 * @param id NamelessMC user id
 	 * @return Nameless user object, never null
-	 * @throws NamelessException
 	 */
-	public NamelessUser getUserLazy(final int id) throws NamelessException {
+	public NamelessUser getUserLazy(final int id) {
 		return new NamelessUser(this, id, null, null, -1L);
 	}
 
@@ -194,9 +193,8 @@ public final class NamelessAPI {
 	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
 	 * @param username NamelessMC user
 	 * @return Nameless user object, never null
-	 * @throws NamelessException
 	 */
-	public NamelessUser getUserLazy(final String username) throws NamelessException {
+	public NamelessUser getUserLazy(final String username) {
 		return new NamelessUser(this, -1, username, null, -1L);
 	}
 
@@ -204,9 +202,18 @@ public final class NamelessAPI {
 	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
 	 * @param uuid Minecraft UUID
 	 * @return Nameless user object, never null
-	 * @throws NamelessException
 	 */
-	public NamelessUser getUserLazy(final UUID uuid) throws NamelessException {
+	public NamelessUser getUserLazy(final UUID uuid) {
+		return new NamelessUser(this, -1, null, Optional.of(uuid), -1L);
+	}
+
+	/**
+	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
+	 * @param username
+	 * @param uuid
+	 * @return Nameless user object, never null
+	 */
+	public NamelessUser getUserLazy(final String username, final UUID uuid) {
 		return new NamelessUser(this, -1, null, Optional.of(uuid), -1L);
 	}
 
@@ -214,19 +221,8 @@ public final class NamelessAPI {
 	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
 	 * @param id
 	 * @return Nameless user object, never null
-	 * @throws NamelessException
 	 */
-	public NamelessUser getUserLazy(final String username, final UUID uuid) throws NamelessException {
-		return new NamelessUser(this, -1, null, Optional.of(uuid), -1L);
-	}
-
-	/**
-	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
-	 * @param id
-	 * @return Nameless user object, never null
-	 * @throws NamelessException
-	 */
-	public NamelessUser getUserLazy(final int id, final String username, final UUID uuid) throws NamelessException {
+	public NamelessUser getUserLazy(final int id, final String username, final UUID uuid) {
 		return new NamelessUser(this, id, username, Optional.of(uuid), -1L);
 	}
 
@@ -234,9 +230,8 @@ public final class NamelessAPI {
 	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
 	 * @param discordId Discord user id
 	 * @return Nameless user object, never null
-	 * @throws NamelessException
 	 */
-	public NamelessUser getUserLazyDiscord(final long discordId) throws NamelessException {
+	public NamelessUser getUserLazyDiscord(final long discordId) {
 		return new NamelessUser(this, -1, null, null, discordId);
 	}
 
