@@ -14,7 +14,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
@@ -23,15 +22,16 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.namelessmc.java_api.logger.ApiLogger;
+import org.jetbrains.annotations.Nullable;
 
 public class RequestHandler {
 
 	private final URL baseUrl;
 	private final String userAgent;
-	private final Optional<ApiLogger> debugLogger;
+	private final ApiLogger debugLogger;
 	private final int timeout;
 
-	RequestHandler(final URL baseUrl, final String userAgent, final Optional<ApiLogger> debugLogger, final int timeout) {
+	RequestHandler(final URL baseUrl, final String userAgent, ApiLogger debugLogger, final int timeout) {
 		this.baseUrl = baseUrl;
 		this.userAgent = userAgent;
 		this.debugLogger = debugLogger;
@@ -99,7 +99,9 @@ public class RequestHandler {
 	}
 
 	private void debug(final String message, final Object... args) {
-		this.debugLogger.ifPresent(apiLogger -> apiLogger.log(String.format(message, args).replace(NamelessAPI.getApiKey(this.getApiUrl().toString()), "**API_KEY_REMOVED**")));
+		if (this.debugLogger != null) {
+			this.debugLogger.log(String.format(message, args).replace(NamelessAPI.getApiKey(this.getApiUrl().toString()), "**API_KEY_REMOVED**"));
+		}
 	}
 
 	private JsonObject makeConnection(final URL url, final JsonObject postBody) throws NamelessException {
@@ -190,11 +192,11 @@ public class RequestHandler {
 		}
 
 		if (json.get("error").getAsBoolean()) {
-			String meta = null;
+			@Nullable String meta = null;
 			if (json.has("meta") && !json.get("meta").isJsonNull()) {
 				meta = json.get("meta").toString();
 			}
-			throw new ApiError(json.get("code").getAsInt(), Optional.ofNullable(meta));
+			throw new ApiError(json.get("code").getAsInt(), meta);
 		}
 
 		return json;

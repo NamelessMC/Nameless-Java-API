@@ -3,6 +3,7 @@ package com.namelessmc.java_api;
 import java.util.Optional;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ApiError extends NamelessException {
 
@@ -46,11 +47,10 @@ public class ApiError extends NamelessException {
 	private static final long serialVersionUID = 3093028909912281912L;
 
 	private final int code;
-	@NotNull
-	private final Optional<String> meta;
+	private final @Nullable String meta;
 
-	public ApiError(final int code, @NotNull Optional<String> meta) {
-		super("An unexpected API error occured with error code " + code + " and " + (meta.map(s -> ("meta " + s)).orElse("no meta")));
+	public ApiError(final int code, @Nullable String meta) {
+		super("An unexpected API error occured with error code " + code + " and " + (meta == null ? "no meta" : "meta " + meta));
 		this.code = code;
 		this.meta = meta;
 	}
@@ -58,10 +58,9 @@ public class ApiError extends NamelessException {
 	public int getError() {
 		return this.code;
 	}
-	
-	@NotNull
-	public Optional<String> getMeta() {
-		return meta;
+
+	public @NotNull Optional<@NotNull String> getMeta() {
+		return Optional.ofNullable(meta);
 	}
 
 }

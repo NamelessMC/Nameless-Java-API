@@ -11,28 +11,19 @@ public class UserFilter<FilterValueType> {
 	public static UserFilter<Boolean> DISCORD_LINKED = new UserFilter<>("discord_linked", true);
 	public static UserFilter<Boolean> DISCORD_UNLINKED = new UserFilter<>("discord_linked", false);
 
-	@NotNull
-	private final String filterName;
-	@NotNull
-	private FilterValueType value;
+	private final @NotNull String filterName;
+	private final @NotNull FilterValueType value;
 
-	public UserFilter(@NotNull final String filterName, @NotNull final FilterValueType defaultValue) {
+	public UserFilter(final @NotNull String filterName, final @NotNull FilterValueType defaultValue) {
 		this.filterName = filterName;
 		this.value = defaultValue;
 	}
 
-	@Deprecated
-	public void value(@NotNull final FilterValueType value) {
-		this.value = value;
-	}
-
-	@NotNull
-	public String getName() {
+	public @NotNull String getName() {
 		return this.filterName;
 	}
 
-	@NotNull
-	public FilterValueType getValue() {
+	public @NotNull FilterValueType getValue() {
 		return this.value;
 	}
 

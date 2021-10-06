@@ -2,8 +2,6 @@ package com.namelessmc.java_api;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Objects;
-import java.util.Optional;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,21 +18,18 @@ public class NamelessApiBuilder {
 	private String userAgent = DEFAULT_USER_AGENT;
 	@Nullable
 	private URL apiUrl = null;
-	@NotNull
-	private Optional<@NotNull ApiLogger> debugLogger = Optional.empty();
+	private @Nullable ApiLogger debugLogger = null;
 	private int timeout = 5000;
 
 	NamelessApiBuilder() {
 	}
 
-	@NotNull
-	public NamelessApiBuilder apiUrl(@NotNull final URL apiUrl) {
+	public @NotNull NamelessApiBuilder apiUrl(@NotNull final URL apiUrl) {
 		this.apiUrl = apiUrl;
 		return this;
 	}
 
-	@NotNull
-	public NamelessApiBuilder apiUrl(@NotNull final String apiUrl) throws MalformedURLException {
+	public @NotNull NamelessApiBuilder apiUrl(@NotNull final String apiUrl) throws MalformedURLException {
 		return apiUrl(new URL(apiUrl));
 	}
 
@@ -43,55 +38,47 @@ public class NamelessApiBuilder {
 	 *
 	 * @param host   hostname, for example namelessmc.com
 	 * @param apiKey api key
-	 * @throws MalformedURLException
+	 * @throws MalformedURLException If the URL is malformed after building it using the provided host and api key
 	 */
-	@NotNull
-	public NamelessApiBuilder apiUrl(@NotNull final String host, @NotNull final String apiKey) throws MalformedURLException {
+	public @NotNull NamelessApiBuilder apiUrl(@NotNull final String host, @NotNull final String apiKey) throws MalformedURLException {
 		return apiUrl("https://" + host + "/index.php?route=/api/v2/" + apiKey);
 	}
 
-	@NotNull
-	public NamelessApiBuilder userAgent(@NotNull final String userAgent) {
+	public @NotNull NamelessApiBuilder userAgent(@NotNull final String userAgent) {
 		this.userAgent = userAgent;
 		return this;
 	}
 
-	@Deprecated
-	public NamelessApiBuilder debug(final boolean debug) {
+	public @NotNull NamelessApiBuilder debug(final boolean debug) {
 		if (debug) {
 			return this.withStdErrDebugLogging();
 		} else {
-			this.debugLogger = Optional.empty();
+			this.debugLogger = null;
 			return this;
 		}
 	}
 
-	public NamelessApiBuilder withStdErrDebugLogging() {
-		this.debugLogger = Optional.of(PrintStreamLogger.DEFAULT_INSTANCE);
+	public @NotNull NamelessApiBuilder withStdErrDebugLogging() {
+		this.debugLogger = PrintStreamLogger.DEFAULT_INSTANCE;
 		return this;
 	}
 
-	public NamelessApiBuilder withSlf4jDebugLogging() {
-		this.debugLogger = Optional.of(Slf4jLogger.DEFAULT_INSTANCE);
+	public @NotNull NamelessApiBuilder withSlf4jDebugLogging() {
+		this.debugLogger = Slf4jLogger.DEFAULT_INSTANCE;
 		return this;
 	}
 
-	public NamelessApiBuilder withCustomDebugLogger(@NotNull final ApiLogger debugLogger) {
-		this.debugLogger = Optional.of(Objects.requireNonNull(debugLogger, "Provided debug logger is null"));
+	public @NotNull NamelessApiBuilder withCustomDebugLogger(final @Nullable ApiLogger debugLogger) {
+		this.debugLogger = debugLogger;
 		return this;
 	}
 
-	public NamelessApiBuilder withCustomDebugLogger(final Optional<@NotNull ApiLogger> debugLogger) {
-		this.debugLogger = Objects.requireNonNull(debugLogger);
-		return this;
-	}
-
-	public NamelessApiBuilder withTimeoutMillis(final int timeout) {
+	public @NotNull NamelessApiBuilder withTimeoutMillis(final int timeout) {
 		this.timeout = timeout;
 		return this;
 	}
 
-	public NamelessAPI build() {
+	public @NotNull NamelessAPI build() {
 		if (this.apiUrl == null) {
 			throw new IllegalStateException("No API URL specified");
 		}

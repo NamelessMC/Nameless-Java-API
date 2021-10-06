@@ -2,13 +2,14 @@ package com.namelessmc.java_api;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.jetbrains.annotations.NotNull;
 
 public class VerificationInfo {
 
 	private final boolean verified;
-	private final JsonObject json;
+	private final @NotNull JsonObject json;
 
-	VerificationInfo(final boolean verified, final JsonObject json) {
+	VerificationInfo(final boolean verified, @NotNull final JsonObject json) {
 		this.verified = verified;
 		this.json = json;
 	}
@@ -17,7 +18,7 @@ public class VerificationInfo {
 		return this.verified;
 	}
 
-	public boolean isVerifiedCustom(final String name) {
+	public boolean isVerifiedCustom(@NotNull final String name) {
 		final JsonElement e = this.json.get(name);
 		if (e == null) {
 			throw new UnsupportedOperationException("The API did not return verification for '" + name + "'");
