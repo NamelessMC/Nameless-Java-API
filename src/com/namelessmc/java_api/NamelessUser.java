@@ -343,10 +343,16 @@ public final class NamelessUser {
 	}
 
 	/**
-	 * Reports a player
+	 * Creates a report for a website user
 	 * @param user User to report. Lazy loading possible, only the ID is used.
 	 * @param reason Reason why this player has been reported
 	 * @throws IllegalArgumentException Report reason is too long (>255 characters)
+	 * @throws IllegalArgumentException Report reason is too long (>255 characters)
+	 * @throws NamelessException Unexpected http or api error
+	 * @throws ReportUserBannedException If the user creating this report is banned
+	 * @throws AlreadyHasOpenReportException If the user creating this report already has an open report for this user
+	 * @throws UnableToCreateReportException Generic error
+	 * @throws CannotReportSelfException If the user tries to report themselves
 	 */
 	public void createReport(@NotNull final NamelessUser user, @NotNull final String reason)
 			throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, UnableToCreateReportException, CannotReportSelfException {
@@ -362,6 +368,50 @@ public final class NamelessUser {
 		} catch (final ApiError e) {
 			if (e.getError() == ApiError.USER_CREATING_REPORT_BANNED) {
 				throw new ReportUserBannedException();
+			} else if (e.getError() == ApiError.REPORT_CONTENT_TOO_LARGE) {
+				throw new IllegalStateException("Website said report reason is too long, but we have client-side validation for this");
+			} else if (e.getError() == ApiError.USER_ALREADY_HAS_OPEN_REPORT) {
+				throw new AlreadyHasOpenReportException();
+			} else if (e.getError() == ApiError.UNABLE_TO_CREATE_REPORT) {
+				throw new UnableToCreateReportException();
+			} else if (e.getError() == ApiError.CANNOT_REPORT_YOURSELF) {
+				throw new CannotReportSelfException();
+			} else {
+				throw e;
+			}
+		}
+	}
+
+	/**
+	 * Create a report for a user who may or may not have a website account
+	 * @param reportedUuid The Mojang UUID of the Minecraft player to report
+	 * @param reportedName The Minecraft username of this player
+	 * @param reason Report reason
+	 * @throws IllegalArgumentException Report reason is too long (>255 characters)
+	 * @throws NamelessException Unexpected http or api error
+	 * @throws ReportUserBannedException If the user creating this report is banned
+	 * @throws AlreadyHasOpenReportException If the user creating this report already has an open report for this user
+	 * @throws UnableToCreateReportException Generic error
+	 * @throws CannotReportSelfException If the user tries to report themselves
+	 */
+	public void createReport(@NotNull final UUID reportedUuid, @NotNull String reportedName, @NotNull final String reason)
+			throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, UnableToCreateReportException, CannotReportSelfException {
+		Objects.requireNonNull(reportedUuid, "Reported uuid is null");
+		Objects.requireNonNull(reportedName, "Reported name is null");
+		Objects.requireNonNull(reason, "Report reason is null");
+		Validate.isTrue(reason.length() < 255, "Report reason too long");
+		final JsonObject post = new JsonObject();
+		post.addProperty("reporter", this.getId());
+		post.addProperty("reported_uid", reportedUuid.toString());
+		post.addProperty("reported_username", reportedName);
+		post.addProperty("content", reason);
+		try {
+			this.requests.post(Action.CREATE_REPORT, post);
+		} catch (final ApiError e) {
+			if (e.getError() == ApiError.USER_CREATING_REPORT_BANNED) {
+				throw new ReportUserBannedException();
+			} else if (e.getError() == ApiError.REPORT_CONTENT_TOO_LARGE) {
+				throw new IllegalStateException("Website said report reason is too long, but we have client-side validation for this");
 			} else if (e.getError() == ApiError.USER_ALREADY_HAS_OPEN_REPORT) {
 				throw new AlreadyHasOpenReportException();
 			} else if (e.getError() == ApiError.UNABLE_TO_CREATE_REPORT) {
