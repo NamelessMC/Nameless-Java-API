@@ -14,6 +14,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +29,8 @@ import com.namelessmc.java_api.exception.UuidAlreadyExistsException;
 import org.jetbrains.annotations.Nullable;
 
 public final class NamelessAPI {
+
+	static final Gson GSON = new Gson();
 
 	@NotNull
 	private final RequestHandler requests;

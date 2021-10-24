@@ -458,21 +458,21 @@ public final class NamelessUser {
 	public void setDiscordRoles(final long[] roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
-		post.add("roles", new Gson().toJsonTree(roleIds));
+		post.add("roles", NamelessAPI.GSON.toJsonTree(roleIds));
 		this.requests.post(Action.SET_DISCORD_ROLES, post);
 	}
 
 	public void addDiscordRoles(final long... roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
-		post.add("roles", new Gson().toJsonTree(roleIds));
+		post.add("roles", NamelessAPI.GSON.toJsonTree(roleIds));
 		this.requests.post(Action.ADD_DISCORD_ROLES, post);
 	}
 
 	public void removeDiscordRoles(final long... roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
-		post.add("roles", new Gson().toJsonTree(roleIds));
+		post.add("roles", NamelessAPI.GSON.toJsonTree(roleIds));
 		this.requests.post(Action.REMOVE_DISCORD_ROLES, post);
 	}
 
