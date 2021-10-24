@@ -476,4 +476,14 @@ public final class NamelessUser {
 		this.requests.post(Action.REMOVE_DISCORD_ROLES, post);
 	}
 
+	/**
+	 * Ban this user
+	 * @since 2021-10-24 commit cce8d262b0be3f70818c188725cd7e7fc4fdbb9a
+	 */
+	public void banUser() throws NamelessException {
+		JsonObject body = new JsonObject();
+		body.addProperty("user", this.getId());
+		this.requests.post(Action.BAN_USER, body);
+	}
+
 }

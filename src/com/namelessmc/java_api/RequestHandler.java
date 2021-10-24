@@ -234,6 +234,7 @@ public class RequestHandler {
 		ADD_DISCORD_ROLES("addDiscordRoles", POST),
 		REMOVE_DISCORD_ROLES("removeDiscordRoles", POST),
 		SUBMIT_DISCORD_ROLE_LIST("submitDiscordRoleList", POST),
+		BAN_USER("banUser", POST),
 
 		;
 
