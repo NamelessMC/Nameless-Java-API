@@ -61,8 +61,7 @@ public final class NamelessAPI {
 	}
 
 	/**
-	 * Get all announcements
-	 *
+	 * Get announcements visible to guests. Use {@link #getAnnouncements(NamelessUser)} for non-guest announcements.
 	 * @return list of current announcements
 	 * @throws NamelessException if there is an error in the request
 	 */
