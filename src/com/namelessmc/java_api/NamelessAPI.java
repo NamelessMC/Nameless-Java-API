@@ -118,12 +118,28 @@ public final class NamelessAPI {
 		return new Website(json);
 	}
 
+	public List<NamelessUser> getRegisteredUsers() throws NamelessException {
+		return this.getRegisteredUsers(UserFilterOperator.AND, (UserFilter<?>[]) null);
+	}
+
+	/**
+	 * @deprecated use {@link #getRegisteredUsers(UserFilterOperator, UserFilter[])} with {@link UserFilterOperator#AND}
+	 */
+	@Deprecated
 	public @NotNull List<NamelessUser> getRegisteredUsers(final @NotNull UserFilter<?>@Nullable... filters) throws NamelessException {
+		return this.getRegisteredUsers(UserFilterOperator.AND, filters);
+	}
+
+	public @NotNull List<NamelessUser> getRegisteredUsers(@NotNull UserFilterOperator operator, final @NotNull UserFilter<?>@Nullable... filters) throws NamelessException {
 		final List<Object> parameters = new ArrayList<>();
 		if (filters != null) {
 			for (final UserFilter<?> filter : filters) {
 				parameters.add(filter.getName());
 				parameters.add(filter.getValue().toString());
+			}
+			if (operator != UserFilterOperator.AND) { // AND is default
+				parameters.add("operator");
+				parameters.add(operator.name());
 			}
 		}
 		final JsonObject response = this.requests.get(Action.LIST_USERS, parameters.toArray());
