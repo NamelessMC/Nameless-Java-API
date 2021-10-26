@@ -1,37 +1,60 @@
 package com.namelessmc.java_api;
 
+import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.jetbrains.annotations.NotNull;
 
 public class Announcement {
 
-	@NotNull
-	private final String content;
-	@NotNull
-	private final Set<@NotNull String> displayPages;
-	@NotNull
-	private final Set<@NotNull String> displayRanks;
+	private final int id;
+	private final @NotNull String header;
+	private final @NotNull String message;
+	private final @NotNull Set<@NotNull String> displayPages;
+	private final int @NotNull[] displayGroups;
 
-	Announcement(@NotNull final String content, @NotNull final Set<@NotNull String> displayPages, @NotNull final Set<@NotNull String> displayRanks) {
-		this.content = content;
-		this.displayPages = displayPages;
-		this.displayRanks = displayRanks;
+	Announcement(int id, JsonObject announcementJson) {
+		this.id = id;
+		this.header = announcementJson.get("header").getAsString();
+		this.message = announcementJson.get("message").getAsString();
+		this.displayPages = Collections.unmodifiableSet(
+				StreamSupport.stream(announcementJson.getAsJsonArray("pages").spliterator(), false)
+						.map(JsonElement::getAsString)
+						.collect(Collectors.toSet())
+				);
+		this.displayGroups = StreamSupport.stream(announcementJson.getAsJsonArray("groups").spliterator(), false)
+						.mapToInt(JsonElement::getAsInt)
+						.toArray();
 	}
 
-	@NotNull
-	public String getContent() {
-		return this.content;
+	public int getId() {
+		return id;
 	}
 
-	@NotNull
-	public Set<@NotNull String> getDisplayPages() {
+	public @NotNull String getHeader() {
+		return this.header;
+	}
+
+	public @NotNull String getMessage() {
+		return this.message;
+	}
+
+	@Deprecated
+	public @NotNull String getContent() {
+		return this.message;
+	}
+
+
+	public @NotNull Set<@NotNull String> getDisplayPages() {
 		return this.displayPages;
 	}
 
-	@NotNull
-	public Set<@NotNull String> getDisplayRanks() {
-		return this.displayRanks;
+	public int @NotNull[] getDisplayGroupIds() {
+		return this.displayGroups;
 	}
 
 }

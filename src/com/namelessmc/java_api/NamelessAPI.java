@@ -96,18 +96,14 @@ public final class NamelessAPI {
 
 	@NotNull
 	private List<@NotNull Announcement> getAnnouncements(@NotNull final JsonObject response) {
-		return jsonArrayToList(response.get("announcements").getAsJsonArray(), element -> {
-			final JsonObject announcementJson = element.getAsJsonObject();
-			final String content = announcementJson.get("content").getAsString();
-			final Set<String> displayPages = toStringSet(announcementJson.get("display").getAsJsonArray());
-			final Set<String> displayRanks = toStringSet(announcementJson.get("permissions").getAsJsonArray());
-			return new Announcement(content, displayPages, displayRanks);
-		});
+		return response.getAsJsonObject("announcements").entrySet().stream()
+				.map(e -> new Announcement(Integer.parseInt(e.getKey()), e.getValue().getAsJsonObject()))
+				.collect(Collectors.toList());
 	}
 
-	private <T> @NotNull List<T> jsonArrayToList(@NotNull final JsonArray array, @NotNull final Function<JsonElement, T> elementSupplier) {
-		return StreamSupport.stream(array.spliterator(), false).map(elementSupplier).collect(Collectors.toList());
-	}
+//	private <T> @NotNull List<T> jsonArrayToList(@NotNull final JsonArray array, @NotNull final Function<JsonElement, T> elementSupplier) {
+//		return StreamSupport.stream(array.spliterator(), false).map(elementSupplier).collect(Collectors.toList());
+//	}
 
 	public void submitServerInfo(@NotNull final JsonObject jsonData) throws NamelessException {
 		this.requests.post(Action.SERVER_INFO, jsonData);
