@@ -114,52 +114,8 @@ public final class NamelessAPI {
 		return new Website(json);
 	}
 
-	public List<NamelessUser> getRegisteredUsers() throws NamelessException {
-		return this.getRegisteredUsers(UserFilterOperator.AND, (UserFilter<?>[]) null);
-	}
-
-	/**
-	 * @deprecated use {@link #getRegisteredUsers(UserFilterOperator, UserFilter[])} with {@link UserFilterOperator#AND}
-	 */
-	@Deprecated
-	public @NotNull List<NamelessUser> getRegisteredUsers(final @NotNull UserFilter<?>@Nullable... filters) throws NamelessException {
-		return this.getRegisteredUsers(UserFilterOperator.AND, filters);
-	}
-
-	public @NotNull List<NamelessUser> getRegisteredUsers(@NotNull UserFilterOperator operator, final @NotNull UserFilter<?>@Nullable... filters) throws NamelessException {
-		final List<Object> parameters = new ArrayList<>();
-		if (filters != null) {
-			for (final UserFilter<?> filter : filters) {
-				parameters.add(filter.getName());
-				parameters.add(filter.getValue().toString());
-			}
-			if (operator != UserFilterOperator.AND) { // AND is default
-				parameters.add("operator");
-				parameters.add(operator.name());
-			}
-		}
-		final JsonObject response = this.requests.get(Action.LIST_USERS, parameters.toArray());
-		final JsonArray array = response.getAsJsonArray("users");
-		final List<NamelessUser> users = new ArrayList<>(array.size());
-		for (final JsonElement e : array) {
-			final JsonObject o = e.getAsJsonObject();
-			final int id = o.get("id").getAsInt();
-			final String username = o.get("username").getAsString();
-			final UUID uuid;
-			if (o.has("uuid")) {
-				final String uuidString = o.get("uuid").getAsString();
-				if (uuidString == null || uuidString.equals("none") || uuidString.equals("")) {
-					uuid = null;
-				} else {
-					uuid = NamelessAPI.websiteUuidToJavaUuid(uuidString);
-				}
-			} else {
-				uuid = null;
-			}
-			users.add(new NamelessUser(this, id, username, true, uuid, false, -1L));
-		}
-
-		return Collections.unmodifiableList(users);
+	public FilteredUserListBuilder getRegisteredUsers() {
+		return new FilteredUserListBuilder(this);
 	}
 
 	public @NotNull Optional<NamelessUser> getUser(final int id) throws NamelessException {
