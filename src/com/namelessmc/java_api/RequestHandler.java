@@ -3,6 +3,7 @@ package com.namelessmc.java_api;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import com.namelessmc.java_api.exception.ApiDisabledException;
 import com.namelessmc.java_api.logger.ApiLogger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -159,6 +160,10 @@ public class RequestHandler {
 		}
 
 		final String response = new String(bytes, StandardCharsets.UTF_8);
+
+		if (response.equals("API is disabled")) {
+			throw new ApiDisabledException();
+		}
 
 		debug("Website response below\n-----------------\n%s\n-----------------", () -> new Object[] { regularAsciiOnly(response) });
 
