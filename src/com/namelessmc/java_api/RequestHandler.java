@@ -1,7 +1,11 @@
 package com.namelessmc.java_api;
 
-import static com.namelessmc.java_api.RequestHandler.RequestMethod.GET;
-import static com.namelessmc.java_api.RequestHandler.RequestMethod.POST;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
+import com.namelessmc.java_api.logger.ApiLogger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,15 +18,11 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.jetbrains.annotations.NotNull;
-
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
-import com.namelessmc.java_api.logger.ApiLogger;
-import org.jetbrains.annotations.Nullable;
+import static com.namelessmc.java_api.RequestHandler.RequestMethod.GET;
+import static com.namelessmc.java_api.RequestHandler.RequestMethod.POST;
 
 public class RequestHandler {
 
@@ -98,9 +98,15 @@ public class RequestHandler {
 		return makeConnection(url, null);
 	}
 
-	private void debug(final String message, final Object... args) {
+	private void debug(final String message) {
 		if (this.debugLogger != null) {
-			this.debugLogger.log(String.format(message, args).replace(NamelessAPI.getApiKey(this.getApiUrl().toString()), "**API_KEY_REMOVED**"));
+			this.debugLogger.log(message.replace(NamelessAPI.getApiKey(this.getApiUrl().toString()), "**API_KEY_REMOVED**"));
+		}
+	}
+
+	private void debug(final String message, Supplier<Object[]> argsSupplier) {
+		if (this.debugLogger != null) {
+			this.debugLogger.log(String.format(message, argsSupplier.get()).replace(NamelessAPI.getApiKey(this.getApiUrl().toString()), "**API_KEY_REMOVED**"));
 		}
 	}
 
@@ -113,14 +119,14 @@ public class RequestHandler {
 			connection.setReadTimeout(this.timeout);
 			connection.setConnectTimeout(this.timeout);
 
-			debug("Making connection %s to url %s", postBody != null ? "POST" : "GET", url);
+			debug("Making connection %s to url %s", () -> new Object[]{ postBody != null ? "POST" : "GET", url});
 
 			connection.addRequestProperty("User-Agent", this.userAgent);
 
-			debug("Using User-Agent '%s'", this.userAgent);
+			debug("Using User-Agent '%s'", () -> new Object[]{ this.userAgent });
 
 			if (postBody != null) {
-				debug("Post body below\n-----------------\n%s\n-----------------", postBody);
+				debug("Post body below\n-----------------\n%s\n-----------------", () -> new Object[] { postBody });
 				connection.setRequestMethod("POST");
 				final byte[] encodedMessage = postBody.toString().getBytes(StandardCharsets.UTF_8);
 				connection.setRequestProperty("Content-Length", encodedMessage.length + "");
@@ -152,22 +158,27 @@ public class RequestHandler {
 			throw new NamelessException(message, e);
 		}
 
-		String response = new String(bytes, StandardCharsets.UTF_8);
+		final String response = new String(bytes, StandardCharsets.UTF_8);
 
-		debug("Website response below\n-----------------\n%s\n-----------------", response);
+		debug("Website response below\n-----------------\n%s\n-----------------", () -> new Object[] { regularAsciiOnly(response) });
 
 		JsonObject json;
 
 		try {
 			json = JsonParser.parseString(response).getAsJsonObject();
 		} catch (final JsonSyntaxException | IllegalStateException e) {
+			StringBuilder printableResponseBuilder;
 			if (response.length() > 5_000) {
-				response = response.substring(0, 5_000) + "\n[response truncated to 5k characters]";
+				printableResponseBuilder = new StringBuilder(response.substring(0, 5_000));
+				printableResponseBuilder.append("\n[response truncated to 5k characters]\n");
+			} else {
+				printableResponseBuilder = new StringBuilder(response);
+				if (!response.endsWith("\n")) {
+					printableResponseBuilder.append('\n');
+				}
 			}
+			String printableResponse = regularAsciiOnly(printableResponseBuilder.toString());
 
-			if (!response.endsWith("\n")) {
-				response = response + "\n";
-			}
 			int code;
 			try {
 				code = connection.getResponseCode();
@@ -177,7 +188,7 @@ public class RequestHandler {
 			String message = e.getMessage() + "\n"
 					+ "Unable to parse json. Received response code " + code + ". Website response:\n"
 					+ "-----------------\n"
-					+ response
+					+ printableResponse
 					+ "-----------------\n";
 			if (code == 301 || code == 302 || code == 303) {
 				message += "HINT: The URL results in a redirect. If your URL uses http://, change to https://. If your website forces www., make sure to add www. to the url";
@@ -209,6 +220,21 @@ public class RequestHandler {
 	        os.write(buffer, 0, len);
 	    }
 	    return os.toByteArray();
+	}
+
+	private static String regularAsciiOnly(String message) {
+		char[] chars = message.toCharArray();
+		for (int i = 0; i < chars.length; i++) {
+			char c = chars[i];
+			// only allow standard symbols, letters, numbers
+			// look up an ascii table if you don't understand this if statement
+			if (c >= ' ' && c <= '~' || c == '\n') {
+				chars[i] = c;
+			} else {
+				chars[i] = '.';
+			}
+		}
+		return new String(chars);
 	}
 
 	public enum Action {
