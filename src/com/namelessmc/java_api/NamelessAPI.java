@@ -1,24 +1,6 @@
 package com.namelessmc.java_api;
 
-import java.math.BigInteger;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import com.google.gson.Gson;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
-import org.jetbrains.annotations.NotNull;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -26,7 +8,22 @@ import com.namelessmc.java_api.RequestHandler.Action;
 import com.namelessmc.java_api.exception.CannotSendEmailException;
 import com.namelessmc.java_api.exception.InvalidUsernameException;
 import com.namelessmc.java_api.exception.UuidAlreadyExistsException;
+import com.namelessmc.java_api.modules.websend.WebsendAPI;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.math.BigInteger;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public final class NamelessAPI {
 
@@ -422,6 +419,10 @@ public final class NamelessAPI {
 		final JsonObject json = new JsonObject();
 		json.add("users", users);
 		this.requests.post(Action.UPDATE_DISCORD_USERNAMES, json);
+	}
+
+	public WebsendAPI websend() {
+		return new WebsendAPI(this.requests);
 	}
 
 	@NotNull

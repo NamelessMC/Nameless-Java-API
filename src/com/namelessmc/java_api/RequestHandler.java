@@ -50,7 +50,7 @@ public class RequestHandler {
 
 		URL url;
 		try {
-			url = new URL(this.baseUrl.toString() + "/" + action);
+			url = new URL(this.baseUrl.toString() + "/" + action.getUrl());
 		} catch (final MalformedURLException e) {
 			throw new NamelessException("Invalid URL or parameter string");
 		}
@@ -267,21 +267,50 @@ public class RequestHandler {
 		SUBMIT_DISCORD_ROLE_LIST("submitDiscordRoleList", POST),
 		BAN_USER("banUser", POST),
 
+		WEBSEND_GET_COMMANDS("websend", "commands", GET),
+		WEBSEND_MARK_COMMANDS_EXECUTED("websend", "markCommandsExecuted", POST),
+		WEBSEND_SEND_CONSOLE_LINES("websend", "console", POST),
+
 		;
 
-		@NotNull
-		private final RequestMethod method;
-		@NotNull
-		private final String name;
+		private final @Nullable String module;
+		private final @NotNull String name;
+		private final @NotNull String url;
+		private final @NotNull RequestMethod method;
 
 		Action(@NotNull final String name, @NotNull final RequestMethod post) {
+			this.module = null;
 			this.name = name;
+			this.url = name;
 			this.method = post;
+		}
+
+		Action(@NotNull final String module, @NotNull String name, @NotNull final RequestMethod post) {
+			this.module = module;
+			this.name = name;
+			this.url = module + "/" + name;
+			this.method = post;
+		}
+
+		public @Nullable String getModule() {
+			return this.module;
+		}
+
+		public @NotNull String getName() {
+			return this.name;
+		}
+
+		public @NotNull RequestMethod getMethod() {
+			return this.method;
+		}
+
+		public @NotNull String getUrl() {
+			return this.url;
 		}
 
 		@Override
 		public String toString() {
-			return this.name;
+			return "RequestHandler.Action[" + this.url + "]";
 		}
 
 	}
