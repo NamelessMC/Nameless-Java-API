@@ -33,26 +33,6 @@ public class WebsendAPI {
 		return Collections.unmodifiableList(commands);
 	}
 
-	public void markCommandsExecuted(int serverId, Collection<WebsendCommand> executedCommands) throws NamelessException {
-		JsonObject body = new JsonObject();
-		body.addProperty("server_id", serverId);
-		JsonArray commandIdsJson = new JsonArray(executedCommands.size());
-		executedCommands.stream().map(WebsendCommand::getId).forEach(commandIdsJson::add);
-		body.add("command_ids", commandIdsJson);
-		this.requests.post(RequestHandler.Action.WEBSEND_MARK_COMMANDS_EXECUTED, body);
-	}
-
-	public void markCommandsExecutedById(int serverId, Collection<Integer> executedCommandIds) throws NamelessException {
-		JsonObject body = new JsonObject();
-		body.addProperty("server_id", serverId);
-		JsonArray commandIdsJson = new JsonArray(executedCommandIds.size());
-		for (int commandId : executedCommandIds) {
-			commandIdsJson.add(commandId);
-		}
-		body.add("command_ids", commandIdsJson);
-		this.requests.post(RequestHandler.Action.WEBSEND_MARK_COMMANDS_EXECUTED, body);
-	}
-
 	public void sendConsoleLog(int serverId, Collection<String> lines) throws NamelessException {
 		JsonObject body = new JsonObject();
 		body.addProperty("server_id", serverId);
