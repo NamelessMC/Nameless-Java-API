@@ -66,7 +66,7 @@ public class RequestHandler {
 
 		final StringBuilder urlBuilder = new StringBuilder(this.baseUrl.toString());
 		urlBuilder.append("/");
-		urlBuilder.append(action);
+		urlBuilder.append(action.getUrl());
 
 		if (parameters.length > 0) {
 			if (parameters.length % 2 != 0) {
