@@ -1,5 +1,6 @@
 package com.namelessmc.java_api;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -9,8 +10,6 @@ import com.namelessmc.java_api.exception.CannotSendEmailException;
 import com.namelessmc.java_api.exception.InvalidUsernameException;
 import com.namelessmc.java_api.exception.UuidAlreadyExistsException;
 import com.namelessmc.java_api.modules.websend.WebsendAPI;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,10 +53,10 @@ public final class NamelessAPI {
 	@NotNull
 	static String getApiKey(@NotNull final String url) {
 		if (url.endsWith("/")) {
-			return getApiKey(StringUtils.removeEnd(url, "/"));
+			return getApiKey(url.substring(0, url.length() - 1));
 		}
 
-		return StringUtils.substringAfterLast(url, "/");
+		return url.substring(url.lastIndexOf('/'));
 	}
 
 	/**
@@ -203,7 +202,7 @@ public final class NamelessAPI {
 	 * @return Nameless user object, never null
 	 */
 	public NamelessUser getUserLazyDiscord(final long discordId) {
-		Validate.isTrue(discordId > 0, "Discord id must be a positive long");
+		Preconditions.checkArgument(discordId > 0, "Discord id must be a positive long");
 		return new NamelessUser(this, -1, null, false, null, true, discordId);
 	}
 

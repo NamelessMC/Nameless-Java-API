@@ -1,19 +1,6 @@
 package com.namelessmc.java_api;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import org.apache.commons.lang3.Validate;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import com.google.gson.Gson;
+import com.google.common.base.Preconditions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -25,6 +12,17 @@ import com.namelessmc.java_api.exception.CannotReportSelfException;
 import com.namelessmc.java_api.exception.InvalidValidateCodeException;
 import com.namelessmc.java_api.exception.ReportUserBannedException;
 import com.namelessmc.java_api.exception.UnableToCreateReportException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public final class NamelessUser {
 
@@ -358,7 +356,8 @@ public final class NamelessUser {
 			throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, UnableToCreateReportException, CannotReportSelfException {
 		Objects.requireNonNull(user, "User to report is null");
 		Objects.requireNonNull(reason, "Report reason is null");
-		Validate.isTrue(reason.length() < 255, "Report reason too long");
+		Preconditions.checkArgument(reason.length() < 255,
+				"Report reason too long, it's %s characters but must be less than 255", reason.length());
 		final JsonObject post = new JsonObject();
 		post.addProperty("reporter", this.getId());
 		post.addProperty("reported", user.getId());
@@ -399,7 +398,8 @@ public final class NamelessUser {
 		Objects.requireNonNull(reportedUuid, "Reported uuid is null");
 		Objects.requireNonNull(reportedName, "Reported name is null");
 		Objects.requireNonNull(reason, "Report reason is null");
-		Validate.isTrue(reason.length() < 255, "Report reason too long");
+		Preconditions.checkArgument(reason.length() < 255,
+				"Report reason too long, it's %s characters but must be less than 255", reason.length());
 		final JsonObject post = new JsonObject();
 		post.addProperty("reporter", this.getId());
 		post.addProperty("reported_uid", reportedUuid.toString());
