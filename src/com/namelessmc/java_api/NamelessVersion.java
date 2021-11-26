@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public enum NamelessVersion {
 
@@ -18,14 +19,13 @@ public enum NamelessVersion {
 
 	;
 
-	@NotNull
-	private final String name;
-	private final String friendlyName;
+	private final @NotNull String name;
+	private final @NotNull String friendlyName;
 	private final int major;
 	private final int minor;
 	private final boolean isBeta;
 
-	NamelessVersion(@NotNull final String name, String friendlyName, final int major, final int minor, final boolean isBeta) {
+	NamelessVersion(@NotNull final String name, @NotNull String friendlyName, final int major, final int minor, final boolean isBeta) {
 		this.name = name;
 		this.friendlyName = friendlyName;
 		this.major = major;
@@ -69,8 +69,8 @@ public enum NamelessVersion {
 		}
 	}
 
-	@NotNull
-	public static NamelessVersion parse(@NotNull final String versionName) throws UnknownNamelessVersionException {
+	public static @NotNull NamelessVersion parse(@NotNull final String versionName) throws UnknownNamelessVersionException {
+		Objects.requireNonNull(versionName, "Version name is null");
 		final NamelessVersion version = BY_NAME.get(versionName);
 		if (version == null) {
 			throw new UnknownNamelessVersionException(versionName);

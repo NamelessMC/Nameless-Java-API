@@ -101,7 +101,7 @@ public final class NamelessAPI {
 //		return StreamSupport.stream(array.spliterator(), false).map(elementSupplier).collect(Collectors.toList());
 //	}
 
-	public void submitServerInfo(@NotNull final JsonObject jsonData) throws NamelessException {
+	public void submitServerInfo(final @NotNull JsonObject jsonData) throws NamelessException {
 		this.requests.post(Action.SERVER_INFO, jsonData);
 	}
 
@@ -244,7 +244,7 @@ public final class NamelessAPI {
 
 	}
 
-	public int[] getAllGroupIds() throws NamelessException {
+	public int @NotNull[] getAllGroupIds() throws NamelessException {
 		final JsonObject response = this.requests.get(Action.GROUP_INFO);
 		return StreamSupport.stream(response.getAsJsonArray("groups").spliterator(), false)
 				.map(JsonElement::getAsJsonObject)
@@ -420,7 +420,7 @@ public final class NamelessAPI {
 		this.requests.post(Action.UPDATE_DISCORD_USERNAMES, json);
 	}
 
-	public WebsendAPI websend() {
+	public @NotNull WebsendAPI websend() {
 		return new WebsendAPI(this.requests);
 	}
 

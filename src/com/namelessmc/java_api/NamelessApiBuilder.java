@@ -1,17 +1,18 @@
 package com.namelessmc.java_api;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import com.namelessmc.java_api.logger.ApiLogger;
 import com.namelessmc.java_api.logger.PrintStreamLogger;
 import com.namelessmc.java_api.logger.Slf4jLogger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Objects;
 
 public class NamelessApiBuilder {
 
+	private static final int DEFAULT_TIMEOUT = 5000;
 	private static final String DEFAULT_USER_AGENT = "Nameless-Java-API";
 
 	@NotNull
@@ -19,7 +20,7 @@ public class NamelessApiBuilder {
 	@Nullable
 	private URL apiUrl = null;
 	private @Nullable ApiLogger debugLogger = null;
-	private int timeout = 5000;
+	private int timeout = DEFAULT_TIMEOUT;
 
 	NamelessApiBuilder() {
 	}
@@ -41,11 +42,13 @@ public class NamelessApiBuilder {
 	 * @throws MalformedURLException If the URL is malformed after building it using the provided host and api key
 	 */
 	public @NotNull NamelessApiBuilder apiUrl(@NotNull final String host, @NotNull final String apiKey) throws MalformedURLException {
+		Objects.requireNonNull(host, "Host is null");
+		Objects.requireNonNull(apiKey, "Api key is null");
 		return apiUrl("https://" + host + "/index.php?route=/api/v2/" + apiKey);
 	}
 
 	public @NotNull NamelessApiBuilder userAgent(@NotNull final String userAgent) {
-		this.userAgent = userAgent;
+		this.userAgent = Objects.requireNonNull(userAgent, "User agent is null");
 		return this;
 	}
 

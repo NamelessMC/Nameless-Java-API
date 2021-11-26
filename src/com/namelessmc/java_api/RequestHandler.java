@@ -19,6 +19,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -27,23 +28,23 @@ import static com.namelessmc.java_api.RequestHandler.RequestMethod.POST;
 
 public class RequestHandler {
 
-	private final URL baseUrl;
-	private final String userAgent;
-	private final ApiLogger debugLogger;
+	private final @NotNull URL baseUrl;
+	private final @NotNull String userAgent;
+	private final @Nullable ApiLogger debugLogger;
 	private final int timeout;
 
-	RequestHandler(final URL baseUrl, final String userAgent, ApiLogger debugLogger, final int timeout) {
-		this.baseUrl = baseUrl;
-		this.userAgent = userAgent;
+	RequestHandler(final @NotNull URL baseUrl, final @NotNull String userAgent, @Nullable ApiLogger debugLogger, final int timeout) {
+		this.baseUrl = Objects.requireNonNull(baseUrl, "Base URL is null");
+		this.userAgent = Objects.requireNonNull(userAgent, "User agent is null");
 		this.debugLogger = debugLogger;
 		this.timeout = timeout;
 	}
 
-	public URL getApiUrl() {
+	public @NotNull URL getApiUrl() {
 		return this.baseUrl;
 	}
 
-	public JsonObject post(final Action action, final JsonObject postData) throws NamelessException {
+	public @NotNull JsonObject post(final @NotNull Action action, final @Nullable JsonObject postData) throws NamelessException {
 		if (action.method != RequestMethod.POST) {
 			throw new IllegalArgumentException("Cannot POST to a GET API method");
 		}
@@ -58,8 +59,7 @@ public class RequestHandler {
 		return makeConnection(url, postData);
 	}
 
-	@NotNull
-	public JsonObject get(final Action action, final Object... parameters) throws NamelessException {
+	public @NotNull JsonObject get(final @NotNull Action action, final @NotNull Object @NotNull... parameters) throws NamelessException {
 		if (action.method != RequestMethod.GET) {
 			throw new IllegalArgumentException("Cannot GET a POST API method");
 		}
@@ -99,19 +99,19 @@ public class RequestHandler {
 		return makeConnection(url, null);
 	}
 
-	private void debug(final String message) {
+	private void debug(final @NotNull String message) {
 		if (this.debugLogger != null) {
 			this.debugLogger.log(message.replace(NamelessAPI.getApiKey(this.getApiUrl().toString()), "**API_KEY_REMOVED**"));
 		}
 	}
 
-	private void debug(final String message, Supplier<Object[]> argsSupplier) {
+	private void debug(final @NotNull String message, @NotNull Supplier<Object[]> argsSupplier) {
 		if (this.debugLogger != null) {
 			this.debugLogger.log(String.format(message, argsSupplier.get()).replace(NamelessAPI.getApiKey(this.getApiUrl().toString()), "**API_KEY_REMOVED**"));
 		}
 	}
 
-	private JsonObject makeConnection(final URL url, final JsonObject postBody) throws NamelessException {
+	private @NotNull JsonObject makeConnection(final URL url, final @Nullable JsonObject postBody) throws NamelessException {
 		final HttpURLConnection connection;
 		final byte[] bytes;
 		try {
@@ -218,7 +218,7 @@ public class RequestHandler {
 		return json;
 	}
 
-	private static byte[] getBytesFromInputStream(final InputStream is) throws IOException {
+	private static byte @NotNull[] getBytesFromInputStream(final @NotNull InputStream is) throws IOException {
 	    final ByteArrayOutputStream os = new ByteArrayOutputStream();
 	    final byte[] buffer = new byte[0xFFFF];
 	    for (int len = is.read(buffer); len != -1; len = is.read(buffer)) {
@@ -227,7 +227,7 @@ public class RequestHandler {
 	    return os.toByteArray();
 	}
 
-	private static String regularAsciiOnly(String message) {
+	private static @NotNull String regularAsciiOnly(@NotNull String message) {
 		char[] chars = message.toCharArray();
 		for (int i = 0; i < chars.length; i++) {
 			char c = chars[i];
