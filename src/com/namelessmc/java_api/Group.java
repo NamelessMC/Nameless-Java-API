@@ -41,4 +41,15 @@ public class Group implements Comparable<Group> {
 		return this.order - other.order;
 	}
 
+	@Override
+	public boolean equals(Object other) {
+		return other instanceof Group &&
+				((Group) other).id == this.id;
+	}
+
+	@Override
+	public String toString() {
+		return "Group[id=" + id + ",name=" + name + "]";
+	}
+
 }
