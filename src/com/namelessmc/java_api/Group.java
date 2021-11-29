@@ -4,6 +4,8 @@ import org.jetbrains.annotations.NotNull;
 
 import com.google.gson.JsonObject;
 
+import java.util.Objects;
+
 public class Group implements Comparable<Group> {
 
 	private final int id;
@@ -45,6 +47,11 @@ public class Group implements Comparable<Group> {
 	public boolean equals(Object other) {
 		return other instanceof Group &&
 				((Group) other).id == this.id;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(839891, id);
 	}
 
 	@Override
