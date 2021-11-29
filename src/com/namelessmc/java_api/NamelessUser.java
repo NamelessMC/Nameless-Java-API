@@ -16,10 +16,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -263,18 +265,36 @@ public final class NamelessUser {
 	}
 
 	/**
-	 * @return List of the user's groups, sorted from low order to high order.
+	 * @return Set of user's groups
+	 * @see #getSortedGroups()
 	 */
-	public @NotNull List<@NotNull Group> getGroups() throws NamelessException {
+	public @NotNull Set<@NotNull Group> getGroups() throws NamelessException {
 		if (this.userInfo == null) {
 			this.loadUserInfo();
 		}
 
-		return StreamSupport.stream(this.userInfo.getAsJsonArray("groups").spliterator(), false)
-				.map(JsonElement::getAsJsonObject)
-				.map(Group::new)
-				.sorted()
-				.collect(Collectors.toList());
+		return Collections.unmodifiableSet(
+				StreamSupport.stream(this.userInfo.getAsJsonArray("groups").spliterator(), false)
+						.map(JsonElement::getAsJsonObject)
+						.map(Group::new)
+						.collect(Collectors.toSet()));
+	}
+
+	/**
+	 * @return List of the user's groups, sorted from low order to high order.
+	 * @see #getGroups()
+	 */
+	public @NotNull List<@NotNull Group> getSortedGroups() throws NamelessException {
+		if (this.userInfo == null) {
+			this.loadUserInfo();
+		}
+
+		return Collections.unmodifiableList(
+				StreamSupport.stream(this.userInfo.getAsJsonArray("groups").spliterator(), false)
+						.map(JsonElement::getAsJsonObject)
+						.map(Group::new)
+						.sorted()
+						.collect(Collectors.toList()));
 	}
 
 	/**
