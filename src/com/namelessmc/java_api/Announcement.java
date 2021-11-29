@@ -17,8 +17,8 @@ public class Announcement {
 	private final @NotNull Set<@NotNull String> displayPages;
 	private final int @NotNull[] displayGroups;
 
-	Announcement(int id, @NotNull JsonObject announcementJson) {
-		this.id = id;
+	Announcement(@NotNull JsonObject announcementJson) {
+		this.id = announcementJson.get("id").getAsInt();
 		this.header = announcementJson.get("header").getAsString();
 		this.message = announcementJson.get("message").getAsString();
 		this.displayPages = Collections.unmodifiableSet(

@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import com.namelessmc.java_api.RequestHandler.Action;
 import com.namelessmc.java_api.exception.CannotSendEmailException;
 import com.namelessmc.java_api.exception.InvalidUsernameException;
+import com.namelessmc.java_api.exception.UsernameAlreadyExistsException;
 import com.namelessmc.java_api.exception.UuidAlreadyExistsException;
 import com.namelessmc.java_api.modules.websend.WebsendAPI;
 import org.jetbrains.annotations.NotNull;
@@ -80,7 +81,7 @@ public final class NamelessAPI {
 	 */
 	@NotNull
 	public List<@NotNull Announcement> getAnnouncements(@NotNull final NamelessUser user) throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GET_ANNOUNCEMENTS, "id", user.getId());
+		final JsonObject response = this.requests.get(Action.GET_ANNOUNCEMENTS, "user_id", user.getId());
 
 		return getAnnouncements(response);
 	}
@@ -92,14 +93,11 @@ public final class NamelessAPI {
 
 	@NotNull
 	private List<@NotNull Announcement> getAnnouncements(@NotNull final JsonObject response) {
-		return response.getAsJsonObject("announcements").entrySet().stream()
-				.map(e -> new Announcement(Integer.parseInt(e.getKey()), e.getValue().getAsJsonObject()))
-				.collect(Collectors.toList());
+		return StreamSupport.stream(response.getAsJsonArray("announcements").spliterator(), false)
+					.map(JsonElement::getAsJsonObject)
+					.map(Announcement::new)
+					.collect(Collectors.toList());
 	}
-
-//	private <T> @NotNull List<T> jsonArrayToList(@NotNull final JsonArray array, @NotNull final Function<JsonElement, T> elementSupplier) {
-//		return StreamSupport.stream(array.spliterator(), false).map(elementSupplier).collect(Collectors.toList());
-//	}
 
 	public void submitServerInfo(final @NotNull JsonObject jsonData) throws NamelessException {
 		this.requests.post(Action.SERVER_INFO, jsonData);
@@ -272,7 +270,7 @@ public final class NamelessAPI {
 	public @NotNull Optional<String> registerUser(@NotNull final String username,
 												  @NotNull final String email,
 												  @Nullable final UUID uuid)
-			throws NamelessException, InvalidUsernameException, CannotSendEmailException, UuidAlreadyExistsException {
+			throws NamelessException, InvalidUsernameException, UsernameAlreadyExistsException, CannotSendEmailException, UuidAlreadyExistsException {
 		Objects.requireNonNull(username, "Username is null");
 		Objects.requireNonNull(email, "Email address is null");
 
@@ -294,6 +292,8 @@ public final class NamelessAPI {
 		} catch (final ApiError e) {
 			if (e.getError() == ApiError.INVALID_USERNAME) {
 				throw new InvalidUsernameException();
+			} else if (e.getError() == ApiError.USERNAME_ALREADY_EXISTS) {
+				throw new UsernameAlreadyExistsException();
 			} else if (e.getError() == ApiError.UNABLE_TO_SEND_REGISTRATION_EMAIL) {
 				throw new CannotSendEmailException();
 			} else if (e.getError() == ApiError.UUID_ALREADY_EXISTS) {
@@ -305,14 +305,15 @@ public final class NamelessAPI {
 	}
 
 	/**
-	 * Convenience method for {@link #registerUser(String, String, UUID)} with null UUID.
+	 * Register user without UUID {@link #registerUser(String, String, UUID)}
+	 * WARNING: This will fail if the website has Minecraft integration enabled!
 	 * @param username New username for this user
 	 * @param email New email address for this user
 	 * @return Verification URL if email verification is disabled.
 	 */
 	public @NotNull Optional<String> registerUser(@NotNull final String username,
 										 @NotNull final String email)
-			throws NamelessException, InvalidUsernameException, CannotSendEmailException {
+			throws NamelessException, InvalidUsernameException, UsernameAlreadyExistsException, CannotSendEmailException {
 		try {
 			return registerUser(username, email, null);
 		} catch (final UuidAlreadyExistsException e) {
