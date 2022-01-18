@@ -22,7 +22,7 @@ public class WebsendAPI {
 	}
 
 	public @NotNull List<WebsendCommand> getCommands(int serverId) throws NamelessException {
-		JsonObject response = this.requests.get("websend/commands" "server_id", serverId);
+		JsonObject response = this.requests.get("websend/commands","server_id", serverId);
 		JsonArray commandsJson = response.getAsJsonArray("commands");
 		List<WebsendCommand> commands = new ArrayList<>(commandsJson.size());
 		for (JsonElement e : commandsJson) {
