@@ -478,7 +478,7 @@ public final class NamelessUser {
 	 * @since 2021-10-24 commit cce8d262b0be3f70818c188725cd7e7fc4fdbb9a
 	 */
 	public void banUser() throws NamelessException {
-		this.requests.post("users/" + this.getId() + "ban", null);
+		this.requests.post("users/" + this.getId() + "/ban", null);
 	}
 
 }
