@@ -440,8 +440,8 @@ public final class NamelessAPI {
 	}
 
 	@NotNull
-	public static NamelessApiBuilder builder() {
-		return new NamelessApiBuilder();
+	public static NamelessApiBuilder builder(@NotNull URL apiUrl, @NotNull String apiKey) {
+		return new NamelessApiBuilder(apiUrl, apiKey);
 	}
 
 }

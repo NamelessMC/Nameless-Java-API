@@ -29,12 +29,14 @@ import static com.namelessmc.java_api.RequestHandler.RequestMethod.POST;
 public class RequestHandler {
 
 	private final @NotNull URL baseUrl;
+	private final @NotNull String apiKey;
 	private final @NotNull String userAgent;
 	private final @Nullable ApiLogger debugLogger;
 	private final int timeout;
 
-	RequestHandler(final @NotNull URL baseUrl, final @NotNull String userAgent, @Nullable ApiLogger debugLogger, final int timeout) {
+	RequestHandler(final @NotNull URL baseUrl, final @NotNull String apiKey, final @NotNull String userAgent, @Nullable ApiLogger debugLogger, final int timeout) {
 		this.baseUrl = Objects.requireNonNull(baseUrl, "Base URL is null");
+		this.apiKey = Objects.requireNonNull(apiKey, "Api key is null");
 		this.userAgent = Objects.requireNonNull(userAgent, "User agent is null");
 		this.debugLogger = debugLogger;
 		this.timeout = timeout;
@@ -42,6 +44,10 @@ public class RequestHandler {
 
 	public @NotNull URL getApiUrl() {
 		return this.baseUrl;
+	}
+
+	public @NotNull String getApiKey() {
+		return this.apiKey;
 	}
 
 	public @NotNull JsonObject post(final @NotNull Action action, final @Nullable JsonObject postData) throws NamelessException {
@@ -99,15 +105,9 @@ public class RequestHandler {
 		return makeConnection(url, null);
 	}
 
-	private void debug(final @NotNull String message) {
-		if (this.debugLogger != null) {
-			this.debugLogger.log(message.replace(NamelessAPI.getApiKey(this.getApiUrl().toString()), "**API_KEY_REMOVED**"));
-		}
-	}
-
 	private void debug(final @NotNull String message, @NotNull Supplier<Object[]> argsSupplier) {
 		if (this.debugLogger != null) {
-			this.debugLogger.log(String.format(message, argsSupplier.get()).replace(NamelessAPI.getApiKey(this.getApiUrl().toString()), "**API_KEY_REMOVED**"));
+			this.debugLogger.log(String.format(message, argsSupplier.get()));
 		}
 	}
 
@@ -123,6 +123,7 @@ public class RequestHandler {
 			debug("Making connection %s to url %s", () -> new Object[]{ postBody != null ? "POST" : "GET", url});
 
 			connection.addRequestProperty("User-Agent", this.userAgent);
+			connection.addRequestProperty("X-API-Key", this.apiKey);
 
 			debug("Using User-Agent '%s'", () -> new Object[]{ this.userAgent });
 
