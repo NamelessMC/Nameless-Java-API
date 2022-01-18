@@ -99,7 +99,7 @@ public final class NamelessAPI {
 	}
 
 	public Website getWebsite() throws NamelessException {
-		final JsonObject json = this.requests.get("/info");
+		final JsonObject json = this.requests.get("info");
 		return new Website(json);
 	}
 
