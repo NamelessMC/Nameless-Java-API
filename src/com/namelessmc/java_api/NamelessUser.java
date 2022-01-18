@@ -5,7 +5,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.Notification.NotificationType;
-import com.namelessmc.java_api.RequestHandler.Action;
 import com.namelessmc.java_api.exception.AccountAlreadyActivatedException;
 import com.namelessmc.java_api.exception.AlreadyHasOpenReportException;
 import com.namelessmc.java_api.exception.CannotReportSelfException;
@@ -78,14 +77,15 @@ public final class NamelessUser {
 
 	private void loadUserInfo() throws NamelessException {
 		final JsonObject response;
+		// TODO There's no way to do this right now, wait for aber
 		if (this.id != -1) {
-			response = this.requests.get(Action.USER_INFO, "id", this.id);
+			response = this.requests.get("????", "id", this.id);
 		} else if (this.uuidKnown && this.uuid != null) {
-			response = this.requests.get(Action.USER_INFO, "uuid", this.uuid);
+			response = this.requests.get("????", "uuid", this.uuid);
 		} else if (this.username != null) {
-			response = this.requests.get(Action.USER_INFO, "username", this.username);
+			response = this.requests.get("????", "username", this.username);
 		} else if (this.discordIdKnown && this.discordId > 0) {
-			response = this.requests.get(Action.USER_INFO, "discord_id", this.discordId);
+			response = this.requests.get("????", "discord_id", this.discordId);
 		} else {
 			throw new IllegalStateException("ID, uuid, and username not known for this player.");
 		}
@@ -137,9 +137,8 @@ public final class NamelessUser {
 
 	public void updateUsername(@NotNull String username) throws NamelessException {
 		JsonObject post = new JsonObject();
-		post.addProperty("user", this.getId());
 		post.addProperty("username", username);
-		this.requests.post(Action.UPDATE_USERNAME, post);
+		this.requests.post("users/" + this.getId() + "/update-username", post);
 	}
 
 	public @NotNull Optional<UUID> getUniqueId() throws NamelessException {
@@ -319,17 +318,15 @@ public final class NamelessUser {
 
 	public void addGroups(@NotNull final Group@NotNull ... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.addProperty("user", this.getId());
 		post.add("groups", groupsToJsonArray(groups));
-		this.requests.post(Action.ADD_GROUPS, post);
+		this.requests.post("users/" + this.getId() + "/groups/add", post);
 		invalidateCache(); // Groups modified, invalidate cache
 	}
 
 	public void removeGroups(@NotNull final Group@NotNull... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.addProperty("user", this.getId());
 		post.add("groups", groupsToJsonArray(groups));
-		this.requests.post(Action.REMOVE_GROUPS, post);
+		this.requests.post("users/" + this.getId() + "/groups/add", post);
 		invalidateCache(); // Groups modified, invalidate cache
 	}
 
@@ -342,12 +339,12 @@ public final class NamelessUser {
 	}
 
 	public int getNotificationCount() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GET_NOTIFICATIONS, "user", this.getId());
+		final JsonObject response = this.requests.get("users/" + this.getId() + "/notifications");
 		return response.getAsJsonArray("notifications").size();
 	}
 
 	public @NotNull List<Notification> getNotifications() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GET_NOTIFICATIONS, "user", this.getId());
+		final JsonObject response = this.requests.get("users/" + this.getId() + "/notifications");
 
 		final List<Notification> notifications = new ArrayList<>();
 		response.getAsJsonArray("notifications").forEach((element) -> {
@@ -383,7 +380,7 @@ public final class NamelessUser {
 		post.addProperty("reported", user.getId());
 		post.addProperty("content", reason);
 		try {
-			this.requests.post(Action.CREATE_REPORT, post);
+			this.requests.post("reports/create", post);
 		} catch (final ApiError e) {
 			if (e.getError() == ApiError.USER_CREATING_REPORT_BANNED) {
 				throw new ReportUserBannedException();
@@ -426,7 +423,7 @@ public final class NamelessUser {
 		post.addProperty("reported_username", reportedName);
 		post.addProperty("content", reason);
 		try {
-			this.requests.post(Action.CREATE_REPORT, post);
+			this.requests.post("reports/create", post);
 		} catch (final ApiError e) {
 			if (e.getError() == ApiError.USER_CREATING_REPORT_BANNED) {
 				throw new ReportUserBannedException();
@@ -455,7 +452,7 @@ public final class NamelessUser {
 		post.addProperty("user", this.getId());
 		post.addProperty("code", code);
 		try {
-			this.requests.post(Action.VERIFY_MINECRAFT, post);
+			this.requests.post("minecraft/verify", post);
 			this.userInfo = null;
 		} catch (final ApiError e) {
 			switch (e.getError()) {
@@ -469,31 +466,11 @@ public final class NamelessUser {
 		}
 	}
 
-	public long@NotNull [] getDiscordRoles() throws NamelessException {
-		final JsonObject response = this.requests.get(Action.GET_DISCORD_ROLES, "user", this.getId());
-		return StreamSupport.stream(response.getAsJsonArray("roles").spliterator(), false)
-				.mapToLong(JsonElement::getAsLong).toArray();
-	}
-
 	public void setDiscordRoles(final long[] roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
 		post.add("roles", NamelessAPI.GSON.toJsonTree(roleIds));
-		this.requests.post(Action.SET_DISCORD_ROLES, post);
-	}
-
-	public void addDiscordRoles(final long... roleIds) throws NamelessException {
-		final JsonObject post = new JsonObject();
-		post.addProperty("user", this.getId());
-		post.add("roles", NamelessAPI.GSON.toJsonTree(roleIds));
-		this.requests.post(Action.ADD_DISCORD_ROLES, post);
-	}
-
-	public void removeDiscordRoles(final long... roleIds) throws NamelessException {
-		final JsonObject post = new JsonObject();
-		post.addProperty("user", this.getId());
-		post.add("roles", NamelessAPI.GSON.toJsonTree(roleIds));
-		this.requests.post(Action.REMOVE_DISCORD_ROLES, post);
+		this.requests.post("discord/set-roles", post);
 	}
 
 	/**
@@ -501,9 +478,7 @@ public final class NamelessUser {
 	 * @since 2021-10-24 commit cce8d262b0be3f70818c188725cd7e7fc4fdbb9a
 	 */
 	public void banUser() throws NamelessException {
-		JsonObject body = new JsonObject();
-		body.addProperty("user", this.getId());
-		this.requests.post(Action.BAN_USER, body);
+		this.requests.post("users/" + this.getId() + "ban", null);
 	}
 
 }

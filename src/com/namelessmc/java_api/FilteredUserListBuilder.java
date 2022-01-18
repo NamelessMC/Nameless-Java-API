@@ -60,7 +60,7 @@ public class FilteredUserListBuilder {
 			parameters = new Object[0];
 		}
 
-		final JsonObject response = this.api.getRequestHandler().get(RequestHandler.Action.LIST_USERS, parameters);
+		final JsonObject response = this.api.getRequestHandler().get("users", parameters);
 		final JsonArray array = response.getAsJsonArray("users");
 		final List<NamelessUser> users = new ArrayList<>(array.size());
 		for (final JsonElement e : array) {

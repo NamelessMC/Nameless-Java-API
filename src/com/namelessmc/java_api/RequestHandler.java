@@ -1,5 +1,6 @@
 package com.namelessmc.java_api;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
@@ -8,11 +9,7 @@ import com.namelessmc.java_api.logger.ApiLogger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -22,9 +19,6 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import static com.namelessmc.java_api.RequestHandler.RequestMethod.GET;
-import static com.namelessmc.java_api.RequestHandler.RequestMethod.POST;
 
 public class RequestHandler {
 
@@ -50,14 +44,12 @@ public class RequestHandler {
 		return this.apiKey;
 	}
 
-	public @NotNull JsonObject post(final @NotNull Action action, final @Nullable JsonObject postData) throws NamelessException {
-		if (action.method != RequestMethod.POST) {
-			throw new IllegalArgumentException("Cannot POST to a GET API method");
-		}
+	public @NotNull JsonObject post(final @NotNull String route, final @Nullable JsonObject postData) throws NamelessException {
+		Preconditions.checkArgument(!route.startsWith("/"), "Route must not start with a slash");
 
 		URL url;
 		try {
-			url = new URL(this.baseUrl.toString() + "/" + action.getUrl());
+			url = new URL(this.baseUrl + "/" + route);
 		} catch (final MalformedURLException e) {
 			throw new NamelessException("Invalid URL or parameter string");
 		}
@@ -65,14 +57,12 @@ public class RequestHandler {
 		return makeConnection(url, postData);
 	}
 
-	public @NotNull JsonObject get(final @NotNull Action action, final @NotNull Object @NotNull... parameters) throws NamelessException {
-		if (action.method != RequestMethod.GET) {
-			throw new IllegalArgumentException("Cannot GET a POST API method");
-		}
+	public @NotNull JsonObject get(final @NotNull String route, final @NotNull Object @NotNull... parameters) throws NamelessException {
+		Preconditions.checkArgument(!route.startsWith("/"), "Route must not start with a slash");
 
 		final StringBuilder urlBuilder = new StringBuilder(this.baseUrl.toString());
 		urlBuilder.append("/");
-		urlBuilder.append(action.getUrl());
+		urlBuilder.append(route);
 
 		if (parameters.length > 0) {
 			if (parameters.length % 2 != 0) {
@@ -241,86 +231,6 @@ public class RequestHandler {
 			}
 		}
 		return new String(chars);
-	}
-
-	public enum Action {
-
-		INFO("info", GET),
-		GET_ANNOUNCEMENTS("getAnnouncements", GET),
-		REGISTER("register", POST),
-		USER_INFO("userInfo", GET),
-		GROUP_INFO("groupInfo", GET),
-		ADD_GROUPS("addGroups", POST),
-		REMOVE_GROUPS("removeGroups", POST),
-		CREATE_REPORT("createReport", POST),
-		GET_NOTIFICATIONS("getNotifications", GET),
-		SERVER_INFO("serverInfo", POST),
-		UPDATE_USERNAME("updateUsername", POST),
-		VERIFY_MINECRAFT("verifyMinecraft", POST),
-		LIST_USERS("listUsers", GET),
-		UPDATE_DISCORD_BOT_SETTINGS("updateDiscordBotSettings", POST),
-		VERIFY_DISCORD("verifyDiscord", POST),
-		UPDATE_DISCORD_USERNAMES("updateDiscordUsernames", POST),
-		GET_DISCORD_ROLES("getDiscordRoles", GET),
-		SET_DISCORD_ROLES("setDiscordRoles", POST),
-		ADD_DISCORD_ROLES("addDiscordRoles", POST),
-		REMOVE_DISCORD_ROLES("removeDiscordRoles", POST),
-		SUBMIT_DISCORD_ROLE_LIST("submitDiscordRoleList", POST),
-		BAN_USER("banUser", POST),
-
-		WEBSEND_GET_COMMANDS("websend", "commands", GET),
-		WEBSEND_MARK_COMMANDS_EXECUTED("websend", "markCommandsExecuted", POST),
-		WEBSEND_SEND_CONSOLE_LINES("websend", "console", POST),
-
-		;
-
-		private final @Nullable String module;
-		private final @NotNull String name;
-		private final @NotNull String url;
-		private final @NotNull RequestMethod method;
-
-		Action(@NotNull final String name, @NotNull final RequestMethod post) {
-			this.module = null;
-			this.name = name;
-			this.url = name;
-			this.method = post;
-		}
-
-		Action(@NotNull final String module, @NotNull String name, @NotNull final RequestMethod post) {
-			this.module = module;
-			this.name = name;
-			this.url = module + "/" + name;
-			this.method = post;
-		}
-
-		public @Nullable String getModule() {
-			return this.module;
-		}
-
-		public @NotNull String getName() {
-			return this.name;
-		}
-
-		public @NotNull RequestMethod getMethod() {
-			return this.method;
-		}
-
-		public @NotNull String getUrl() {
-			return this.url;
-		}
-
-		@Override
-		public String toString() {
-			return "RequestHandler.Action[" + this.url + "]";
-		}
-
-	}
-
-
-	public enum RequestMethod {
-
-		GET, POST
-
 	}
 
 }
