@@ -14,14 +14,7 @@ import com.namelessmc.java_api.exception.UnableToCreateReportException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -479,6 +472,36 @@ public final class NamelessUser {
 	 */
 	public void banUser() throws NamelessException {
 		this.requests.post("users/" + this.getId() + "/ban", null);
+	}
+
+	public Collection<CustomProfileFieldValue> getProfileFields() throws NamelessException {
+		if (this.userInfo == null) {
+			this.loadUserInfo();
+		}
+
+		if (!userInfo.has("profile_fields")) {
+			return Collections.emptyList();
+		}
+
+		JsonObject fieldsJson = userInfo.getAsJsonObject("profile_fields");
+		List<CustomProfileFieldValue> fieldValues = new ArrayList<>(fieldsJson.size());
+		for (Map.Entry<String, JsonElement> e : fieldsJson.entrySet()) {
+			int id = Integer.parseInt(e.getKey());
+			JsonObject values = e.getValue().getAsJsonObject();
+			fieldValues.add(new CustomProfileFieldValue(
+					new CustomProfileField(
+							id,
+							values.get("name").getAsString(),
+							values.get("type").getAsInt(),
+							values.get("public").getAsBoolean(),
+							values.get("required").getAsBoolean(),
+							values.get("description").getAsString()
+					),
+					values.get("value").getAsString()
+			));
+		}
+
+		return fieldValues;
 	}
 
 }
