@@ -8,12 +8,12 @@ public class CustomProfileField {
 
 	private final int id;
 	private final @NotNull String name;
-	private final int type; // TODO make this an enum
+	private final @NotNull CustomProfileFieldType type;
 	private final boolean isPublic;
 	private final boolean isRequired;
 	private final @NotNull String description;
 
-	CustomProfileField(int id, String name, int type, boolean isPublic, boolean isRequired, String description) {
+	CustomProfileField(int id, String name, @NotNull CustomProfileFieldType type, boolean isPublic, boolean isRequired, String description) {
 		this.id = id;
 		this.name = name;
 		this.type = type;
@@ -30,7 +30,7 @@ public class CustomProfileField {
 		return name;
 	}
 
-	public int getType() {
+	public @NotNull CustomProfileFieldType getType() {
 		return type;
 	}
 

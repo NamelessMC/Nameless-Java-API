@@ -492,7 +492,7 @@ public final class NamelessUser {
 					new CustomProfileField(
 							id,
 							values.get("name").getAsString(),
-							values.get("type").getAsInt(),
+							CustomProfileFieldType.fromNamelessTypeInt(values.get("type").getAsInt()),
 							values.get("public").getAsBoolean(),
 							values.get("required").getAsBoolean(),
 							values.get("description").getAsString()
