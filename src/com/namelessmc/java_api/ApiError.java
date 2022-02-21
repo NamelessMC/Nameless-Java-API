@@ -1,9 +1,9 @@
 package com.namelessmc.java_api;
 
-import java.util.Optional;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public class ApiError extends NamelessException {
 
@@ -27,7 +27,7 @@ public class ApiError extends NamelessException {
 	public static final int UNABLE_TO_FIND_GROUP = 17;
 	public static final int UNABLE_TO_UPDATE_USER_GROUP = 18;
 	public static final int REPORT_CONTENT_TOO_LARGE = 19;
-	public static final int USER_CREATING_REPORT_NO_ACCOUNT = 20;
+	// 20 intentionally missing
 	public static final int USER_CREATING_REPORT_BANNED = 21;
 	public static final int USER_ALREADY_HAS_OPEN_REPORT = 22;
 	public static final int UNABLE_TO_CREATE_REPORT = 23;
@@ -38,11 +38,14 @@ public class ApiError extends NamelessException {
 	public static final int INVALID_VALIDATE_CODE = 28;
 	public static final int UNABLE_TO_SET_USER_DISCORD_ID = 29;
 	public static final int UNABLE_TO_SET_DISCORD_BOT_URL = 30;
-
+	// 31 intentionally missing
 	public static final int ACCOUNT_ALREADY_ACTIVATED = 32;
 	public static final int UNABLE_TO_SET_DISCORD_GUILD_ID = 33;
 	public static final int DISCORD_INTEGRATION_DISABLED = 34;
-
+	// 35 intentionally missing
+	public static final int REQUEST_NOT_AUTHORIZED = 36;
+	public static final int INVALID_INTEGRATION = 37;
+	public static final int INTEGRATION_ALREADY_VERIFIED = 38;
 
 	private static final long serialVersionUID = 3093028909912281912L;
 

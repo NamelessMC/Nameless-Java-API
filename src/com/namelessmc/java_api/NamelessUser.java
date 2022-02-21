@@ -5,10 +5,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.Notification.NotificationType;
-import com.namelessmc.java_api.exception.AccountAlreadyActivatedException;
 import com.namelessmc.java_api.exception.AlreadyHasOpenReportException;
 import com.namelessmc.java_api.exception.CannotReportSelfException;
-import com.namelessmc.java_api.exception.InvalidValidateCodeException;
 import com.namelessmc.java_api.exception.ReportUserBannedException;
 import com.namelessmc.java_api.exception.UnableToCreateReportException;
 import org.jetbrains.annotations.NotNull;
@@ -430,31 +428,6 @@ public final class NamelessUser {
 				throw new CannotReportSelfException();
 			} else {
 				throw e;
-			}
-		}
-	}
-
-	/**
-	 * Verifies a user's Minecraft account
-	 * @param code Verification code
-	 */
-	public void verifyMinecraft(@NotNull final String code)
-			throws NamelessException, InvalidValidateCodeException, AccountAlreadyActivatedException {
-		Objects.requireNonNull(code, "Verification code is null");
-		final JsonObject post = new JsonObject();
-		post.addProperty("user", this.getId());
-		post.addProperty("code", code);
-		try {
-			this.requests.post("minecraft/verify", post);
-			this.userInfo = null;
-		} catch (final ApiError e) {
-			switch (e.getError()) {
-				case ApiError.INVALID_VALIDATE_CODE:
-					throw new InvalidValidateCodeException();
-				case ApiError.ACCOUNT_ALREADY_ACTIVATED:
-					throw new AccountAlreadyActivatedException();
-				default:
-					throw e;
 			}
 		}
 	}

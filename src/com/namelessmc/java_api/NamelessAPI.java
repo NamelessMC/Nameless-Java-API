@@ -5,10 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.namelessmc.java_api.exception.CannotSendEmailException;
-import com.namelessmc.java_api.exception.InvalidUsernameException;
-import com.namelessmc.java_api.exception.UsernameAlreadyExistsException;
-import com.namelessmc.java_api.exception.UuidAlreadyExistsException;
+import com.namelessmc.java_api.exception.*;
 import com.namelessmc.java_api.modules.websend.WebsendAPI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -316,19 +313,6 @@ public final class NamelessAPI {
 		}
 	}
 
-	public void verifyDiscord(@NotNull final String verificationToken,
-							  final long discordUserId,
-							  @NotNull final String discordUsername) throws NamelessException {
-		Objects.requireNonNull(verificationToken, "Verification token is null");
-		Objects.requireNonNull(discordUsername, "Discord username is null");
-
-		final JsonObject json = new JsonObject();
-		json.addProperty("token", verificationToken);
-		json.addProperty("discord_id", discordUserId + ""); // website needs it as a string
-		json.addProperty("discord_username", discordUsername);
-		this.requests.post("discord/verify", json);
-	}
-
 	public void setDiscordBotUrl(@NotNull final URL url) throws NamelessException {
 		Objects.requireNonNull(url, "Bot url is null");
 
@@ -414,6 +398,38 @@ public final class NamelessAPI {
 		final JsonObject json = new JsonObject();
 		json.add("users", users);
 		this.requests.post("discord/update-usernames", json);
+	}
+
+	public void verifyIntegration(final @NotNull IntegrationType type,
+								  final @NotNull String verificationCode,
+								  final @NotNull String identifier,
+								  final @NotNull String username) throws NamelessException, InvalidValidateCodeException, IntegrationAlreadyVerifiedException {
+		JsonObject data = new JsonObject();
+		data.addProperty("integration", type.apiValue());
+		data.addProperty("code", Objects.requireNonNull(verificationCode, "Verification code is null"));
+		data.addProperty("identifier", Objects.requireNonNull(identifier, "Identifier is null"));
+		data.addProperty("username", Objects.requireNonNull(username, "Username is null"));
+		try {
+			this.requests.post("integration/verify", data);
+		} catch (ApiError e) {
+			if (e.getError() == ApiError.INVALID_VALIDATE_CODE) {
+				throw new InvalidValidateCodeException();
+			} else if (e.getError() == ApiError.INTEGRATION_ALREADY_VERIFIED) {
+				throw new IntegrationAlreadyVerifiedException();
+			}
+		}
+	}
+
+	public void verifyMinecraft(final @NotNull String verificationCode,
+								final @NotNull UUID uuid,
+								final @NotNull String username) throws NamelessException, InvalidValidateCodeException, IntegrationAlreadyVerifiedException {
+		this.verifyIntegration(IntegrationType.MINECRAFT, verificationCode, uuid.toString(), username);
+	}
+
+	public void verifyDiscord(final @NotNull String verificationCode,
+							  final long id,
+							  final String username) throws NamelessException, InvalidValidateCodeException, IntegrationAlreadyVerifiedException {
+		this.verifyIntegration(IntegrationType.DISCORD, verificationCode, String.valueOf(id), username);
 	}
 
 	public @NotNull WebsendAPI websend() {
