@@ -403,7 +403,7 @@ public final class NamelessAPI {
 	public void verifyIntegration(final @NotNull IntegrationType type,
 								  final @NotNull String verificationCode,
 								  final @NotNull String identifier,
-								  final @NotNull String username) throws NamelessException, InvalidValidateCodeException, IntegrationAlreadyVerifiedException {
+								  final @NotNull String username) throws NamelessException, InvalidValidateCodeException {
 		JsonObject data = new JsonObject();
 		data.addProperty("integration", type.apiValue());
 		data.addProperty("code", Objects.requireNonNull(verificationCode, "Verification code is null"));
@@ -414,21 +414,21 @@ public final class NamelessAPI {
 		} catch (ApiError e) {
 			if (e.getError() == ApiError.INVALID_VALIDATE_CODE) {
 				throw new InvalidValidateCodeException();
-			} else if (e.getError() == ApiError.INTEGRATION_ALREADY_VERIFIED) {
-				throw new IntegrationAlreadyVerifiedException();
+			} else {
+				throw e;
 			}
 		}
 	}
 
 	public void verifyMinecraft(final @NotNull String verificationCode,
 								final @NotNull UUID uuid,
-								final @NotNull String username) throws NamelessException, InvalidValidateCodeException, IntegrationAlreadyVerifiedException {
+								final @NotNull String username) throws NamelessException, InvalidValidateCodeException {
 		this.verifyIntegration(IntegrationType.MINECRAFT, verificationCode, uuid.toString(), username);
 	}
 
 	public void verifyDiscord(final @NotNull String verificationCode,
 							  final long id,
-							  final String username) throws NamelessException, InvalidValidateCodeException, IntegrationAlreadyVerifiedException {
+							  final String username) throws NamelessException, InvalidValidateCodeException {
 		this.verifyIntegration(IntegrationType.DISCORD, verificationCode, String.valueOf(id), username);
 	}
 
