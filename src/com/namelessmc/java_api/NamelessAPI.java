@@ -67,7 +67,7 @@ public final class NamelessAPI {
 	/**
 	 * Get all announcements visible for the player with the specified uuid
 	 *
-	 * @param user player to get visibile announcements for
+	 * @param user player to get visible announcements for
 	 * @return list of current announcements visible to the player
 	 * @throws NamelessException if there is an error in the request
 	 */
@@ -250,9 +250,9 @@ public final class NamelessAPI {
 	}
 
 	/**
-	 * Registers a new account. The user will be sent an email to set a password.
+	 * Registers a new account. The user will be emailed to set a password.
 	 *
-	 * @param username Username (this should match the user's in-game username when specifying a uuid)
+	 * @param username Username (this should match the user's in-game username when specifying a UUID)
 	 * @param email Email address
 	 * @param uuid Mojang UUID, if you wish to use the Minecraft integration. Nullable.
 	 * @return Email verification disabled: A link which the user needs to click to complete registration
@@ -304,7 +304,7 @@ public final class NamelessAPI {
 	 * @return Verification URL if email verification is disabled.
 	 */
 	public @NotNull Optional<String> registerUser(@NotNull final String username,
-										 @NotNull final String email)
+												  @NotNull final String email)
 			throws NamelessException, InvalidUsernameException, UsernameAlreadyExistsException, CannotSendEmailException {
 		try {
 			return registerUser(username, email, null);
@@ -313,6 +313,10 @@ public final class NamelessAPI {
 		}
 	}
 
+	/**
+	 * Set Discord bot URL (Nameless-Link internal webserver)
+	 * @param url Discord bot URL
+	 */
 	public void setDiscordBotUrl(@NotNull final URL url) throws NamelessException {
 		Objects.requireNonNull(url, "Bot url is null");
 
@@ -321,12 +325,22 @@ public final class NamelessAPI {
 		this.requests.post("discord/update-bot-settings", json);
 	}
 
+	/**
+	 * Set Discord guild (server) id
+	 * @param guildId Discord guild (server) id
+	 */
 	public void setDiscordGuildId(final long guildId) throws NamelessException {
 		final JsonObject json = new JsonObject();
 		json.addProperty("guild_id", guildId + "");
 		this.requests.post("discord/update-bot-settings", json);
 	}
 
+	/**
+	 * Set discord bot username and user id
+	 * @param username Bot username#tag
+	 * @param userId Bot user id
+	 * @see #setDiscordBotSettings(URL, long, String, long)
+	 */
 	public void setDiscordBotUser(@NotNull final String username, final long userId) throws NamelessException {
 		Objects.requireNonNull(username, "Bot username is null");
 
@@ -336,6 +350,16 @@ public final class NamelessAPI {
 		this.requests.post("discord/update-bot-settings", json);
 	}
 
+	/**
+	 * Update all Discord bot settings.
+	 * @param url Discord bot URL
+	 * @param guildId Discord guild (server) id
+	 * @param username Discord bot username#tag
+	 * @param userId Discord bot user id
+	 * @see #setDiscordBotUrl(URL)
+	 * @see #setDiscordGuildId(long)
+	 * @see #setDiscordBotUser(String, long)
+	 */
 	public void setDiscordBotSettings(@NotNull final URL url, final long guildId, @NotNull final String username, final long userId) throws NamelessException {
 		Objects.requireNonNull(url, "Bot url is null");
 		Objects.requireNonNull(username, "Bot username is null");
@@ -348,6 +372,10 @@ public final class NamelessAPI {
 		this.requests.post("discord/update-bot-settings", json);
 	}
 
+	/**
+	 * Send list of Discord roles to the website for populating the dropdown in StaffCP > API > Group sync
+	 * @param discordRoles Map of Discord roles, key is role id, value is role name
+	 */
 	public void submitDiscordRoleList(@NotNull final Map<Long, String> discordRoles) throws NamelessException {
 		final JsonArray roles = new JsonArray();
 		discordRoles.forEach((id, name) -> {
@@ -361,7 +389,15 @@ public final class NamelessAPI {
 		this.requests.post("discord/submit-role-list", json);
 	}
 
-	public void updateDiscordUsername(final long discordUserId, @NotNull final String discordUsername) throws NamelessException {
+	/**
+	 * Update Discord username for a NamelessMC user associated with the provided Discord user id
+	 * @param discordUserId Discord user id
+	 * @param discordUsername New Discord [username#tag]s
+	 * @see #updateDiscordUsernames(long[], String[])
+	 */
+	public void updateDiscordUsername(final long discordUserId,
+									  final @NotNull String discordUsername)
+			throws NamelessException {
 		Objects.requireNonNull(discordUsername, "Discord username is null");
 
 		final JsonObject user = new JsonObject();
@@ -374,13 +410,19 @@ public final class NamelessAPI {
 		this.requests.post("discord/update-usernames", json);
 	}
 
-	public void updateDiscordUsernames(final long@NotNull [] discordUserIds, @NotNull final String[] discordUsernames) throws NamelessException {
+	/**
+	 * Update Discord usernames in bulk
+	 * @param discordUserIds Discord user ids
+	 * @param discordUsernames New Discord [username#tag]s
+	 * @see #updateDiscordUsername(long, String)
+	 */
+	public void updateDiscordUsernames(final long@NotNull[] discordUserIds,
+									   final  @NotNull String@NotNull[] discordUsernames)
+			throws NamelessException {
 		Objects.requireNonNull(discordUserIds, "User ids array is null");
 		Objects.requireNonNull(discordUsernames, "Usernames array is null");
-
-		if (discordUserIds.length != discordUsernames.length) {
-			throw new IllegalArgumentException("discord user ids and discord usernames must be of same length");
-		}
+		Preconditions.checkArgument(discordUserIds.length == discordUsernames.length,
+				"discord user ids and discord usernames must be of same length");
 
 		if (discordUserIds.length == 0) {
 			return;
@@ -400,7 +442,7 @@ public final class NamelessAPI {
 		this.requests.post("discord/update-usernames", json);
 	}
 
-	public void verifyIntegration(final @NotNull IntegrationType type,
+	private void verifyIntegration(final @NotNull IntegrationType type,
 								  final @NotNull String verificationCode,
 								  final @NotNull String identifier,
 								  final @NotNull String username) throws NamelessException, InvalidValidateCodeException {
@@ -436,10 +478,15 @@ public final class NamelessAPI {
 		return new WebsendAPI(this.requests);
 	}
 
-	@NotNull
-	static UUID websiteUuidToJavaUuid(@NotNull final String uuid) {
+
+	/**
+	 * Adds back dashes to a UUID string and converts it to a Java UUID object
+	 * @param uuid UUID without dashes
+	 * @return UUID with dashes
+	 */
+	static @NotNull UUID websiteUuidToJavaUuid(@NotNull final String uuid) {
 		Objects.requireNonNull(uuid, "UUID string is null");
-		// Website sends UUIDs without dashses, so we can't use UUID#fromString
+		// Website sends UUIDs without dashes, so we can't use UUID#fromString
 		// https://stackoverflow.com/a/30760478
 		try {
 			final BigInteger a = new BigInteger(uuid.substring(0, 16), 16);

@@ -13,7 +13,12 @@ public class CustomProfileField {
 	private final boolean isRequired;
 	private final @NotNull String description;
 
-	CustomProfileField(int id, String name, @NotNull CustomProfileFieldType type, boolean isPublic, boolean isRequired, String description) {
+	CustomProfileField(final int id,
+					   final @NotNull String name,
+					   final @NotNull CustomProfileFieldType type,
+					   final boolean isPublic,
+					   final boolean isRequired,
+					   final @NotNull String description) {
 		this.id = id;
 		this.name = name;
 		this.type = type;
@@ -42,7 +47,7 @@ public class CustomProfileField {
 		return isRequired;
 	}
 
-	public String getDescription() {
+	public @NotNull String getDescription() {
 		return description;
 	}
 

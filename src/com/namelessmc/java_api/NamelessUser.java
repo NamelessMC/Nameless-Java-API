@@ -8,7 +8,6 @@ import com.namelessmc.java_api.Notification.NotificationType;
 import com.namelessmc.java_api.exception.AlreadyHasOpenReportException;
 import com.namelessmc.java_api.exception.CannotReportSelfException;
 import com.namelessmc.java_api.exception.ReportUserBannedException;
-import com.namelessmc.java_api.exception.UnableToCreateReportException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,10 +37,10 @@ public final class NamelessUser {
 	 * @param api Nameless API
 	 * @param id The user's id, or -1 if not known
 	 * @param username The user's username, or null if not known
-	 * @param uuidKnown True if it is known whether this user has a uuid or not
-	 * @param uuid The user's uuid, or null if the user doesn't have a uuid or it is not known whether the user has a uuid
-	 * @param discordIdKnown True if it is known whether this user has a linked discord id or not
-	 * @param discordId The user's discord id, or -1 if the user doesn't have a linked discord id or it is not known whether the user has a discord id
+	 * @param uuidKnown True if it is known whether this user has a UUID or not
+	 * @param uuid The user's uuid, or null if the user doesn't have a UUID, or it is not known whether the user has a UUID
+	 * @param discordIdKnown True if it is known whether this user has a linked Discord id or not
+	 * @param discordId The user's discord id, or -1 if the user doesn't have a linked Discord id, or it is not known whether the user has a Discord id
 	 */
 	NamelessUser(@NotNull final NamelessAPI api,
 				 final int id,
@@ -126,13 +125,13 @@ public final class NamelessUser {
 		return this.username;
 	}
 
-	public void updateUsername(@NotNull String username) throws NamelessException {
+	public void updateUsername(final @NotNull String username) throws NamelessException {
 		JsonObject post = new JsonObject();
 		post.addProperty("username", username);
 		this.requests.post("users/" + this.getId() + "/update-username", post);
 	}
 
-	public @NotNull Optional<UUID> getUniqueId() throws NamelessException {
+	public @NotNull Optional<@NotNull UUID> getUniqueId() throws NamelessException {
 		if (!this.uuidKnown) {
 			this.loadUserInfo();
 			//noinspection ConstantConditions
@@ -154,7 +153,7 @@ public final class NamelessUser {
 		return Optional.ofNullable(this.uuid);
 	}
 
-	public @NotNull Optional<Long> getDiscordId() throws NamelessException {
+	public @NotNull Optional<@NotNull Long> getDiscordId() throws NamelessException {
 		if (!this.discordIdKnown) {
 			this.loadUserInfo();
 			//noinspection ConstantConditions
@@ -227,7 +226,7 @@ public final class NamelessUser {
 		return this.userInfo.get("validated").getAsBoolean();
 	}
 
-	public @NotNull String getLangage() throws NamelessException {
+	public @NotNull String getLanguage() throws NamelessException {
 		if (this.userInfo == null) {
 			this.loadUserInfo();
 		}
@@ -292,7 +291,7 @@ public final class NamelessUser {
 	 * since it doesn't need to create and sort a list of group objects.
 	 * Empty if the user is not in any groups.
 	 *
-	 * @return Player's group with lowest order
+	 * @return Player's group with the lowest order
 	 */
 	public @NotNull Optional<@NotNull Group> getPrimaryGroup() throws NamelessException {
 		if (this.userInfo == null) {
@@ -357,11 +356,10 @@ public final class NamelessUser {
 	 * @throws NamelessException Unexpected http or api error
 	 * @throws ReportUserBannedException If the user creating this report is banned
 	 * @throws AlreadyHasOpenReportException If the user creating this report already has an open report for this user
-	 * @throws UnableToCreateReportException Generic error
 	 * @throws CannotReportSelfException If the user tries to report themselves
 	 */
 	public void createReport(@NotNull final NamelessUser user, @NotNull final String reason)
-			throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, UnableToCreateReportException, CannotReportSelfException {
+			throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, CannotReportSelfException {
 		Objects.requireNonNull(user, "User to report is null");
 		Objects.requireNonNull(reason, "Report reason is null");
 		Preconditions.checkArgument(reason.length() < 255,
@@ -379,8 +377,6 @@ public final class NamelessUser {
 				throw new IllegalStateException("Website said report reason is too long, but we have client-side validation for this");
 			} else if (e.getError() == ApiError.USER_ALREADY_HAS_OPEN_REPORT) {
 				throw new AlreadyHasOpenReportException();
-			} else if (e.getError() == ApiError.UNABLE_TO_CREATE_REPORT) {
-				throw new UnableToCreateReportException();
 			} else if (e.getError() == ApiError.CANNOT_REPORT_YOURSELF) {
 				throw new CannotReportSelfException();
 			} else {
@@ -398,11 +394,12 @@ public final class NamelessUser {
 	 * @throws NamelessException Unexpected http or api error
 	 * @throws ReportUserBannedException If the user creating this report is banned
 	 * @throws AlreadyHasOpenReportException If the user creating this report already has an open report for this user
-	 * @throws UnableToCreateReportException Generic error
 	 * @throws CannotReportSelfException If the user tries to report themselves
 	 */
-	public void createReport(@NotNull final UUID reportedUuid, @NotNull String reportedName, @NotNull final String reason)
-			throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, UnableToCreateReportException, CannotReportSelfException {
+	public void createReport(final @NotNull UUID reportedUuid,
+							 final @NotNull String reportedName,
+							 final @NotNull String reason)
+			throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, CannotReportSelfException {
 		Objects.requireNonNull(reportedUuid, "Reported uuid is null");
 		Objects.requireNonNull(reportedName, "Reported name is null");
 		Objects.requireNonNull(reason, "Report reason is null");
@@ -422,8 +419,6 @@ public final class NamelessUser {
 				throw new IllegalStateException("Website said report reason is too long, but we have client-side validation for this");
 			} else if (e.getError() == ApiError.USER_ALREADY_HAS_OPEN_REPORT) {
 				throw new AlreadyHasOpenReportException();
-			} else if (e.getError() == ApiError.UNABLE_TO_CREATE_REPORT) {
-				throw new UnableToCreateReportException();
 			} else if (e.getError() == ApiError.CANNOT_REPORT_YOURSELF) {
 				throw new CannotReportSelfException();
 			} else {
@@ -432,7 +427,7 @@ public final class NamelessUser {
 		}
 	}
 
-	public void setDiscordRoles(final long[] roleIds) throws NamelessException {
+	public void setDiscordRoles(final long@NotNull[] roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
 		post.add("roles", NamelessAPI.GSON.toJsonTree(roleIds));
@@ -441,13 +436,13 @@ public final class NamelessUser {
 
 	/**
 	 * Ban this user
-	 * @since 2021-10-24 commit cce8d262b0be3f70818c188725cd7e7fc4fdbb9a
+	 * @since 2021-10-24 commit <code>cce8d262b0be3f70818c188725cd7e7fc4fdbb9a</code>
 	 */
 	public void banUser() throws NamelessException {
 		this.requests.post("users/" + this.getId() + "/ban", null);
 	}
 
-	public Collection<CustomProfileFieldValue> getProfileFields() throws NamelessException {
+	public @NotNull Collection<@NotNull CustomProfileFieldValue> getProfileFields() throws NamelessException {
 		if (this.userInfo == null) {
 			this.loadUserInfo();
 		}
@@ -456,11 +451,11 @@ public final class NamelessUser {
 			return Collections.emptyList();
 		}
 
-		JsonObject fieldsJson = userInfo.getAsJsonObject("profile_fields");
-		List<CustomProfileFieldValue> fieldValues = new ArrayList<>(fieldsJson.size());
-		for (Map.Entry<String, JsonElement> e : fieldsJson.entrySet()) {
+		final JsonObject fieldsJson = userInfo.getAsJsonObject("profile_fields");
+		final List<CustomProfileFieldValue> fieldValues = new ArrayList<>(fieldsJson.size());
+		for (final Map.Entry<String, JsonElement> e : fieldsJson.entrySet()) {
 			int id = Integer.parseInt(e.getKey());
-			JsonObject values = e.getValue().getAsJsonObject();
+			final JsonObject values = e.getValue().getAsJsonObject();
 			fieldValues.add(new CustomProfileFieldValue(
 					new CustomProfileField(
 							id,

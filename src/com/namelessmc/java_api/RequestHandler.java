@@ -85,7 +85,7 @@ public class RequestHandler {
 			}
 		}
 
-		URL url;
+		final @NotNull URL url;
 		try {
 			url = new URL(urlBuilder.toString());
 		} catch (final MalformedURLException e) {
@@ -130,7 +130,7 @@ public class RequestHandler {
 			}
 
 			if (connection.getResponseCode() >= 400) {
-				try (InputStream in = connection.getErrorStream()) {
+				try (final InputStream in = connection.getErrorStream()) {
 					if (in == null) {
 						throw new NamelessException("Website sent empty response with code " + connection.getResponseCode());
 					} else {
@@ -138,16 +138,18 @@ public class RequestHandler {
 					}
 				}
 			} else {
-				try (InputStream in = connection.getInputStream()) {
+				try (final InputStream in = connection.getInputStream()) {
 					bytes = getBytesFromInputStream(in);
 				}
 			}
 		} catch (final IOException e) {
-			String message = "IOException: " + e.getMessage();
+			final StringBuilder message = new StringBuilder("Network connection error (not a Nameless issue).");
 			if (e.getMessage().contains("unable to find valid certification path to requested target")) {
-				message += "\nHINT: Ensure your website uses a fullchain certificate";
+				message.append("\n HINT: Ensure your website uses a full chain certificate.");
 			}
-			throw new NamelessException(message, e);
+			message.append(" IOException: ");
+			message.append(e.getMessage());
+			throw new NamelessException(message.toString(), e);
 		}
 
 		final String response = new String(bytes, StandardCharsets.UTF_8);
@@ -163,12 +165,12 @@ public class RequestHandler {
 		try {
 			json = JsonParser.parseString(response).getAsJsonObject();
 		} catch (final JsonSyntaxException | IllegalStateException e) {
-			StringBuilder printableResponseBuilder;
+			final StringBuilder printableResponseBuilder = new StringBuilder();
 			if (response.length() > 5_000) {
-				printableResponseBuilder = new StringBuilder(response.substring(0, 5_000));
+				printableResponseBuilder.append(response, 0, 5_000);
 				printableResponseBuilder.append("\n[response truncated to 5k characters]\n");
 			} else {
-				printableResponseBuilder = new StringBuilder(response);
+				printableResponseBuilder.append(response);
 				if (!response.endsWith("\n")) {
 					printableResponseBuilder.append('\n');
 				}
@@ -179,7 +181,7 @@ public class RequestHandler {
 			try {
 				code = connection.getResponseCode();
 			} catch (final IOException e1) {
-				throw new NamelessException(e1);
+				throw new IllegalStateException("We've already made a connection, getting an IOException now is impossible", e1);
 			}
 			String message = e.getMessage() + "\n"
 					+ "Unable to parse json. Received response code " + code + ". Website response:\n"

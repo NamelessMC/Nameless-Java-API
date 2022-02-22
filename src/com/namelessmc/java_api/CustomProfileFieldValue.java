@@ -17,7 +17,7 @@ public class CustomProfileFieldValue {
 		return this.field;
 	}
 
-	public String getValue() {
+	public @Nullable String getValue() {
 		return value;
 	}
 

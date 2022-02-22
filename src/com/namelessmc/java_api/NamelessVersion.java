@@ -25,6 +25,7 @@ public enum NamelessVersion {
 	private final int minor;
 	private final boolean isBeta;
 
+	@SuppressWarnings("SameParameterValue")
 	NamelessVersion(@NotNull final String name, @NotNull String friendlyName, final int major, final int minor, final boolean isBeta) {
 		this.name = name;
 		this.friendlyName = friendlyName;

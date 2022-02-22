@@ -7,7 +7,8 @@ public class WebsendCommand {
 	private final int id;
 	private final @NotNull String commandLine;
 
-	public WebsendCommand(int id, String commandLine) {
+	public WebsendCommand(final int id,
+						  final @NotNull String commandLine) {
 		this.id = id;
 		this.commandLine = commandLine;
 	}

@@ -53,7 +53,7 @@ public class ApiError extends NamelessException {
 	private final @Nullable String meta;
 
 	public ApiError(final int code, @Nullable String meta) {
-		super("An unexpected API error occured with error code " + code + " and " + (meta == null ? "no meta" : "meta " + meta));
+		super("An unexpected API error occurred with error code " + code + " and " + (meta == null ? "no meta" : "meta " + meta));
 		this.code = code;
 		this.meta = meta;
 	}
