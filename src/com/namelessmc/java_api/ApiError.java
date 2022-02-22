@@ -9,10 +9,10 @@ public class ApiError extends NamelessException {
 
 	public static final int UNKNOWN_ERROR = 0;
 	public static final int INVALID_API_KEY = 1;
-	public static final int INVALID_LANGUAGE_FILE = 2;
+	// 2 intentionally missing
 	public static final int INVALID_API_METHOD = 3;
 	public static final int NO_UNIQUE_SITE_ID_AVAILABLE = 4;
-	public static final int UNABLE_TO_CHECK_FOR_UPDATES = 5;
+	// 5 intentionally missing
 	public static final int INVALID_GET_POST_CONTENTS = 6;
 	public static final int INVALID_EMAIL_ADDRESS = 7;
 	public static final int INVALID_USERNAME = 8;
@@ -22,15 +22,15 @@ public class ApiError extends NamelessException {
 	public static final int UUID_ALREADY_EXISTS = 12;
 	public static final int UNABLE_TO_CREATE_ACCOUNT = 13;
 	public static final int UNABLE_TO_SEND_REGISTRATION_EMAIL = 14;
-	public static final int CURL_ERROR = 15;
+	// 15 intentionally missing
 	public static final int UNABLE_TO_FIND_USER = 16;
 	public static final int UNABLE_TO_FIND_GROUP = 17;
-	public static final int UNABLE_TO_UPDATE_USER_GROUP = 18;
+	// 18 intentionally missing
 	public static final int REPORT_CONTENT_TOO_LARGE = 19;
 	// 20 intentionally missing
 	public static final int USER_CREATING_REPORT_BANNED = 21;
 	public static final int USER_ALREADY_HAS_OPEN_REPORT = 22;
-	public static final int UNABLE_TO_CREATE_REPORT = 23;
+	// 23 intentionally missing
 	public static final int UNABLE_TO_UPDATE_USERNAME = 24;
 	public static final int UNABLE_TO_UPDATE_SERVER_INFO = 25;
 	public static final int CANNOT_REPORT_YOURSELF = 26;
