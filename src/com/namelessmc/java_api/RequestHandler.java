@@ -192,6 +192,9 @@ public class RequestHandler {
 				message += "HINT: The URL results in a redirect. If your URL uses http://, change to https://. If your website forces www., make sure to add www. to the url";
 			} else if (code == 520 || code == 521) {
 				message += "HINT: Status code 520/521 is sent by CloudFlare when the backend webserver is down or having issues.";
+			} else if (printableResponse.contains("/aes.js")) {
+				message += "HINT: It looks like requests are being blocked by your web server or a proxy. " +
+						"This is a common occurrence with free web hosting services; they usually don't allow API access.";
 			}
 			throw new NamelessException(message, e);
 		}
