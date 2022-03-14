@@ -145,7 +145,7 @@ public class RequestHandler {
 		} catch (final IOException e) {
 			final StringBuilder message = new StringBuilder("Network connection error (not a Nameless issue).");
 			if (e.getMessage().contains("unable to find valid certification path to requested target")) {
-				message.append("\n HINT: Ensure your website uses a full chain certificate.");
+				message.append("\n HINT: Your certificate is invalid or incomplete. Ensure your website uses a valid *full chain* SSL/TLS certificate.");
 			}
 			message.append(" IOException: ");
 			message.append(e.getMessage());
