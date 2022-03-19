@@ -3,9 +3,7 @@ package com.namelessmc.java_api;
 import com.namelessmc.java_api.exception.UnknownNamelessVersionException;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public enum NamelessVersion {
 
@@ -18,6 +16,12 @@ public enum NamelessVersion {
 	V2_0_0_PR_13("2.0.0-pr13", "2.0.0 pre-release 13", 2, 0, true),
 
 	;
+
+	private static final Set<NamelessVersion> SUPPORTED_VERSIONS = EnumSet.of(
+			// Actually, only pr13 is supported but pr13 development releases still report as pr12
+			V2_0_0_PR_12,
+			V2_0_0_PR_13
+	);
 
 	private final @NotNull String name;
 	private final @NotNull String friendlyName;
@@ -77,6 +81,21 @@ public enum NamelessVersion {
 			throw new UnknownNamelessVersionException(versionName);
 		}
 		return version;
+	}
+
+	/**
+	 * @return List of NamelessMC versions supported by the Java API
+	 */
+	public static Set<NamelessVersion> getSupportedVersions() {
+		return SUPPORTED_VERSIONS;
+	}
+
+	/**
+	 * @param version A version to check
+	 * @return Whether the provided NamelessMC version is supported by this Java API library.
+	 */
+	public static boolean isSupportedByJavaApi(final NamelessVersion version) {
+		return SUPPORTED_VERSIONS.contains(version);
 	}
 
 }
