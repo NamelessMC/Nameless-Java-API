@@ -51,18 +51,16 @@ public final class NamelessAPI {
 		return url.substring(url.lastIndexOf('/'));
 	}
 
-	// TODO Add back when NamelessMC has reimplemented it
-//	/**
-//	 * Get announcements visible to guests. Use {@link #getAnnouncements(NamelessUser)} for non-guest announcements.
-//	 * @return list of current announcements
-//	 * @throws NamelessException if there is an error in the request
-//	 */
-//	@NotNull
-//	public List<@NotNull Announcement> getAnnouncements() throws NamelessException {
-//		final JsonObject response = this.requests.get();
-//
-//		return getAnnouncements(response);
-//	}
+	/**
+	 * Get announcements visible to guests. Use {@link #getAnnouncements(NamelessUser)} for non-guest announcements.
+	 * @return list of current announcements
+	 * @throws NamelessException if there is an error in the request
+	 */
+	@NotNull
+	public List<@NotNull Announcement> getAnnouncements() throws NamelessException {
+		final JsonObject response = this.requests.get("announcements");
+		return getAnnouncements(response);
+	}
 
 	/**
 	 * Get all announcements visible for the player with the specified uuid
