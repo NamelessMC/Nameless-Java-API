@@ -66,25 +66,28 @@ public final class NamelessUser {
 	}
 
 	private void loadUserInfo() throws NamelessException {
-		final JsonObject response;
-		// TODO There's no way to do this right now, wait for aber
-		if (this.id != -1) {
-			response = this.requests.get("users/" + this.id);
-		} else if (this.uuidKnown && this.uuid != null) {
-			response = this.requests.get("????", "uuid", this.uuid);
-		} else if (this.username != null) {
-			response = this.requests.get("????", "username", this.username);
-		} else if (this.discordIdKnown && this.discordId > 0) {
-			response = this.requests.get("????", "discord_id", this.discordId);
-		} else {
-			throw new IllegalStateException("ID, uuid, and username not known for this player.");
-		}
+		final JsonObject response = this.requests.get("users/" + this.getUserTransformer());
 
 		if (!response.get("exists").getAsBoolean()) {
 			throw new UserNotExistException();
 		}
 
 		this.userInfo = response;
+	}
+
+	public String getUserTransformer() {
+		if (id != 0) {
+			return "id:" + this.id;
+		} else if (this.uuidKnown && this.uuid != null) {
+			return "integration_id:minecraft:" + this.uuid;
+		} else if (this.discordIdKnown && this.discordId != 0) {
+			return "integration_id:discord:" + this.discordId;
+		} else if (this.username != null) {
+			return "username:" + username;
+		} else {
+			throw new IllegalStateException("ID, uuid, and username not known for this player. " +
+					"This should be impossible, the constructor checks for this.");
+		}
 	}
 
 	@NotNull
@@ -128,7 +131,7 @@ public final class NamelessUser {
 	public void updateUsername(final @NotNull String username) throws NamelessException {
 		JsonObject post = new JsonObject();
 		post.addProperty("username", username);
-		this.requests.post("users/" + this.getId() + "/update-username", post);
+		this.requests.post("users/" + this.getUserTransformer() + "/update-username", post);
 	}
 
 	public @NotNull Optional<@NotNull UUID> getUniqueId() throws NamelessException {
@@ -309,14 +312,14 @@ public final class NamelessUser {
 	public void addGroups(@NotNull final Group@NotNull ... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.add("groups", groupsToJsonArray(groups));
-		this.requests.post("users/" + this.getId() + "/groups/add", post);
+		this.requests.post("users/" + this.getUserTransformer() + "/groups/add", post);
 		invalidateCache(); // Groups modified, invalidate cache
 	}
 
 	public void removeGroups(@NotNull final Group@NotNull... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.add("groups", groupsToJsonArray(groups));
-		this.requests.post("users/" + this.getId() + "/groups/add", post);
+		this.requests.post("users/" + this.getUserTransformer() + "/groups/add", post);
 		invalidateCache(); // Groups modified, invalidate cache
 	}
 
@@ -329,12 +332,12 @@ public final class NamelessUser {
 	}
 
 	public int getNotificationCount() throws NamelessException {
-		final JsonObject response = this.requests.get("users/" + this.getId() + "/notifications");
+		final JsonObject response = this.requests.get("users/" + this.getUserTransformer() + "/notifications");
 		return response.getAsJsonArray("notifications").size();
 	}
 
 	public @NotNull List<Notification> getNotifications() throws NamelessException {
-		final JsonObject response = this.requests.get("users/" + this.getId() + "/notifications");
+		final JsonObject response = this.requests.get("users/" + this.getUserTransformer() + "/notifications");
 
 		final List<Notification> notifications = new ArrayList<>();
 		response.getAsJsonArray("notifications").forEach((element) -> {
@@ -435,11 +438,21 @@ public final class NamelessUser {
 	}
 
 	/**
+	 * Get announcements visible to this user
+	 * @return List of announcements visible to this user
+	 */
+	@NotNull
+	public List<@NotNull Announcement> getAnnouncements() throws NamelessException {
+		final JsonObject response = this.requests.get("users/" + this.getUserTransformer() + "/announcements");
+		return NamelessAPI.getAnnouncements(response);
+	}
+
+	/**
 	 * Ban this user
 	 * @since 2021-10-24 commit <code>cce8d262b0be3f70818c188725cd7e7fc4fdbb9a</code>
 	 */
 	public void banUser() throws NamelessException {
-		this.requests.post("users/" + this.getId() + "/ban", null);
+		this.requests.post("users/" + this.getUserTransformer() + "/ban", null);
 	}
 
 	public @NotNull Collection<@NotNull CustomProfileFieldValue> getProfileFields() throws NamelessException {

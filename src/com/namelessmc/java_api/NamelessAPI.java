@@ -52,7 +52,7 @@ public final class NamelessAPI {
 	}
 
 	/**
-	 * Get announcements visible to guests. Use {@link #getAnnouncements(NamelessUser)} for non-guest announcements.
+	 * Get announcements visible to guests. Use {@link NamelessUser#getAnnouncements()} for non-guest announcements.
 	 * @return List of announcements
 	 */
 	@NotNull
@@ -65,10 +65,12 @@ public final class NamelessAPI {
 	 * Get announcements visible to a {@link NamelessUser}
 	 * @param user User to get visible announcements for
 	 * @return List of announcements visible to the user
+	 * @deprecated Use {@link NamelessUser#getAnnouncements()}
 	 */
 	@NotNull
+	@Deprecated
 	public List<@NotNull Announcement> getAnnouncements(@NotNull final NamelessUser user) throws NamelessException {
-		final JsonObject response = this.requests.get("users/" + user.getId() + "/announcements");
+		final JsonObject response = this.requests.get("users/" + user.getUserTransformer() + "/announcements");
 
 		return getAnnouncements(response);
 	}
@@ -79,7 +81,7 @@ public final class NamelessAPI {
 	 * @return List of {@link Announcement} objects
 	 */
 	@NotNull
-	private List<@NotNull Announcement> getAnnouncements(@NotNull final JsonObject response) {
+	static List<@NotNull Announcement> getAnnouncements(@NotNull final JsonObject response) {
 		return StreamSupport.stream(response.getAsJsonArray("announcements").spliterator(), false)
 					.map(JsonElement::getAsJsonObject)
 					.map(Announcement::new)
