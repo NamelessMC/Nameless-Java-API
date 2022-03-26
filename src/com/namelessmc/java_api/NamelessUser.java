@@ -76,11 +76,11 @@ public final class NamelessUser {
 	}
 
 	public String getUserTransformer() {
-		if (id != 0) {
+		if (id != -1) {
 			return "id:" + this.id;
 		} else if (this.uuidKnown && this.uuid != null) {
 			return "integration_id:minecraft:" + this.uuid;
-		} else if (this.discordIdKnown && this.discordId != 0) {
+		} else if (this.discordIdKnown && this.discordId != -1) {
 			return "integration_id:discord:" + this.discordId;
 		} else if (this.username != null) {
 			return "username:" + username;
