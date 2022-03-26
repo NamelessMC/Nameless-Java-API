@@ -30,7 +30,7 @@ public final class NamelessUser {
 	private long discordId; // -1 if not known or not present
 
 	@Nullable
-	private JsonObject userInfo;
+	private JsonObject _userInfo; // Do not use directly, instead use getUserInfo()
 
 	/**
 	 * Create a Nameless user. Only one of 'id', 'uuid', 'discordId' has to be provided.
@@ -65,14 +65,18 @@ public final class NamelessUser {
 		this.discordId = discordId;
 	}
 
-	private void loadUserInfo() throws NamelessException {
-		final JsonObject response = this.requests.get("users/" + this.getUserTransformer());
+	private JsonObject getUserInfo() throws NamelessException {
+		if (this._userInfo == null) {
+			final JsonObject response = this.requests.get("users/" + this.getUserTransformer());
 
-		if (!response.get("exists").getAsBoolean()) {
-			throw new UserNotExistException();
+			if (!response.get("exists").getAsBoolean()) {
+				throw new UserNotExistException();
+			}
+
+			this._userInfo = response;
 		}
 
-		this.userInfo = response;
+		return this._userInfo;
 	}
 
 	public String getUserTransformer() {
@@ -105,14 +109,12 @@ public final class NamelessUser {
 	 * effect.
 	 */
 	public void invalidateCache() {
-		this.userInfo = null;
+		this._userInfo = null;
 	}
 
 	public int getId() throws NamelessException {
 		if (this.id == -1) {
-			this.loadUserInfo();
-			//noinspection ConstantConditions
-			this.id = this.userInfo.get("id").getAsInt();
+			this.id = this.getUserInfo().get("id").getAsInt();
 		}
 
 		return this.id;
@@ -120,9 +122,7 @@ public final class NamelessUser {
 
 	public @NotNull String getUsername() throws NamelessException {
 		if (this.username == null) {
-			this.loadUserInfo();
-			//noinspection ConstantConditions
-			this.username = this.userInfo.get("username").getAsString();
+			this.username = this.getUserInfo().get("username").getAsString();
 		}
 
 		return this.username;
@@ -136,10 +136,9 @@ public final class NamelessUser {
 
 	public @NotNull Optional<@NotNull UUID> getUniqueId() throws NamelessException {
 		if (!this.uuidKnown) {
-			this.loadUserInfo();
-			//noinspection ConstantConditions
-			if (this.userInfo.has("uuid")) {
-				final String uuidString = this.userInfo.get("uuid").getAsString();
+			JsonObject userInfo = this.getUserInfo();
+			if (userInfo.has("uuid")) {
+				final String uuidString = userInfo.get("uuid").getAsString();
 				if (uuidString == null ||
 						uuidString.equals("none") ||
 						uuidString.equals("")) {
@@ -158,10 +157,10 @@ public final class NamelessUser {
 
 	public @NotNull Optional<@NotNull Long> getDiscordId() throws NamelessException {
 		if (!this.discordIdKnown) {
-			this.loadUserInfo();
+			JsonObject userInfo = this.getUserInfo();
 			//noinspection ConstantConditions
-			if (this.userInfo.has("discord_id")) {
-				this.discordId = this.userInfo.get("discord_id").getAsLong();
+			if (userInfo.has("discord_id")) {
+				this.discordId = userInfo.get("discord_id").getAsLong();
 			} else {
 				this.discordId = -1;
 			}
@@ -172,75 +171,47 @@ public final class NamelessUser {
 	}
 
 	public boolean exists() throws NamelessException {
-		if (this.userInfo == null) {
-			try {
-				loadUserInfo();
-			} catch (final UserNotExistException e) {
-				return false;
-			}
+		try {
+			this.getUserInfo();
+			return true;
+		} catch (final UserNotExistException e) {
+			return false;
 		}
-
-		return true;
 	}
 
 	public @NotNull String getDisplayName() throws NamelessException {
-		if (this.userInfo == null) {
-			this.loadUserInfo();
-		}
-
-		return this.userInfo.get("displayname").getAsString();
+		return this.getUserInfo().get("displayname").getAsString();
 	}
 
 	/**
 	 * @return The date the user registered on the website.
 	 */
 	public @NotNull Date getRegisteredDate() throws NamelessException {
-		if (this.userInfo == null) {
-			this.loadUserInfo();
-		}
-
-		return new Date(this.userInfo.get("registered_timestamp").getAsLong() * 1000);
+		return new Date(this.getUserInfo().get("registered_timestamp").getAsLong() * 1000);
 	}
 
 	public @NotNull Date getLastOnline() throws NamelessException {
-		if (this.userInfo == null) {
-			this.loadUserInfo();
-		}
-
-		return new Date(this.userInfo.get("last_online_timestamp").getAsLong() * 1000);
+		return new Date(this.getUserInfo().get("last_online_timestamp").getAsLong() * 1000);
 	}
 
 	/**
 	 * @return Whether this account is banned from the website.
 	 */
 	public boolean isBanned() throws NamelessException {
-		if (this.userInfo == null) {
-			this.loadUserInfo();
-		}
-
-		return this.userInfo.get("banned").getAsBoolean();
+		return this.getUserInfo().get("banned").getAsBoolean();
 	}
 
 	public boolean isVerified() throws NamelessException {
-		if (this.userInfo == null) {
-			this.loadUserInfo();
-		}
-
-		return this.userInfo.get("validated").getAsBoolean();
+		return this.getUserInfo().get("validated").getAsBoolean();
 	}
 
 	public @NotNull String getLanguage() throws NamelessException {
-		if (this.userInfo == null) {
-			this.loadUserInfo();
-		}
-
-		return this.userInfo.get("language").getAsString();
+		return this.getUserInfo().get("language").getAsString();
 	}
 
 	public @NotNull VerificationInfo getVerificationInfo() throws NamelessException {
 		final boolean verified = isVerified();
-		//noinspection ConstantConditions
-		final JsonObject verification = this.userInfo.getAsJsonObject("verification");
+		final JsonObject verification = this.getUserInfo().getAsJsonObject("verification");
 		return new VerificationInfo(verified, verification);
 	}
 
@@ -261,12 +232,8 @@ public final class NamelessUser {
 	 * @see #getSortedGroups()
 	 */
 	public @NotNull Set<@NotNull Group> getGroups() throws NamelessException {
-		if (this.userInfo == null) {
-			this.loadUserInfo();
-		}
-
 		return Collections.unmodifiableSet(
-				StreamSupport.stream(this.userInfo.getAsJsonArray("groups").spliterator(), false)
+				StreamSupport.stream(this.getUserInfo().getAsJsonArray("groups").spliterator(), false)
 						.map(JsonElement::getAsJsonObject)
 						.map(Group::new)
 						.collect(Collectors.toSet()));
@@ -277,12 +244,8 @@ public final class NamelessUser {
 	 * @see #getGroups()
 	 */
 	public @NotNull List<@NotNull Group> getSortedGroups() throws NamelessException {
-		if (this.userInfo == null) {
-			this.loadUserInfo();
-		}
-
 		return Collections.unmodifiableList(
-				StreamSupport.stream(this.userInfo.getAsJsonArray("groups").spliterator(), false)
+				StreamSupport.stream(this.getUserInfo().getAsJsonArray("groups").spliterator(), false)
 						.map(JsonElement::getAsJsonObject)
 						.map(Group::new)
 						.sorted()
@@ -297,11 +260,7 @@ public final class NamelessUser {
 	 * @return Player's group with the lowest order
 	 */
 	public @NotNull Optional<@NotNull Group> getPrimaryGroup() throws NamelessException {
-		if (this.userInfo == null) {
-			this.loadUserInfo();
-		}
-
-		final JsonArray groups = this.userInfo.getAsJsonArray("groups");
+		final JsonArray groups = this.getUserInfo().getAsJsonArray("groups");
 		if (groups.size() > 0) {
 			return Optional.of(new Group(groups.get(0).getAsJsonObject()));
 		} else {
@@ -456,15 +415,11 @@ public final class NamelessUser {
 	}
 
 	public @NotNull Collection<@NotNull CustomProfileFieldValue> getProfileFields() throws NamelessException {
-		if (this.userInfo == null) {
-			this.loadUserInfo();
-		}
-
-		if (!userInfo.has("profile_fields")) {
+		if (!this.getUserInfo().has("profile_fields")) {
 			return Collections.emptyList();
 		}
 
-		final JsonObject fieldsJson = userInfo.getAsJsonObject("profile_fields");
+		final JsonObject fieldsJson = this.getUserInfo().getAsJsonObject("profile_fields");
 		final List<CustomProfileFieldValue> fieldValues = new ArrayList<>(fieldsJson.size());
 		for (final Map.Entry<String, JsonElement> e : fieldsJson.entrySet()) {
 			int id = Integer.parseInt(e.getKey());
