@@ -53,8 +53,7 @@ public final class NamelessAPI {
 
 	/**
 	 * Get announcements visible to guests. Use {@link #getAnnouncements(NamelessUser)} for non-guest announcements.
-	 * @return list of current announcements
-	 * @throws NamelessException if there is an error in the request
+	 * @return List of announcements
 	 */
 	@NotNull
 	public List<@NotNull Announcement> getAnnouncements() throws NamelessException {
@@ -63,11 +62,9 @@ public final class NamelessAPI {
 	}
 
 	/**
-	 * Get all announcements visible for the player with the specified uuid
-	 *
-	 * @param user player to get visible announcements for
-	 * @return list of current announcements visible to the player
-	 * @throws NamelessException if there is an error in the request
+	 * Get announcements visible to a {@link NamelessUser}
+	 * @param user User to get visible announcements for
+	 * @return List of announcements visible to the user
 	 */
 	@NotNull
 	public List<@NotNull Announcement> getAnnouncements(@NotNull final NamelessUser user) throws NamelessException {
@@ -76,11 +73,11 @@ public final class NamelessAPI {
 		return getAnnouncements(response);
 	}
 
-	@NotNull
-	private static Set<@NotNull String> toStringSet(@NotNull final JsonArray jsonArray) {
-		return StreamSupport.stream(jsonArray.spliterator(), false).map(JsonElement::getAsString).collect(Collectors.toSet());
-	}
-
+	/**
+	 * Convert announcement json to objects
+	 * @param response Announcements json API response
+	 * @return List of {@link Announcement} objects
+	 */
 	@NotNull
 	private List<@NotNull Announcement> getAnnouncements(@NotNull final JsonObject response) {
 		return StreamSupport.stream(response.getAsJsonArray("announcements").spliterator(), false)
@@ -89,10 +86,18 @@ public final class NamelessAPI {
 					.collect(Collectors.toList());
 	}
 
+	/**
+	 * Send Minecraft server information to the website. Currently, the exact JSON contents are undocumented.
+	 * @param jsonData Json data to submit
+	 */
 	public void submitServerInfo(final @NotNull JsonObject jsonData) throws NamelessException {
 		this.requests.post("minecraft/server-info", jsonData);
 	}
 
+	/**
+	 * Get website information
+	 * @return {@link Website} object containing website information
+	 */
 	public Website getWebsite() throws NamelessException {
 		final JsonObject json = this.requests.get("info");
 		return new Website(json);
