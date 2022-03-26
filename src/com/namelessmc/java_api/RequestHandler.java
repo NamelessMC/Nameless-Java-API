@@ -197,6 +197,8 @@ public class RequestHandler {
 						"This is a common occurrence with free web hosting services; they usually don't allow API access.";
 			} else if (printableResponse.contains("<title>Please Wait... | Cloudflare</title>")) {
 				message += "HINT: CloudFlare is blocking our request. Please disable proxy entirely or add a rule to disable browser integrity check, always online and caching for 'https://yourdomain/index.php?route=/api/*'";
+			} else if (response.startsWith("\ufeff")) {
+				message += "HINT: The website response contains invisible unicode characters.";
 			}
 			throw new NamelessException(message, e);
 		}
