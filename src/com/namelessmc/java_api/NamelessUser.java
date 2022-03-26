@@ -69,7 +69,7 @@ public final class NamelessUser {
 		final JsonObject response;
 		// TODO There's no way to do this right now, wait for aber
 		if (this.id != -1) {
-			response = this.requests.get("????", "id", this.id);
+			response = this.requests.get("users/" + this.id);
 		} else if (this.uuidKnown && this.uuid != null) {
 			response = this.requests.get("????", "uuid", this.uuid);
 		} else if (this.username != null) {
