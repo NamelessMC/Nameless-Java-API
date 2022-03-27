@@ -196,7 +196,7 @@ public class RequestHandler {
 				message += "HINT: It looks like requests are being blocked by your web server or a proxy. " +
 						"This is a common occurrence with free web hosting services; they usually don't allow API access.";
 			} else if (printableResponse.contains("<title>Please Wait... | Cloudflare</title>")) {
-				message += "HINT: CloudFlare is blocking our request. Please disable proxy entirely or add a rule to disable browser integrity check, always online and caching for 'https://yourdomain/index.php?route=/api/*'";
+				message += "HINT: CloudFlare is blocking our request. Please see https://docs.namelessmc.com/cloudflare-apis";
 			} else if (response.startsWith("\ufeff")) {
 				message += "HINT: The website response contains invisible unicode characters.";
 			}
