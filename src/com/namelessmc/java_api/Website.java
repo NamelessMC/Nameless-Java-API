@@ -1,15 +1,14 @@
 package com.namelessmc.java_api;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.StreamSupport;
-
-import org.jetbrains.annotations.NotNull;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.exception.UnknownNamelessVersionException;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 public class Website {
 
@@ -68,6 +67,14 @@ public class Website {
 
 	public @NotNull String getLanguage() {
 		return this.language;
+	}
+
+	/**
+	 * Get POSIX code for website language (uses lookup table)
+	 * @return Language code or null if the website's language does not exist in our lookup table
+	 */
+	public @Nullable String getLanguagePosix() {
+		return LanguageCodeMap.getLanguagePosix(this.language);
 	}
 
 	public static class Update {
