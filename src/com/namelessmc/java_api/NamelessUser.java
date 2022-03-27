@@ -227,8 +227,11 @@ public final class NamelessUser {
 	 * @return True if the user is member of at least one staff group, otherwise false
 	 */
 	public boolean isStaff() throws NamelessException {
-		for (final Group group : this.getGroups()) {
-			if (group.isStaff()) {
+		JsonArray groups = this.getUserInfo().getAsJsonArray("groups");
+		for (JsonElement elem : groups) {
+			JsonObject group = elem.getAsJsonObject();
+			if (group.has("staff") &&
+					group.get("staff").getAsBoolean()) {
 				return true;
 			}
 		}
