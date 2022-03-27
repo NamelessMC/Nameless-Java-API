@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
-public class Website {
+public class Website implements LanguageEntity {
 
 
 	private final @NotNull String version;
@@ -65,6 +65,7 @@ public class Website {
 		return this.modules;
 	}
 
+	@Override
 	public @NotNull String getLanguage() {
 		return this.language;
 	}
@@ -73,6 +74,7 @@ public class Website {
 	 * Get POSIX code for website language (uses lookup table)
 	 * @return Language code or null if the website's language does not exist in our lookup table
 	 */
+	@Override
 	public @Nullable String getLanguagePosix() {
 		return LanguageCodeMap.getLanguagePosix(this.language);
 	}

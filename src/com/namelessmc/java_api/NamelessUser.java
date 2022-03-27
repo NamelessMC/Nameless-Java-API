@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public final class NamelessUser {
+public final class NamelessUser implements LanguageEntity {
 
 	@NotNull
 	private final NamelessAPI api;
@@ -205,6 +205,7 @@ public final class NamelessUser {
 		return this.getUserInfo().get("validated").getAsBoolean();
 	}
 
+	@Override
 	public @NotNull String getLanguage() throws NamelessException {
 		return this.getUserInfo().get("language").getAsString();
 	}
@@ -213,6 +214,7 @@ public final class NamelessUser {
 	 * Get POSIX code for user language (uses lookup table)
 	 * @return Language code or null if the user's language does not exist in our lookup table
 	 */
+	@Override
 	public @Nullable String getLanguagePosix() throws NamelessException {
 		return LanguageCodeMap.getLanguagePosix(this.getLanguage());
 	}
