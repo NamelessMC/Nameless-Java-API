@@ -48,7 +48,7 @@ public final class NamelessAPI {
 			return getApiKey(url.substring(0, url.length() - 1));
 		}
 
-		return url.substring(url.lastIndexOf('/'));
+		return url.substring(url.lastIndexOf('/') + 1);
 	}
 
 	/**
