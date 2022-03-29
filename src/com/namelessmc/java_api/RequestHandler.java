@@ -166,9 +166,12 @@ public class RequestHandler {
 			json = JsonParser.parseString(response).getAsJsonObject();
 		} catch (final JsonSyntaxException | IllegalStateException e) {
 			final StringBuilder printableResponseBuilder = new StringBuilder();
-			if (response.length() > 5_000) {
-				printableResponseBuilder.append(response, 0, 5_000);
-				printableResponseBuilder.append("\n[response truncated to 5k characters]\n");
+			int lengthLimit = 1500;
+			if (response.length() > lengthLimit) {
+				printableResponseBuilder.append(response, 0, lengthLimit);
+				printableResponseBuilder.append("\n[response truncated to ");
+				printableResponseBuilder.append(lengthLimit);
+				printableResponseBuilder.append(" characters]\n");
 			} else {
 				printableResponseBuilder.append(response);
 				if (!response.endsWith("\n")) {
@@ -192,10 +195,10 @@ public class RequestHandler {
 				message += "HINT: The URL results in a redirect. If your URL uses http://, change to https://. If your website forces www., make sure to add www. to the url";
 			} else if (code == 520 || code == 521) {
 				message += "HINT: Status code 520/521 is sent by CloudFlare when the backend webserver is down or having issues.";
-			} else if (printableResponse.contains("/aes.js")) {
+			} else if (response.contains("/aes.js")) {
 				message += "HINT: It looks like requests are being blocked by your web server or a proxy. " +
 						"This is a common occurrence with free web hosting services; they usually don't allow API access.";
-			} else if (printableResponse.contains("<title>Please Wait... | Cloudflare</title>")) {
+			} else if (response.contains("<title>Please Wait... | Cloudflare</title>")) {
 				message += "HINT: CloudFlare is blocking our request. Please see https://docs.namelessmc.com/cloudflare-apis";
 			} else if (response.startsWith("\ufeff")) {
 				message += "HINT: The website response contains invisible unicode characters.";
