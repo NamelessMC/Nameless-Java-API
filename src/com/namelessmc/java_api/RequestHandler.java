@@ -1,5 +1,6 @@
 package com.namelessmc.java_api;
 
+import com.google.common.base.Ascii;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -165,45 +166,39 @@ public class RequestHandler {
 		try {
 			json = JsonParser.parseString(response).getAsJsonObject();
 		} catch (final JsonSyntaxException | IllegalStateException e) {
-			final StringBuilder printableResponseBuilder = new StringBuilder();
-			int lengthLimit = 1500;
-			if (response.length() > lengthLimit) {
-				printableResponseBuilder.append(response, 0, lengthLimit);
-				printableResponseBuilder.append("\n[response truncated to ");
-				printableResponseBuilder.append(lengthLimit);
-				printableResponseBuilder.append(" characters]\n");
-			} else {
-				printableResponseBuilder.append(response);
-				if (!response.endsWith("\n")) {
-					printableResponseBuilder.append('\n');
-				}
-			}
-			String printableResponse = regularAsciiOnly(printableResponseBuilder.toString());
-
 			int code;
 			try {
 				code = connection.getResponseCode();
 			} catch (final IOException e1) {
 				throw new IllegalStateException("We've already made a connection, getting an IOException now is impossible", e1);
 			}
-			String message = e.getMessage() + "\n"
-					+ "Unable to parse json. Received response code " + code + ". Website response:\n"
-					+ "-----------------\n"
-					+ printableResponse
-					+ "-----------------\n";
+
+			StringBuilder message = new StringBuilder();
+			message.append("Website returned invalid response with code ");
+			message.append(code);
+			message.append(".\n");
 			if (code == 301 || code == 302 || code == 303) {
-				message += "HINT: The URL results in a redirect. If your URL uses http://, change to https://. If your website forces www., make sure to add www. to the url";
+				message.append("HINT: The URL results in a redirect. If your URL uses http://, change to https://. If your website forces www., make sure to add www. to the url.\n");
 			} else if (code == 520 || code == 521) {
-				message += "HINT: Status code 520/521 is sent by CloudFlare when the backend webserver is down or having issues.";
+				message.append("HINT: Status code 520/521 is sent by CloudFlare when the backend webserver is down or having issues.\n");
 			} else if (response.contains("/aes.js")) {
-				message += "HINT: It looks like requests are being blocked by your web server or a proxy. " +
-						"This is a common occurrence with free web hosting services; they usually don't allow API access.";
+				message.append("HINT: It looks like requests are being blocked by your web server or a proxy. ");
+				message.append("This is a common occurrence with free web hosting services; they usually don't allow API access.\n");
 			} else if (response.contains("<title>Please Wait... | Cloudflare</title>")) {
-				message += "HINT: CloudFlare is blocking our request. Please see https://docs.namelessmc.com/cloudflare-apis";
+				message.append("HINT: CloudFlare is blocking our request. Please see https://docs.namelessmc.com/cloudflare-apis\n");
 			} else if (response.startsWith("\ufeff")) {
-				message += "HINT: The website response contains invisible unicode characters.";
+				message.append("HINT: The website response contains invisible unicode characters.\n");
 			}
-			throw new NamelessException(message, e);
+
+			message.append("Website response:\n");
+			message.append("-----------------\n");
+			int totalLengthLimit = 1950; // fit in a Discord message with safety margin
+			message.append(Ascii.truncate(regularAsciiOnly(response), totalLengthLimit - message.length(), "[truncated]\n"));
+			if (message.charAt(message.length()) != '\n') {
+				message.append('\n');
+			}
+
+			throw new NamelessException(message.toString(), e);
 		}
 
 		if (!json.has("error")) {
