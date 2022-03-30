@@ -16,7 +16,7 @@ import java.util.Objects;
 
 public class NamelessApiBuilder {
 
-	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(3);
+	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(5);
 	private static final String DEFAULT_USER_AGENT = "Nameless-Java-API";
 
 	private final @NotNull URL apiUrl;
