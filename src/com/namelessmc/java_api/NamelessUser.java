@@ -291,7 +291,7 @@ public final class NamelessUser implements LanguageEntity {
 	public void removeGroups(@NotNull final Group@NotNull... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.add("groups", groupsToJsonArray(groups));
-		this.requests.post("users/" + this.getUserTransformer() + "/groups/add", post);
+		this.requests.post("users/" + this.getUserTransformer() + "/groups/remove", post);
 		invalidateCache(); // Groups modified, invalidate cache
 	}
 
