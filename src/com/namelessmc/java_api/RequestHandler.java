@@ -2,6 +2,7 @@ package com.namelessmc.java_api;
 
 import com.google.common.base.Ascii;
 import com.google.common.base.Preconditions;
+import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
@@ -35,6 +37,7 @@ public class RequestHandler {
 	private final @Nullable ApiLogger debugLogger;
 	private final @Nullable Duration timeout;
 	private final @NotNull Gson gson;
+	private final int responseLengthLimit;
 
 	RequestHandler(final @NotNull URL baseUrl,
 				   final @NotNull String apiKey,
@@ -42,7 +45,8 @@ public class RequestHandler {
 				   final @NotNull Gson gson,
 				   final @NotNull String userAgent,
 				   final @Nullable ApiLogger debugLogger,
-				   final @Nullable Duration timeout) {
+				   final @Nullable Duration timeout,
+				   final int responseLengthLimit) {
 		this.baseUrl = Objects.requireNonNull(baseUrl, "Base URL is null");
 		this.apiKey = Objects.requireNonNull(apiKey, "Api key is null");
 		this.httpClient = Objects.requireNonNull(httpClient, "http client is null");
@@ -50,6 +54,7 @@ public class RequestHandler {
 		this.userAgent = Objects.requireNonNull(userAgent, "User agent is null");
 		this.debugLogger = debugLogger;
 		this.timeout = timeout;
+		this.responseLengthLimit = responseLengthLimit;
 	}
 
 	public @NotNull URL getApiUrl() {
@@ -131,10 +136,10 @@ public class RequestHandler {
 		int statusCode;
 		String responseBody;
 		try {
-			HttpResponse<String> httpResponse = httpClient.send(httpRequest,
-					HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+			HttpResponse<InputStream> httpResponse = httpClient.send(httpRequest,
+					HttpResponse.BodyHandlers.ofInputStream());
 			statusCode = httpResponse.statusCode();
-			responseBody = httpResponse.body();
+			responseBody = getBodyAsString(httpResponse);
 		} catch (final IOException e) {
 			final StringBuilder message = new StringBuilder("Network connection error (not a Nameless issue).");
 			if (e.getMessage().contains("unable to find valid certification path to requested target")) {
@@ -205,6 +210,17 @@ public class RequestHandler {
 		}
 
 		return json;
+	}
+
+	private String getBodyAsString(HttpResponse<InputStream> response) throws IOException {
+		try (InputStream in = response.body();
+				InputStream limited = ByteStreams.limit(in, this.responseLengthLimit)) {
+			byte[] bytes = limited.readAllBytes();
+			if (bytes.length == this.responseLengthLimit) {
+				throw new IOException("Response larger than limit of " + this.responseLengthLimit + " bytes.");
+			}
+			return new String(bytes, StandardCharsets.UTF_8);
+		}
 	}
 
 	private static @NotNull String regularAsciiOnly(@NotNull String message) {

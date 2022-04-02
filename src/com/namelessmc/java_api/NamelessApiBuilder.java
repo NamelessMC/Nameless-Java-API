@@ -18,6 +18,7 @@ public class NamelessApiBuilder {
 
 	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(5);
 	private static final String DEFAULT_USER_AGENT = "Nameless-Java-API";
+	private static final int DEFAULT_RESPONSE_SIZE_LIMIT = 32*1024*1024;
 
 	private final @NotNull URL apiUrl;
 	private final @NotNull String apiKey;
@@ -25,7 +26,8 @@ public class NamelessApiBuilder {
 	private final @NotNull GsonBuilder gsonBuilder;
 	private @NotNull String userAgent = DEFAULT_USER_AGENT;
 	private @Nullable ApiLogger debugLogger = null;
-	private Duration timeout = DEFAULT_TIMEOUT;
+	private @Nullable Duration timeout = DEFAULT_TIMEOUT;
+	private int responseSizeLimit = DEFAULT_RESPONSE_SIZE_LIMIT;
 
 	NamelessApiBuilder(@NotNull URL apiUrl, @NotNull String apiKey) {
 		this.apiUrl = apiUrl;
@@ -90,8 +92,24 @@ public class NamelessApiBuilder {
 		return this;
 	}
 
+	public @NotNull NamelessApiBuilder withResponseSizeLimit(int responseSizeLimitBytes) {
+		this.responseSizeLimit = responseSizeLimitBytes;
+		return this;
+	}
+
 	public @NotNull NamelessAPI build() {
-		return new NamelessAPI(new RequestHandler(this.apiUrl, this.apiKey, this.httpClientBuilder.build(), this.gsonBuilder.create(), this.userAgent, this.debugLogger, this.timeout));
+		return new NamelessAPI(
+				new RequestHandler(
+						this.apiUrl,
+						this.apiKey,
+						this.httpClientBuilder.build(),
+						this.gsonBuilder.create(),
+						this.userAgent,
+						this.debugLogger,
+						this.timeout,
+						this.responseSizeLimit
+				)
+		);
 	}
 
 }
