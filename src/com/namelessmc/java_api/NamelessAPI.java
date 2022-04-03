@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.exception.*;
+import com.namelessmc.java_api.integrations.IntegrationData;
 import com.namelessmc.java_api.modules.websend.WebsendAPI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -259,23 +260,33 @@ public final class NamelessAPI {
 	 *
 	 * @param username Username (this should match the user's in-game username when specifying a UUID)
 	 * @param email Email address
-	 * @param uuid Mojang UUID, if you wish to use the Minecraft integration. Nullable.
+	 * @param integrationData Integration data objects. By supplying account information here, the user will
+	 *                        an account connection will automatically be created without the user needing to
+	 *                        verify.
 	 * @return Email verification disabled: A link which the user needs to click to complete registration
 	 * <br>Email verification enabled: An empty string (the user needs to check their email to complete registration)
-	 * @see #registerUser(String, String)
 	 */
 	public @NotNull Optional<String> registerUser(@NotNull final String username,
 												  @NotNull final String email,
-												  @Nullable final UUID uuid)
-			throws NamelessException, InvalidUsernameException, UsernameAlreadyExistsException, CannotSendEmailException, UuidAlreadyExistsException {
+												  @NotNull IntegrationData@Nullable... integrationData)
+			throws NamelessException, InvalidUsernameException, UsernameAlreadyExistsException, CannotSendEmailException,
+			IntegrationUsernameAlreadyExistsException, IntegrationIdAlreadyExistsException {
+
 		Objects.requireNonNull(username, "Username is null");
 		Objects.requireNonNull(email, "Email address is null");
 
 		final JsonObject post = new JsonObject();
 		post.addProperty("username", username);
 		post.addProperty("email", email);
-		if (uuid != null) {
-			post.addProperty("uuid", uuid.toString());
+		if (integrationData != null && integrationData.length > 0) {
+			JsonObject integrationsJson = new JsonObject();
+			for (IntegrationData integration : integrationData) {
+				JsonObject integrationJson = new JsonObject();
+				integrationJson.addProperty("id", integration.getRawId());
+				integrationJson.addProperty("username", integration.getRawUsername());
+				integrationsJson.add(integration.getIntegrationType().toString(), integrationJson);
+			}
+			post.add("integrations", integrationsJson);
 		}
 
 		try {
@@ -287,34 +298,20 @@ public final class NamelessAPI {
 				return Optional.empty();
 			}
 		} catch (final ApiError e) {
-			if (e.getError() == ApiError.INVALID_USERNAME) {
-				throw new InvalidUsernameException();
-			} else if (e.getError() == ApiError.USERNAME_ALREADY_EXISTS) {
-				throw new UsernameAlreadyExistsException();
-			} else if (e.getError() == ApiError.UNABLE_TO_SEND_REGISTRATION_EMAIL) {
-				throw new CannotSendEmailException();
-			} else if (e.getError() == ApiError.UUID_ALREADY_EXISTS) {
-				throw new UuidAlreadyExistsException();
-			} else {
-				throw e;
+			switch (e.getError()) {
+				case ApiError.INVALID_USERNAME:
+					throw new InvalidUsernameException();
+				case ApiError.USERNAME_ALREADY_EXISTS:
+					throw new UsernameAlreadyExistsException();
+				case ApiError.UNABLE_TO_SEND_REGISTRATION_EMAIL:
+					throw new CannotSendEmailException();
+				case ApiError.INTEGRATION_USERNAME_ALREADY_EXISTS:
+					throw new IntegrationUsernameAlreadyExistsException();
+				case ApiError.INTEGRATION_ID_ALREADY_EXISTS:
+					throw new IntegrationIdAlreadyExistsException();
+				default:
+					throw e;
 			}
-		}
-	}
-
-	/**
-	 * Register user without UUID {@link #registerUser(String, String, UUID)}
-	 * WARNING: This will fail if the website has Minecraft integration enabled!
-	 * @param username New username for this user
-	 * @param email New email address for this user
-	 * @return Verification URL if email verification is disabled.
-	 */
-	public @NotNull Optional<String> registerUser(@NotNull final String username,
-												  @NotNull final String email)
-			throws NamelessException, InvalidUsernameException, UsernameAlreadyExistsException, CannotSendEmailException {
-		try {
-			return registerUser(username, email, null);
-		} catch (final UuidAlreadyExistsException e) {
-			throw new IllegalStateException("Website said duplicate uuid but we haven't specified a uuid?", e);
 		}
 	}
 

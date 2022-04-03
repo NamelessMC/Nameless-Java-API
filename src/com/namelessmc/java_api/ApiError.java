@@ -19,7 +19,7 @@ public class ApiError extends NamelessException {
 	public static final int INVALID_UUID = 9;
 	public static final int EMAIL_ALREADY_EXISTS = 10;
 	public static final int USERNAME_ALREADY_EXISTS = 11;
-	public static final int UUID_ALREADY_EXISTS = 12;
+	// 12 intentionally missing
 	public static final int UNABLE_TO_CREATE_ACCOUNT = 13;
 	public static final int UNABLE_TO_SEND_REGISTRATION_EMAIL = 14;
 	// 15 intentionally missing
@@ -45,7 +45,8 @@ public class ApiError extends NamelessException {
 	// 35 intentionally missing
 	public static final int REQUEST_NOT_AUTHORIZED = 36;
 	public static final int INVALID_INTEGRATION = 37;
-	// 38 intentionally missing
+	public static final int INTEGRATION_USERNAME_ALREADY_EXISTS = 38;
+	public static final int INTEGRATION_ID_ALREADY_EXISTS = 39;
 
 	private static final long serialVersionUID = 3093028909912281912L;
 
