@@ -182,7 +182,7 @@ public class RequestHandler {
 			} else if (responseBody.contains("<title>Please Wait... | Cloudflare</title>")) {
 				message.append("HINT: CloudFlare is blocking our request. Please see https://docs.namelessmc.com/cloudflare-apis\n");
 			} else if (responseBody.startsWith("\ufeff")) {
-				message.append("HINT: The website response contains invisible unicode characters.\n");
+				message.append("HINT: The website response contains invisible unicode characters. This seems to be caused by Partydragen's Store module, we have no idea why.\n");
 			}
 
 			message.append("Website response:\n");
