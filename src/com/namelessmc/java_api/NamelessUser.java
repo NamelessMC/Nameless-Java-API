@@ -346,16 +346,14 @@ public final class NamelessUser implements LanguageEntity {
 		try {
 			this.requests.post("reports/create", post);
 		} catch (final ApiError e) {
-			if (e.getError() == ApiError.USER_CREATING_REPORT_BANNED) {
-				throw new ReportUserBannedException();
-			} else if (e.getError() == ApiError.REPORT_CONTENT_TOO_LARGE) {
-				throw new IllegalStateException("Website said report reason is too long, but we have client-side validation for this");
-			} else if (e.getError() == ApiError.USER_ALREADY_HAS_OPEN_REPORT) {
-				throw new AlreadyHasOpenReportException();
-			} else if (e.getError() == ApiError.CANNOT_REPORT_YOURSELF) {
-				throw new CannotReportSelfException();
-			} else {
-				throw e;
+			switch (e.getError()) {
+				case ApiError.USER_CREATING_REPORT_BANNED: throw new ReportUserBannedException();
+				case ApiError.REPORT_CONTENT_TOO_LARGE:
+					throw new IllegalStateException("Website said report reason is too long, but we have " +
+							"client-side validation for this so it should be impossible");
+				case ApiError.USER_ALREADY_HAS_OPEN_REPORT: throw new AlreadyHasOpenReportException();
+				case ApiError.CANNOT_REPORT_YOURSELF: throw new CannotReportSelfException();
+				default: throw e;
 			}
 		}
 	}
@@ -388,16 +386,14 @@ public final class NamelessUser implements LanguageEntity {
 		try {
 			this.requests.post("reports/create", post);
 		} catch (final ApiError e) {
-			if (e.getError() == ApiError.USER_CREATING_REPORT_BANNED) {
-				throw new ReportUserBannedException();
-			} else if (e.getError() == ApiError.REPORT_CONTENT_TOO_LARGE) {
-				throw new IllegalStateException("Website said report reason is too long, but we have client-side validation for this");
-			} else if (e.getError() == ApiError.USER_ALREADY_HAS_OPEN_REPORT) {
-				throw new AlreadyHasOpenReportException();
-			} else if (e.getError() == ApiError.CANNOT_REPORT_YOURSELF) {
-				throw new CannotReportSelfException();
-			} else {
-				throw e;
+			switch (e.getError()) {
+				case ApiError.USER_CREATING_REPORT_BANNED: throw new ReportUserBannedException();
+				case ApiError.REPORT_CONTENT_TOO_LARGE:
+					throw new IllegalStateException("Website said report reason is too long, but we have " +
+							"client-side validation for this so it should be impossible");
+				case ApiError.USER_ALREADY_HAS_OPEN_REPORT: throw new AlreadyHasOpenReportException();
+				case ApiError.CANNOT_REPORT_YOURSELF: throw new CannotReportSelfException();
+				default: throw e;
 			}
 		}
 	}

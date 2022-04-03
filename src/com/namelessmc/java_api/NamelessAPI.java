@@ -299,18 +299,12 @@ public final class NamelessAPI {
 			}
 		} catch (final ApiError e) {
 			switch (e.getError()) {
-				case ApiError.INVALID_USERNAME:
-					throw new InvalidUsernameException();
-				case ApiError.USERNAME_ALREADY_EXISTS:
-					throw new UsernameAlreadyExistsException();
-				case ApiError.UNABLE_TO_SEND_REGISTRATION_EMAIL:
-					throw new CannotSendEmailException();
-				case ApiError.INTEGRATION_USERNAME_ALREADY_EXISTS:
-					throw new IntegrationUsernameAlreadyExistsException();
-				case ApiError.INTEGRATION_ID_ALREADY_EXISTS:
-					throw new IntegrationIdAlreadyExistsException();
-				default:
-					throw e;
+				case ApiError.INVALID_USERNAME: throw new InvalidUsernameException();
+				case ApiError.USERNAME_ALREADY_EXISTS: throw new UsernameAlreadyExistsException();
+				case ApiError.UNABLE_TO_SEND_REGISTRATION_EMAIL: throw new CannotSendEmailException();
+				case ApiError.INTEGRATION_USERNAME_ALREADY_EXISTS: throw new IntegrationUsernameAlreadyExistsException();
+				case ApiError.INTEGRATION_ID_ALREADY_EXISTS: throw new IntegrationIdAlreadyExistsException();
+				default: throw e;
 			}
 		}
 	}
@@ -456,10 +450,11 @@ public final class NamelessAPI {
 		try {
 			this.requests.post("integration/verify", data);
 		} catch (ApiError e) {
-			if (e.getError() == ApiError.INVALID_VALIDATE_CODE) {
-				throw new InvalidValidateCodeException();
-			} else {
-				throw e;
+			switch (e.getError()) {
+				case ApiError.INVALID_VALIDATE_CODE:
+					throw new InvalidValidateCodeException();
+				default:
+					throw e;
 			}
 		}
 	}
