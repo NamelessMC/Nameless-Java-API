@@ -269,8 +269,9 @@ public final class NamelessAPI {
 	public @NotNull Optional<String> registerUser(@NotNull final String username,
 												  @NotNull final String email,
 												  @NotNull IntegrationData@Nullable... integrationData)
-			throws NamelessException, InvalidUsernameException, UsernameAlreadyExistsException, CannotSendEmailException,
-			IntegrationUsernameAlreadyExistsException, IntegrationIdAlreadyExistsException {
+			throws NamelessException, InvalidUsernameException, UsernameAlreadyExistsException,
+					CannotSendEmailException, IntegrationUsernameAlreadyExistsException,
+					IntegrationIdAlreadyExistsException, InvalidEmailAddressException, EmailAlreadyUsedException {
 
 		Objects.requireNonNull(username, "Username is null");
 		Objects.requireNonNull(email, "Email address is null");
@@ -304,6 +305,8 @@ public final class NamelessAPI {
 				case ApiError.UNABLE_TO_SEND_REGISTRATION_EMAIL: throw new CannotSendEmailException();
 				case ApiError.INTEGRATION_USERNAME_ALREADY_EXISTS: throw new IntegrationUsernameAlreadyExistsException();
 				case ApiError.INTEGRATION_ID_ALREADY_EXISTS: throw new IntegrationIdAlreadyExistsException();
+				case ApiError.INVALID_EMAIL_ADDRESS: throw new InvalidEmailAddressException();
+				case ApiError.EMAIL_ALREADY_EXISTS: throw new EmailAlreadyUsedException();
 				default: throw e;
 			}
 		}
