@@ -6,7 +6,6 @@ public class UserFilter<FilterValueType> {
 
 	public static UserFilter<Boolean> BANNED = new UserFilter<>("banned");
 	public static UserFilter<Boolean> VERIFIED = new UserFilter<>("verified");
-	public static UserFilter<Boolean> DISCORD_LINKED = new UserFilter<>("discord_linked");
 	public static UserFilter<Integer> GROUP_ID = new UserFilter<>("group_id");
 	public static UserFilter<String> INTEGRATION = new UserFilter<>("integration");
 
