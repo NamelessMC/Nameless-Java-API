@@ -2,20 +2,30 @@ package com.namelessmc.java_api.integrations;
 
 import org.jetbrains.annotations.NotNull;
 
-public abstract class IntegrationData {
+public class IntegrationData {
 
-	private final @NotNull IntegrationType integrationType;
+	private final @NotNull String integrationType;
+	private final @NotNull String identifier;
+	private final @NotNull String username;
 
-	IntegrationData(final @NotNull IntegrationType integrationType) {
+	public IntegrationData(final @NotNull String integrationType,
+					final @NotNull String identifier,
+					final @NotNull String username) {
 		this.integrationType = integrationType;
+		this.identifier = identifier;
+		this.username = username;
 	}
 
-	public @NotNull IntegrationType getIntegrationType() {
+	public @NotNull String getIntegrationType() {
 		return this.integrationType;
 	}
 
-	public abstract @NotNull String getRawId();
+	public @NotNull String getIdentifier() {
+		return this.identifier;
+	}
 
-	public abstract @NotNull String getRawUsername();
+	public @NotNull String getUsername() {
+		return this.username;
+	}
 
 }

@@ -283,8 +283,8 @@ public final class NamelessAPI {
 			JsonObject integrationsJson = new JsonObject();
 			for (IntegrationData integration : integrationData) {
 				JsonObject integrationJson = new JsonObject();
-				integrationJson.addProperty("id", integration.getRawId());
-				integrationJson.addProperty("username", integration.getRawUsername());
+				integrationJson.addProperty("identifier", integration.getIdentifier());
+				integrationJson.addProperty("username", integration.getUsername());
 				integrationsJson.add(integration.getIntegrationType().toString(), integrationJson);
 			}
 			post.add("integrations", integrationsJson);
@@ -484,7 +484,7 @@ public final class NamelessAPI {
 	 * @param uuid UUID without dashes
 	 * @return UUID with dashes
 	 */
-	static @NotNull UUID websiteUuidToJavaUuid(@NotNull final String uuid) {
+	public static @NotNull UUID websiteUuidToJavaUuid(@NotNull final String uuid) {
 		Objects.requireNonNull(uuid, "UUID string is null");
 		// Website sends UUIDs without dashes, so we can't use UUID#fromString
 		// https://stackoverflow.com/a/30760478

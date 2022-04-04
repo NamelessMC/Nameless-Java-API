@@ -8,6 +8,7 @@ import com.namelessmc.java_api.Notification.NotificationType;
 import com.namelessmc.java_api.exception.AlreadyHasOpenReportException;
 import com.namelessmc.java_api.exception.CannotReportSelfException;
 import com.namelessmc.java_api.exception.ReportUserBannedException;
+import com.namelessmc.java_api.integrations.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -132,27 +133,6 @@ public final class NamelessUser implements LanguageEntity {
 		JsonObject post = new JsonObject();
 		post.addProperty("username", username);
 		this.requests.post("users/" + this.getUserTransformer() + "/update-username", post);
-	}
-
-	public @NotNull Optional<@NotNull UUID> getUniqueId() throws NamelessException {
-		if (!this.uuidKnown) {
-			JsonObject userInfo = this.getUserInfo();
-			if (userInfo.has("uuid")) {
-				final String uuidString = userInfo.get("uuid").getAsString();
-				if (uuidString == null ||
-						uuidString.equals("none") ||
-						uuidString.equals("")) {
-					this.uuid = null;
-				} else {
-					this.uuid = NamelessAPI.websiteUuidToJavaUuid(uuidString);
-				}
-			} else {
-				this.uuid = null;
-			}
-			this.uuidKnown = true;
-		}
-
-		return Optional.ofNullable(this.uuid);
 	}
 
 	public @NotNull Optional<@NotNull Long> getDiscordId() throws NamelessException {
@@ -447,6 +427,29 @@ public final class NamelessUser implements LanguageEntity {
 		}
 
 		return fieldValues;
+	}
+
+	public Map<String, DetailedIntegrationData> getIntegrations() throws NamelessException {
+		final JsonObject userInfo = this.getUserInfo();
+		final JsonArray integrationsJsonArray = userInfo.getAsJsonArray("integrations");
+		Map<String, DetailedIntegrationData> integrationDataMap = new HashMap<>(integrationsJsonArray.size());
+		for (JsonElement integrationElement : integrationsJsonArray) {
+			JsonObject integrationJson = integrationElement.getAsJsonObject();
+			String integrationName = integrationJson.get("integration").getAsString();
+			DetailedIntegrationData integrationData;
+			switch(integrationName) {
+				case StandardIntegrationTypes.MINECRAFT:
+					integrationData = new DetailedMinecraftIntegrationData(integrationJson);
+					break;
+				case StandardIntegrationTypes.DISCORD:
+					integrationData = new DetailedDiscordIntegrationData(integrationJson);
+					break;
+				default:
+					integrationData = new DetailedIntegrationData(integrationJson);
+			}
+			integrationDataMap.put(integrationName, integrationData);
+		}
+		return integrationDataMap;
 	}
 
 }
