@@ -20,12 +20,18 @@ public class NamelessApiBuilder {
 	private static final String DEFAULT_USER_AGENT = "Nameless-Java-API";
 	private static final int DEFAULT_RESPONSE_SIZE_LIMIT = 32*1024*1024;
 
+	private final @NotNull URL apiUrl;
+	private final @NotNull String apiKey;
+
 	private final @NotNull GsonBuilder gsonBuilder;
 	private @Nullable ApiLogger debugLogger = null;
 	private final @NotNull Methanol.Builder httpClientBuilder;
 	private int responseSizeLimit = DEFAULT_RESPONSE_SIZE_LIMIT;
 
 	NamelessApiBuilder(@NotNull URL apiUrl, @NotNull String apiKey) {
+		this.apiUrl = apiUrl;
+		this.apiKey = apiKey;
+
 		this.gsonBuilder = new GsonBuilder();
 		this.gsonBuilder.disableHtmlEscaping();
 
@@ -162,7 +168,9 @@ public class NamelessApiBuilder {
 						this.gsonBuilder.create(),
 						this.debugLogger,
 						this.responseSizeLimit
-				)
+				),
+				this.apiUrl,
+				this.apiKey
 		);
 	}
 

@@ -24,33 +24,32 @@ public final class NamelessAPI {
 	@NotNull
 	private final RequestHandler requests;
 
-	NamelessAPI(@NotNull final RequestHandler requests) {
+	// Not actually used by the Nameless Java API, but could be useful to applications using it.
+	private final @NotNull URL apiUrl;
+	private final @NotNull String apiKey;
+
+	NamelessAPI(final @NotNull RequestHandler requests,
+				final @NotNull URL apiUrl,
+				final @NotNull String apiKey) {
 		this.requests = Objects.requireNonNull(requests, "Request handler is null");
+		this.apiUrl = apiUrl;
+		this.apiKey = apiKey;
 	}
 
-	@NotNull
-	RequestHandler getRequestHandler() {
+
+	@NotNull RequestHandler getRequestHandler() {
 		return this.requests;
 	}
 
-//	@NotNull
-//	public URL getApiUrl() {
-//		return this.getRequestHandler().getApiUrl();
-//	}
-//
-//	@NotNull
-//	public String getApiKey() {
-//		return getApiKey(this.getApiUrl().toString());
-//	}
 
-//	@NotNull
-//	static String getApiKey(@NotNull final String url) {
-//		if (url.endsWith("/")) {
-//			return getApiKey(url.substring(0, url.length() - 1));
-//		}
-//
-//		return url.substring(url.lastIndexOf('/') + 1);
-//	}
+	public @NotNull URL getApiUrl() {
+		return this.apiUrl;
+	}
+
+
+	public @NotNull String getApiKey() {
+		return this.apiKey;
+	}
 
 	/**
 	 * Get announcements visible to guests. Use {@link NamelessUser#getAnnouncements()} for non-guest announcements.
