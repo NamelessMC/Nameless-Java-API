@@ -1,5 +1,6 @@
 package com.namelessmc.java_api;
 
+import com.github.mizosoft.methanol.Methanol;
 import com.google.common.base.Ascii;
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
@@ -16,13 +17,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URL;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -30,53 +28,31 @@ import java.util.stream.Collectors;
 
 public class RequestHandler {
 
-	private final @NotNull URL baseUrl;
-	private final @NotNull String apiKey;
-	private final @NotNull HttpClient httpClient;
-	private final @NotNull String userAgent;
+	private final @NotNull Methanol httpClient;
 	private final @Nullable ApiLogger debugLogger;
-	private final @Nullable Duration timeout;
 	private final @NotNull Gson gson;
 	private final int responseLengthLimit;
 
-	RequestHandler(final @NotNull URL baseUrl,
-				   final @NotNull String apiKey,
-				   final @NotNull HttpClient httpClient,
+	RequestHandler(final @NotNull Methanol httpClient,
 				   final @NotNull Gson gson,
-				   final @NotNull String userAgent,
 				   final @Nullable ApiLogger debugLogger,
-				   final @Nullable Duration timeout,
 				   final int responseLengthLimit) {
-		this.baseUrl = Objects.requireNonNull(baseUrl, "Base URL is null");
-		this.apiKey = Objects.requireNonNull(apiKey, "Api key is null");
 		this.httpClient = Objects.requireNonNull(httpClient, "http client is null");
 		this.gson = gson;
-		this.userAgent = Objects.requireNonNull(userAgent, "User agent is null");
 		this.debugLogger = debugLogger;
-		this.timeout = timeout;
 		this.responseLengthLimit = responseLengthLimit;
-	}
-
-	public @NotNull URL getApiUrl() {
-		return this.baseUrl;
-	}
-
-	public @NotNull String getApiKey() {
-		return this.apiKey;
 	}
 
 	public @NotNull JsonObject post(final @NotNull String route, final @Nullable JsonObject postData) throws NamelessException {
 		Preconditions.checkArgument(!route.startsWith("/"), "Route must not start with a slash");
-		URI uri = URI.create(this.baseUrl + "/" + route);
+		URI uri = URI.create(route);
 		return makeConnection(uri, postData);
 	}
 
 	public @NotNull JsonObject get(final @NotNull String route, final @NotNull Object @NotNull... parameters) throws NamelessException {
 		Preconditions.checkArgument(!route.startsWith("/"), "Route must not start with a slash");
 
-		final StringBuilder urlBuilder = new StringBuilder(this.baseUrl.toString());
-		urlBuilder.append("/");
-		urlBuilder.append(route);
+		final StringBuilder urlBuilder = new StringBuilder(route);
 
 		if (parameters.length > 0) {
 			if (parameters.length % 2 != 0) {
@@ -111,9 +87,6 @@ public class RequestHandler {
 
 	private @NotNull JsonObject makeConnection(final URI uri, final @Nullable JsonObject postBody) throws NamelessException {
 		HttpRequest.Builder reqBuilder = HttpRequest.newBuilder(uri);
-		if (timeout != null) {
-			reqBuilder.timeout(timeout);
-		}
 
 		debug("Making connection %s to url %s", () -> new Object[]{ postBody != null ? "POST" : "GET", uri});
 
@@ -127,9 +100,6 @@ public class RequestHandler {
 		} else {
 			reqBuilder.GET();
 		}
-
-		reqBuilder.header("User-Agent", this.userAgent);
-		reqBuilder.header("X-API-Key", this.apiKey);
 
 		HttpRequest httpRequest = reqBuilder.build();
 

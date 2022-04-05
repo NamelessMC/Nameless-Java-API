@@ -33,24 +33,24 @@ public final class NamelessAPI {
 		return this.requests;
 	}
 
-	@NotNull
-	public URL getApiUrl() {
-		return this.getRequestHandler().getApiUrl();
-	}
+//	@NotNull
+//	public URL getApiUrl() {
+//		return this.getRequestHandler().getApiUrl();
+//	}
+//
+//	@NotNull
+//	public String getApiKey() {
+//		return getApiKey(this.getApiUrl().toString());
+//	}
 
-	@NotNull
-	public String getApiKey() {
-		return getApiKey(this.getApiUrl().toString());
-	}
-
-	@NotNull
-	static String getApiKey(@NotNull final String url) {
-		if (url.endsWith("/")) {
-			return getApiKey(url.substring(0, url.length() - 1));
-		}
-
-		return url.substring(url.lastIndexOf('/') + 1);
-	}
+//	@NotNull
+//	static String getApiKey(@NotNull final String url) {
+//		if (url.endsWith("/")) {
+//			return getApiKey(url.substring(0, url.length() - 1));
+//		}
+//
+//		return url.substring(url.lastIndexOf('/') + 1);
+//	}
 
 	/**
 	 * Get announcements visible to guests. Use {@link NamelessUser#getAnnouncements()} for non-guest announcements.
