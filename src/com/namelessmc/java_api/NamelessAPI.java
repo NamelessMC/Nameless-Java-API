@@ -440,15 +440,14 @@ public final class NamelessAPI {
 		this.requests.post("discord/update-usernames", json);
 	}
 
-	private void verifyIntegration(final @NotNull IntegrationType type,
-								  final @NotNull String verificationCode,
-								  final @NotNull String identifier,
-								  final @NotNull String username) throws NamelessException, InvalidValidateCodeException {
+	public void verifyIntegration(final @NotNull IntegrationData integrationData,
+								   final @NotNull String verificationCode)
+			throws NamelessException, InvalidValidateCodeException {
 		JsonObject data = new JsonObject();
-		data.addProperty("integration", type.apiValue());
+		data.addProperty("integration", integrationData.getIntegrationType());
+		data.addProperty("identifier", integrationData.getIdentifier());
+		data.addProperty("username", integrationData.getUsername());
 		data.addProperty("code", Objects.requireNonNull(verificationCode, "Verification code is null"));
-		data.addProperty("identifier", Objects.requireNonNull(identifier, "Identifier is null"));
-		data.addProperty("username", Objects.requireNonNull(username, "Username is null"));
 		try {
 			this.requests.post("integration/verify", data);
 		} catch (ApiError e) {
@@ -461,22 +460,9 @@ public final class NamelessAPI {
 		}
 	}
 
-	public void verifyMinecraft(final @NotNull String verificationCode,
-								final @NotNull UUID uuid,
-								final @NotNull String username) throws NamelessException, InvalidValidateCodeException {
-		this.verifyIntegration(IntegrationType.MINECRAFT, verificationCode, uuid.toString(), username);
-	}
-
-	public void verifyDiscord(final @NotNull String verificationCode,
-							  final long id,
-							  final String username) throws NamelessException, InvalidValidateCodeException {
-		this.verifyIntegration(IntegrationType.DISCORD, verificationCode, String.valueOf(id), username);
-	}
-
 	public @NotNull WebsendAPI websend() {
 		return new WebsendAPI(this.requests);
 	}
-
 
 	/**
 	 * Adds back dashes to a UUID string and converts it to a Java UUID object
