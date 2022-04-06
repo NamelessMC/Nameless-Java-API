@@ -483,7 +483,6 @@ public final class NamelessUser implements LanguageEntity {
 		this.discordIdKnown = true;
 		if (integration == null) {
 			this.discordId = -1;
-			return Optional.empty();
 		} else {
 			this.discordId = ((IDiscordIntegrationData) integration).getIdLong();
 		}
