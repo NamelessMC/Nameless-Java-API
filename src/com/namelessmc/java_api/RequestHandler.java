@@ -1,6 +1,7 @@
 package com.namelessmc.java_api;
 
 import com.github.mizosoft.methanol.Methanol;
+import com.github.mizosoft.methanol.MutableRequest;
 import com.google.common.base.Ascii;
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
@@ -43,13 +44,15 @@ public class RequestHandler {
 		this.responseLengthLimit = responseLengthLimit;
 	}
 
-	public @NotNull JsonObject post(final @NotNull String route, final @Nullable JsonObject postData) throws NamelessException {
+	public @NotNull JsonObject post(final @NotNull String route,
+									final @Nullable JsonObject postData) throws NamelessException {
 		Preconditions.checkArgument(!route.startsWith("/"), "Route must not start with a slash");
 		URI uri = URI.create(route);
 		return makeConnection(uri, postData);
 	}
 
-	public @NotNull JsonObject get(final @NotNull String route, final @NotNull Object @NotNull... parameters) throws NamelessException {
+	public @NotNull JsonObject get(final @NotNull String route,
+								   final @NotNull Object @NotNull... parameters) throws NamelessException {
 		Preconditions.checkArgument(!route.startsWith("/"), "Route must not start with a slash");
 
 		final StringBuilder urlBuilder = new StringBuilder(route);
@@ -79,34 +82,34 @@ public class RequestHandler {
 		return makeConnection(uri, null);
 	}
 
-	private void debug(final @NotNull String message, @NotNull Supplier<Object[]> argsSupplier) {
+	private void debug(final @NotNull String message,
+					   final @NotNull Supplier<Object[]> argsSupplier) {
 		if (this.debugLogger != null) {
 			this.debugLogger.log(String.format(message, argsSupplier.get()));
 		}
 	}
 
-	private @NotNull JsonObject makeConnection(final URI uri, final @Nullable JsonObject postBody) throws NamelessException {
-		HttpRequest.Builder reqBuilder = HttpRequest.newBuilder(uri);
+	private @NotNull JsonObject makeConnection(final @NotNull URI uri,
+											   final @Nullable JsonObject postBody) throws NamelessException {
+		MutableRequest request = MutableRequest.create(uri);
 
 		debug("Making connection %s to url %s", () -> new Object[]{ postBody != null ? "POST" : "GET", uri});
 
 		if (postBody != null) {
 			byte[] postBytes = gson.toJson(postBody).getBytes(StandardCharsets.UTF_8);
-			reqBuilder.POST(HttpRequest.BodyPublishers.ofByteArray(postBytes));
-			reqBuilder.header("Content-Type", "application/json");
+			request.POST(HttpRequest.BodyPublishers.ofByteArray(postBytes));
+			request.header("Content-Type", "application/json");
 
 			debug("Post body below\n-----------------\n%s\n-----------------",
 					() -> new Object[] { new String(postBytes, StandardCharsets.UTF_8) });
 		} else {
-			reqBuilder.GET();
+			request.GET();
 		}
-
-		HttpRequest httpRequest = reqBuilder.build();
 
 		int statusCode;
 		String responseBody;
 		try {
-			HttpResponse<InputStream> httpResponse = httpClient.send(httpRequest,
+			HttpResponse<InputStream> httpResponse = httpClient.send(request,
 					HttpResponse.BodyHandlers.ofInputStream());
 			statusCode = httpResponse.statusCode();
 			responseBody = getBodyAsString(httpResponse);

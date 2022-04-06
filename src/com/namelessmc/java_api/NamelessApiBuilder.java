@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.net.Authenticator;
 import java.net.ProxySelector;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.concurrent.Executor;
@@ -35,14 +36,18 @@ public class NamelessApiBuilder {
 		this.gsonBuilder = new GsonBuilder();
 		this.gsonBuilder.disableHtmlEscaping();
 
-		this.httpClientBuilder = Methanol.newBuilder()
-				.baseUri(apiUrl + "/")
-				.defaultHeader("X-Api-Key", apiKey)
-				.userAgent(DEFAULT_USER_AGENT)
-				.readTimeout(DEFAULT_TIMEOUT)
-				.requestTimeout(DEFAULT_TIMEOUT)
-				.connectTimeout(DEFAULT_TIMEOUT)
-				.autoAcceptEncoding(true);
+		try {
+			this.httpClientBuilder = Methanol.newBuilder()
+					.baseUri(apiUrl.toURI())
+					.defaultHeader("X-Api-Key", apiKey)
+					.userAgent(DEFAULT_USER_AGENT)
+					.readTimeout(DEFAULT_TIMEOUT)
+					.requestTimeout(DEFAULT_TIMEOUT)
+					.connectTimeout(DEFAULT_TIMEOUT)
+					.autoAcceptEncoding(true);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public @NotNull NamelessApiBuilder userAgent(@NotNull final String userAgent) {
