@@ -30,8 +30,10 @@ public final class NamelessUser implements LanguageEntity {
 	private boolean discordIdKnown;
 	private long discordId; // -1 if not known or not present
 
-	@Nullable
-	private JsonObject _userInfo; // Do not use directly, instead use getUserInfo()
+	// Do not use directly, instead use getUserInfo() and getIntegrations()
+	private @Nullable JsonObject _cachedUserInfo;
+	private @Nullable Map<String, DetailedIntegrationData> _cachedIntegrationData;
+
 
 	/**
 	 * Create a Nameless user. Only one of 'id', 'uuid', 'discordId' has to be provided.
@@ -67,17 +69,17 @@ public final class NamelessUser implements LanguageEntity {
 	}
 
 	private JsonObject getUserInfo() throws NamelessException {
-		if (this._userInfo == null) {
+		if (this._cachedUserInfo == null) {
 			final JsonObject response = this.requests.get("users/" + this.getUserTransformer());
 
 			if (!response.get("exists").getAsBoolean()) {
 				throw new UserNotExistException();
 			}
 
-			this._userInfo = response;
+			this._cachedUserInfo = response;
 		}
 
-		return this._userInfo;
+		return this._cachedUserInfo;
 	}
 
 	public String getUserTransformer() {
@@ -110,7 +112,16 @@ public final class NamelessUser implements LanguageEntity {
 	 * effect.
 	 */
 	public void invalidateCache() {
-		this._userInfo = null;
+		this._cachedUserInfo = null;
+		this._cachedIntegrationData = null;
+		if (this.id != -1) {
+			// Only clear if we know the user's NamelessMC user id, otherwise we remove
+			// the only way to identify this user
+			this.uuidKnown = false;
+			this.uuid = null;
+			this.discordIdKnown = false;
+			this.username = null;
+		}
 	}
 
 	public int getId() throws NamelessException {
@@ -133,21 +144,6 @@ public final class NamelessUser implements LanguageEntity {
 		JsonObject post = new JsonObject();
 		post.addProperty("username", username);
 		this.requests.post("users/" + this.getUserTransformer() + "/update-username", post);
-	}
-
-	public @NotNull Optional<@NotNull Long> getDiscordId() throws NamelessException {
-		if (!this.discordIdKnown) {
-			JsonObject userInfo = this.getUserInfo();
-			//noinspection ConstantConditions
-			if (userInfo.has("discord_id")) {
-				this.discordId = userInfo.get("discord_id").getAsLong();
-			} else {
-				this.discordId = -1;
-			}
-			this.discordIdKnown = true;
-		}
-
-		return this.discordId > 0 ? Optional.of(this.discordId) : Optional.empty();
 	}
 
 	public boolean exists() throws NamelessException {
@@ -430,9 +426,13 @@ public final class NamelessUser implements LanguageEntity {
 	}
 
 	public Map<String, DetailedIntegrationData> getIntegrations() throws NamelessException {
+		if (this._cachedIntegrationData != null) {
+			return this._cachedIntegrationData;
+		}
+
 		final JsonObject userInfo = this.getUserInfo();
 		final JsonArray integrationsJsonArray = userInfo.getAsJsonArray("integrations");
-		Map<String, DetailedIntegrationData> integrationDataMap = new HashMap<>(integrationsJsonArray.size());
+		this._cachedIntegrationData = new HashMap<>(integrationsJsonArray.size());
 		for (JsonElement integrationElement : integrationsJsonArray) {
 			JsonObject integrationJson = integrationElement.getAsJsonObject();
 			String integrationName = integrationJson.get("integration").getAsString();
@@ -447,9 +447,48 @@ public final class NamelessUser implements LanguageEntity {
 				default:
 					integrationData = new DetailedIntegrationData(integrationJson);
 			}
-			integrationDataMap.put(integrationName, integrationData);
+			this._cachedIntegrationData.put(integrationName, integrationData);
 		}
-		return integrationDataMap;
+		return this._cachedIntegrationData;
+	}
+
+	public Optional<UUID> getMinecraftUuid() throws NamelessException {
+		if (this.uuidKnown) {
+			return Optional.ofNullable(this.uuid);
+		}
+
+		final DetailedIntegrationData integration = this.getIntegrations().get(StandardIntegrationTypes.MINECRAFT);
+		this.uuidKnown = true;
+
+		if (integration == null) {
+			this.uuid = null;
+		} else {
+			this.uuid = ((IMinecraftIntegrationData) integration).getUniqueId();
+		}
+
+		return this.getMinecraftUuid();
+	}
+
+	public Optional<Long> getDiscordId() throws NamelessException {
+		if (this.discordIdKnown) {
+			if (this.discordId == -1) {
+				return Optional.empty();
+			} else {
+				return Optional.of(this.discordId);
+			}
+		}
+
+		final DetailedIntegrationData integration = this.getIntegrations().get(StandardIntegrationTypes.DISCORD);
+
+		this.discordIdKnown = true;
+		if (integration == null) {
+			this.discordId = -1;
+			return Optional.empty();
+		} else {
+			this.discordId = ((IDiscordIntegrationData) integration).getIdLong();
+		}
+
+		return this.getDiscordId();
 	}
 
 }
