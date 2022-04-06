@@ -400,7 +400,7 @@ public final class NamelessUser implements LanguageEntity {
 	 * @since 2021-10-24 commit <code>cce8d262b0be3f70818c188725cd7e7fc4fdbb9a</code>
 	 */
 	public void banUser() throws NamelessException {
-		this.requests.post("users/" + this.getUserTransformer() + "/ban", null);
+		this.requests.post("users/" + this.getUserTransformer() + "/ban", new JsonObject());
 	}
 
 	public @NotNull Collection<@NotNull CustomProfileFieldValue> getProfileFields() throws NamelessException {

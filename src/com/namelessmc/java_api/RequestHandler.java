@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -29,15 +30,18 @@ import java.util.stream.Collectors;
 
 public class RequestHandler {
 
+	private final @NotNull URL apiUrl;
 	private final @NotNull Methanol httpClient;
 	private final @Nullable ApiLogger debugLogger;
 	private final @NotNull Gson gson;
 	private final int responseLengthLimit;
 
-	RequestHandler(final @NotNull Methanol httpClient,
+	RequestHandler(final @NotNull URL apiUrl,
+				   final @NotNull Methanol httpClient,
 				   final @NotNull Gson gson,
 				   final @Nullable ApiLogger debugLogger,
 				   final int responseLengthLimit) {
+		this.apiUrl = Objects.requireNonNull(apiUrl, "API URL is null");
 		this.httpClient = Objects.requireNonNull(httpClient, "http client is null");
 		this.gson = gson;
 		this.debugLogger = debugLogger;
@@ -45,16 +49,12 @@ public class RequestHandler {
 	}
 
 	public @NotNull JsonObject post(final @NotNull String route,
-									final @Nullable JsonObject postData) throws NamelessException {
-		Preconditions.checkArgument(!route.startsWith("/"), "Route must not start with a slash");
-		URI uri = URI.create(route);
-		return makeConnection(uri, postData);
+									final @NotNull JsonObject postData) throws NamelessException {
+		return makeConnection(route, postData);
 	}
 
 	public @NotNull JsonObject get(final @NotNull String route,
 								   final @NotNull Object @NotNull... parameters) throws NamelessException {
-		Preconditions.checkArgument(!route.startsWith("/"), "Route must not start with a slash");
-
 		final StringBuilder urlBuilder = new StringBuilder(route);
 
 		if (parameters.length > 0) {
@@ -78,8 +78,7 @@ public class RequestHandler {
 			}
 		}
 
-		final @NotNull URI uri = URI.create(urlBuilder.toString());
-		return makeConnection(uri, null);
+		return makeConnection(urlBuilder.toString(), null);
 	}
 
 	private void debug(final @NotNull String message,
@@ -89,11 +88,13 @@ public class RequestHandler {
 		}
 	}
 
-	private @NotNull JsonObject makeConnection(final @NotNull URI uri,
+	private @NotNull JsonObject makeConnection(final @NotNull String route,
 											   final @Nullable JsonObject postBody) throws NamelessException {
-		MutableRequest request = MutableRequest.create(uri);
+		Preconditions.checkArgument(!route.startsWith("/"), "Route must not start with a slash");
+		final MutableRequest request = MutableRequest.create(URI.create(this.apiUrl.toString() + route));
 
-		debug("Making connection %s to url %s", () -> new Object[]{ postBody != null ? "POST" : "GET", uri});
+		debug("Making connection %s to %s",
+				() -> new Object[]{ postBody != null ? "POST" : "GET", request.uri()});
 
 		if (postBody != null) {
 			byte[] postBytes = gson.toJson(postBody).getBytes(StandardCharsets.UTF_8);

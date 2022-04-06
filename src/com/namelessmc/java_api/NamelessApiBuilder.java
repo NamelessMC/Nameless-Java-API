@@ -8,10 +8,7 @@ import com.namelessmc.java_api.logger.Slf4jLogger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.net.Authenticator;
-import java.net.ProxySelector;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.*;
 import java.time.Duration;
 import java.util.concurrent.Executor;
 
@@ -29,25 +26,25 @@ public class NamelessApiBuilder {
 	private final @NotNull Methanol.Builder httpClientBuilder;
 	private int responseSizeLimit = DEFAULT_RESPONSE_SIZE_LIMIT;
 
-	NamelessApiBuilder(@NotNull URL apiUrl, @NotNull String apiKey) {
-		this.apiUrl = apiUrl;
+	NamelessApiBuilder(final @NotNull URL apiUrl,
+					   final @NotNull String apiKey) {
+		try {
+			this.apiUrl = apiUrl.toString().endsWith("/") ? apiUrl : new URL(apiUrl + "/");
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
 		this.apiKey = apiKey;
 
 		this.gsonBuilder = new GsonBuilder();
 		this.gsonBuilder.disableHtmlEscaping();
 
-		try {
-			this.httpClientBuilder = Methanol.newBuilder()
-					.baseUri(apiUrl.toURI())
-					.defaultHeader("X-Api-Key", apiKey)
-					.userAgent(DEFAULT_USER_AGENT)
-					.readTimeout(DEFAULT_TIMEOUT)
-					.requestTimeout(DEFAULT_TIMEOUT)
-					.connectTimeout(DEFAULT_TIMEOUT)
-					.autoAcceptEncoding(true);
-		} catch (URISyntaxException e) {
-			throw new RuntimeException(e);
-		}
+		this.httpClientBuilder = Methanol.newBuilder()
+				.defaultHeader("X-Api-Key", this.apiKey)
+				.userAgent(DEFAULT_USER_AGENT)
+				.readTimeout(DEFAULT_TIMEOUT)
+				.requestTimeout(DEFAULT_TIMEOUT)
+				.connectTimeout(DEFAULT_TIMEOUT)
+				.autoAcceptEncoding(true);
 	}
 
 	public @NotNull NamelessApiBuilder userAgent(@NotNull final String userAgent) {
@@ -169,6 +166,7 @@ public class NamelessApiBuilder {
 	public @NotNull NamelessAPI build() {
 		return new NamelessAPI(
 				new RequestHandler(
+						this.apiUrl,
 						this.httpClientBuilder.build(),
 						this.gsonBuilder.create(),
 						this.debugLogger,
