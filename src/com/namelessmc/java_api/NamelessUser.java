@@ -70,7 +70,16 @@ public final class NamelessUser implements LanguageEntity {
 
 	private JsonObject getUserInfo() throws NamelessException {
 		if (this._cachedUserInfo == null) {
-			final JsonObject response = this.requests.get("users/" + this.getUserTransformer());
+			final JsonObject response;
+			try {
+				response = this.requests.get("users/" + this.getUserTransformer());
+			} catch (final ApiError e) {
+				if (e.getError() == ApiError.UNABLE_TO_FIND_USER) {
+					throw new UserNotExistException();
+				} else {
+					throw e;
+				}
+			}
 
 			if (!response.get("exists").getAsBoolean()) {
 				throw new UserNotExistException();
