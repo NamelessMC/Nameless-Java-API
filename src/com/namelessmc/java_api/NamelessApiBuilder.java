@@ -5,10 +5,13 @@ import com.google.gson.GsonBuilder;
 import com.namelessmc.java_api.logger.ApiLogger;
 import com.namelessmc.java_api.logger.PrintStreamLogger;
 import com.namelessmc.java_api.logger.Slf4jLogger;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.net.*;
+import java.net.Authenticator;
+import java.net.MalformedURLException;
+import java.net.ProxySelector;
+import java.net.URL;
 import java.time.Duration;
 import java.util.concurrent.Executor;
 
@@ -18,16 +21,16 @@ public class NamelessApiBuilder {
 	private static final String DEFAULT_USER_AGENT = "Nameless-Java-API";
 	private static final int DEFAULT_RESPONSE_SIZE_LIMIT = 32*1024*1024;
 
-	private final @NotNull URL apiUrl;
-	private final @NotNull String apiKey;
+	private final @NonNull URL apiUrl;
+	private final @NonNull String apiKey;
 
-	private final @NotNull GsonBuilder gsonBuilder;
+	private final @NonNull GsonBuilder gsonBuilder;
 	private @Nullable ApiLogger debugLogger = null;
-	private final @NotNull Methanol.Builder httpClientBuilder;
+	private final Methanol.@NonNull Builder httpClientBuilder;
 	private int responseSizeLimit = DEFAULT_RESPONSE_SIZE_LIMIT;
 
-	NamelessApiBuilder(final @NotNull URL apiUrl,
-					   final @NotNull String apiKey) {
+	NamelessApiBuilder(final @NonNull URL apiUrl,
+					   final @NonNull String apiKey) {
 		try {
 			this.apiUrl = apiUrl.toString().endsWith("/") ? apiUrl : new URL(apiUrl + "/");
 		} catch (MalformedURLException e) {
@@ -47,12 +50,12 @@ public class NamelessApiBuilder {
 				.autoAcceptEncoding(true);
 	}
 
-	public @NotNull NamelessApiBuilder userAgent(@NotNull final String userAgent) {
+	public @NonNull NamelessApiBuilder userAgent(@NonNull final String userAgent) {
 		this.httpClientBuilder.userAgent(userAgent);
 		return this;
 	}
 
-	public @NotNull NamelessApiBuilder debug(final boolean debug) {
+	public @NonNull NamelessApiBuilder debug(final boolean debug) {
 		if (debug) {
 			return this.withStdErrDebugLogging();
 		} else {
@@ -62,108 +65,108 @@ public class NamelessApiBuilder {
 	}
 
 	@Deprecated
-	public @NotNull NamelessApiBuilder withStdErrDebugLogging() {
+	public @NonNull NamelessApiBuilder withStdErrDebugLogging() {
 		this.debugLogger = PrintStreamLogger.DEFAULT_INSTANCE;
 		return this;
 	}
 
-	public @NotNull NamelessApiBuilder stdErrDebugLogger() {
+	public @NonNull NamelessApiBuilder stdErrDebugLogger() {
 		this.debugLogger = PrintStreamLogger.DEFAULT_INSTANCE;
 		return this;
 	}
 
 	@Deprecated
-	public @NotNull NamelessApiBuilder withSlf4jDebugLogging() {
+	public @NonNull NamelessApiBuilder withSlf4jDebugLogging() {
 		this.debugLogger = Slf4jLogger.DEFAULT_INSTANCE;
 		return this;
 	}
 
-	public @NotNull NamelessApiBuilder slf4jDebugLogger() {
+	public @NonNull NamelessApiBuilder slf4jDebugLogger() {
 		this.debugLogger = Slf4jLogger.DEFAULT_INSTANCE;
 		return this;
 	}
 
 	@Deprecated
-	public @NotNull NamelessApiBuilder withCustomDebugLogger(final @Nullable ApiLogger debugLogger) {
+	public @NonNull NamelessApiBuilder withCustomDebugLogger(final @Nullable ApiLogger debugLogger) {
 		this.debugLogger = debugLogger;
 		return this;
 	}
 
-	public @NotNull NamelessApiBuilder customDebugLogger(final @Nullable ApiLogger debugLogger) {
+	public @NonNull NamelessApiBuilder customDebugLogger(final @Nullable ApiLogger debugLogger) {
 		this.debugLogger = debugLogger;
 		return this;
 	}
 
 	@Deprecated
-	public @NotNull NamelessApiBuilder withTimeoutMillis(final int timeout) {
+	public @NonNull NamelessApiBuilder withTimeoutMillis(final int timeout) {
 		return this.withTimeout(Duration.ofMillis(timeout));
 	}
 
 	@Deprecated
-	public @NotNull NamelessApiBuilder withTimeout(final @NotNull Duration timeout) {
+	public @NonNull NamelessApiBuilder withTimeout(final @NonNull Duration timeout) {
 		this.httpClientBuilder.readTimeout(timeout)
 				.requestTimeout(timeout)
 				.connectTimeout(timeout);
 		return this;
 	}
 
-	public @NotNull NamelessApiBuilder timeout(final @NotNull Duration timeout) {
+	public @NonNull NamelessApiBuilder timeout(final @NonNull Duration timeout) {
 		this.httpClientBuilder.readTimeout(timeout)
 				.requestTimeout(timeout)
 				.connectTimeout(timeout);
 		return this;
 	}
 
-	public @NotNull NamelessApiBuilder withProxy(ProxySelector proxy) {
+	public @NonNull NamelessApiBuilder withProxy(ProxySelector proxy) {
 		this.httpClientBuilder.proxy(proxy);
 		return this;
 	}
 
 	@Deprecated
-	public @NotNull NamelessApiBuilder proxy(ProxySelector proxy) {
+	public @NonNull NamelessApiBuilder proxy(ProxySelector proxy) {
 		this.httpClientBuilder.proxy(proxy);
 		return this;
 	}
 
 	@Deprecated
-	public @NotNull NamelessApiBuilder withAuthenticator(Authenticator authenticator) {
+	public @NonNull NamelessApiBuilder withAuthenticator(Authenticator authenticator) {
 		this.httpClientBuilder.authenticator(authenticator);
 		return this;
 	}
 
-	public @NotNull NamelessApiBuilder authenticator(Authenticator authenticator) {
+	public @NonNull NamelessApiBuilder authenticator(Authenticator authenticator) {
 		this.httpClientBuilder.authenticator(authenticator);
 		return this;
 	}
 
 	@Deprecated
-	public @NotNull NamelessApiBuilder withPrettyJson() {
+	public @NonNull NamelessApiBuilder withPrettyJson() {
 		gsonBuilder.setPrettyPrinting();
 		return this;
 	}
 
-	public @NotNull NamelessApiBuilder pettyJsonRequests() {
+	public @NonNull NamelessApiBuilder pettyJsonRequests() {
 		gsonBuilder.setPrettyPrinting();
 		return this;
 	}
 
 	@Deprecated
-	public @NotNull NamelessApiBuilder withResponseSizeLimit(int responseSizeLimitBytes) {
+	public @NonNull NamelessApiBuilder withResponseSizeLimit(int responseSizeLimitBytes) {
 		this.responseSizeLimit = responseSizeLimitBytes;
 		return this;
 	}
 
-	public @NotNull NamelessApiBuilder responseSizeLimit(int responseSizeLimitBytes) {
+	public @NonNull NamelessApiBuilder responseSizeLimit(int responseSizeLimitBytes) {
 		this.responseSizeLimit = responseSizeLimitBytes;
 		return this;
 	}
 
-	public @NotNull NamelessApiBuilder executor(final @NotNull Executor executor) {
+	public @NonNull NamelessApiBuilder executor(final @NonNull Executor executor) {
 		this.httpClientBuilder.executor(executor);
 		return this;
 	}
 
-	public @NotNull NamelessAPI build() {
+	public @NonNull NamelessAPI build() {
 		return new NamelessAPI(
 				new RequestHandler(
 						this.apiUrl,

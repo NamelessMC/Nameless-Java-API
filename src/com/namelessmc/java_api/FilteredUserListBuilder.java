@@ -3,28 +3,23 @@ package com.namelessmc.java_api;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class FilteredUserListBuilder {
 
-	private final @NotNull NamelessAPI api;
+	private final @NonNull NamelessAPI api;
 	private @Nullable Map<UserFilter<?>, Object> filters;
-	private @NotNull String operator = "AND";
+	private @NonNull String operator = "AND";
 
-	FilteredUserListBuilder(@NotNull NamelessAPI api) {
+	FilteredUserListBuilder(@NonNull NamelessAPI api) {
 		this.api = api;
 	}
 
-	public <T> FilteredUserListBuilder withFilter(UserFilter<T> filter, T value) {
+	public <T> @NonNull FilteredUserListBuilder withFilter(final @NonNull UserFilter<T> filter,
+														   final @NonNull T value) {
 		if (filters == null) {
 			filters = new HashMap<>();
 		}
@@ -33,17 +28,17 @@ public class FilteredUserListBuilder {
 		return this;
 	}
 
-	public FilteredUserListBuilder all() {
+	public @NonNull FilteredUserListBuilder all() {
 		this.operator = "AND";
 		return this;
 	}
 
-	public FilteredUserListBuilder any() {
+	public @NonNull FilteredUserListBuilder any() {
 		this.operator = "OR";
 		return this;
 	}
 
-	public List<NamelessUser> makeRequest() throws NamelessException {
+	public @NonNull List<@NonNull NamelessUser> makeRequest() throws NamelessException {
 		final Object[] parameters;
 		if (filters != null) {
 			int filterCount = filters.size();

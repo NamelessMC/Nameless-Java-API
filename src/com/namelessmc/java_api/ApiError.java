@@ -1,7 +1,7 @@
 package com.namelessmc.java_api;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Optional;
 
@@ -53,7 +53,7 @@ public class ApiError extends NamelessException {
 	private final int code;
 	private final @Nullable String meta;
 
-	public ApiError(final int code, @Nullable String meta) {
+	public ApiError(final int code, final @Nullable String meta) {
 		super("An unexpected API error occurred with error code " + code + " and " + (meta == null ? "no meta" : "meta " + meta));
 		this.code = code;
 		this.meta = meta;
@@ -63,7 +63,7 @@ public class ApiError extends NamelessException {
 		return this.code;
 	}
 
-	public @NotNull Optional<@NotNull String> getMeta() {
+	public @NonNull Optional<@NonNull String> getMeta() {
 		return Optional.ofNullable(meta);
 	}
 

@@ -1,20 +1,20 @@
 package com.namelessmc.java_api.integrations;
 
-import org.jetbrains.annotations.NotNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.UUID;
 
 public class MinecraftIntegrationData extends IntegrationData implements IMinecraftIntegrationData {
 
-	private final @NotNull UUID uuid;
+	private final @NonNull UUID uuid;
 
-	public MinecraftIntegrationData(final @NotNull UUID uuid,
-									final @NotNull String username) {
+	public MinecraftIntegrationData(final @NonNull UUID uuid,
+									final @NonNull String username) {
 		super(StandardIntegrationTypes.MINECRAFT, uuid.toString(), username);
 		this.uuid = uuid;
 	}
 
-	public @NotNull UUID getUniqueId() {
+	public @NonNull UUID getUniqueId() {
 		return this.uuid;
 	}
 

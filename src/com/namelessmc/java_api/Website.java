@@ -3,8 +3,8 @@ package com.namelessmc.java_api;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.exception.UnknownNamelessVersionException;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -13,12 +13,12 @@ import java.util.stream.StreamSupport;
 public class Website implements LanguageEntity {
 
 
-	private final @NotNull String version;
+	private final @NonNull String version;
 	private final @Nullable Update update;
-	private final @NotNull String@NotNull[] modules;
-	private final @NotNull String language;
+	private final @NonNull String@NonNull[] modules;
+	private final @NonNull String language;
 
-	Website(@NotNull final JsonObject json) {
+	Website(final @NonNull JsonObject json) {
 		Objects.requireNonNull(json, "Provided json object is null");
 
 		this.version = json.get("nameless_version").getAsString();
@@ -44,12 +44,12 @@ public class Website implements LanguageEntity {
 		this.language = json.get("language").getAsString();
 	}
 
-	@NotNull
+	@NonNull
 	public String getVersion() {
 		return this.version;
 	}
 
-	@NotNull
+	@NonNull
 	public NamelessVersion getParsedVersion() throws UnknownNamelessVersionException {
 		return NamelessVersion.parse(this.version);
 	}
@@ -57,16 +57,16 @@ public class Website implements LanguageEntity {
 	/**
 	 * @return Information about an update, or empty if no update is available.
 	 */
-	public @NotNull Optional<@NotNull Update> getUpdate() {
+	public @NonNull Optional<@NonNull Update> getUpdate() {
 		return Optional.ofNullable(this.update);
 	}
 
-	public @NotNull String@NotNull [] getModules() {
+	public @NonNull String@NonNull [] getModules() {
 		return this.modules;
 	}
 
 	@Override
-	public @NotNull String getLanguage() {
+	public @NonNull String getLanguage() {
 		return this.language;
 	}
 
@@ -82,9 +82,9 @@ public class Website implements LanguageEntity {
 	public static class Update {
 
 		private final boolean isUrgent;
-		private final @NotNull String version;
+		private final @NonNull String version;
 
-		Update(final boolean isUrgent, @NotNull final String version) {
+		Update(final boolean isUrgent, @NonNull final String version) {
 			this.isUrgent = isUrgent;
 			this.version = version;
 		}
@@ -93,7 +93,7 @@ public class Website implements LanguageEntity {
 			return this.isUrgent;
 		}
 
-		@NotNull
+		@NonNull
 		public String getVersion() {
 			return this.version;
 		}

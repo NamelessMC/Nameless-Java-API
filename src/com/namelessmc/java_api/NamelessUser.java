@@ -9,8 +9,8 @@ import com.namelessmc.java_api.exception.AlreadyHasOpenReportException;
 import com.namelessmc.java_api.exception.CannotReportSelfException;
 import com.namelessmc.java_api.exception.ReportUserBannedException;
 import com.namelessmc.java_api.integrations.*;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,9 +18,9 @@ import java.util.stream.StreamSupport;
 
 public final class NamelessUser implements LanguageEntity {
 
-	@NotNull
+	@NonNull
 	private final NamelessAPI api;
-	@NotNull
+	@NonNull
 	private final RequestHandler requests;
 
 	private int id; // -1 if not known
@@ -45,7 +45,7 @@ public final class NamelessUser implements LanguageEntity {
 	 * @param discordIdKnown True if it is known whether this user has a linked Discord id or not
 	 * @param discordId The user's discord id, or -1 if the user doesn't have a linked Discord id, or it is not known whether the user has a Discord id
 	 */
-	NamelessUser(@NotNull final NamelessAPI api,
+	NamelessUser(@NonNull final NamelessAPI api,
 				 final int id,
 				 @Nullable final String username,
 				 boolean uuidKnown,
@@ -106,7 +106,7 @@ public final class NamelessUser implements LanguageEntity {
 		}
 	}
 
-	@NotNull
+	@NonNull
 	public NamelessAPI getApi() {
 		return this.api;
 	}
@@ -141,7 +141,7 @@ public final class NamelessUser implements LanguageEntity {
 		return this.id;
 	}
 
-	public @NotNull String getUsername() throws NamelessException {
+	public @NonNull String getUsername() throws NamelessException {
 		if (this.username == null) {
 			this.username = this.getUserInfo().get("username").getAsString();
 		}
@@ -149,7 +149,7 @@ public final class NamelessUser implements LanguageEntity {
 		return this.username;
 	}
 
-	public void updateUsername(final @NotNull String username) throws NamelessException {
+	public void updateUsername(final @NonNull String username) throws NamelessException {
 		JsonObject post = new JsonObject();
 		post.addProperty("username", username);
 		this.requests.post("users/" + this.getUserTransformer() + "/update-username", post);
@@ -164,18 +164,18 @@ public final class NamelessUser implements LanguageEntity {
 		}
 	}
 
-	public @NotNull String getDisplayName() throws NamelessException {
+	public @NonNull String getDisplayName() throws NamelessException {
 		return this.getUserInfo().get("displayname").getAsString();
 	}
 
 	/**
 	 * @return The date the user registered on the website.
 	 */
-	public @NotNull Date getRegisteredDate() throws NamelessException {
+	public @NonNull Date getRegisteredDate() throws NamelessException {
 		return new Date(this.getUserInfo().get("registered_timestamp").getAsLong() * 1000);
 	}
 
-	public @NotNull Date getLastOnline() throws NamelessException {
+	public @NonNull Date getLastOnline() throws NamelessException {
 		return new Date(this.getUserInfo().get("last_online_timestamp").getAsLong() * 1000);
 	}
 
@@ -191,7 +191,7 @@ public final class NamelessUser implements LanguageEntity {
 	}
 
 	@Override
-	public @NotNull String getLanguage() throws NamelessException {
+	public @NonNull String getLanguage() throws NamelessException {
 		return this.getUserInfo().get("language").getAsString();
 	}
 
@@ -200,11 +200,11 @@ public final class NamelessUser implements LanguageEntity {
 	 * @return Language code or null if the user's language does not exist in our lookup table
 	 */
 	@Override
-	public @Nullable String getLanguagePosix() throws NamelessException {
+	public @NonNull String getLanguagePosix() throws NamelessException {
 		return LanguageCodeMap.getLanguagePosix(this.getLanguage());
 	}
 
-	public @NotNull VerificationInfo getVerificationInfo() throws NamelessException {
+	public @NonNull VerificationInfo getVerificationInfo() throws NamelessException {
 		final boolean verified = isVerified();
 		final JsonObject verification = this.getUserInfo().getAsJsonObject("verification");
 		return new VerificationInfo(verified, verification);
@@ -229,7 +229,7 @@ public final class NamelessUser implements LanguageEntity {
 	 * @return Set of user's groups
 	 * @see #getSortedGroups()
 	 */
-	public @NotNull Set<@NotNull Group> getGroups() throws NamelessException {
+	public @NonNull Set<@NonNull Group> getGroups() throws NamelessException {
 		return Collections.unmodifiableSet(
 				StreamSupport.stream(this.getUserInfo().getAsJsonArray("groups").spliterator(), false)
 						.map(JsonElement::getAsJsonObject)
@@ -241,7 +241,7 @@ public final class NamelessUser implements LanguageEntity {
 	 * @return List of the user's groups, sorted from low order to high order.
 	 * @see #getGroups()
 	 */
-	public @NotNull List<@NotNull Group> getSortedGroups() throws NamelessException {
+	public @NonNull List<@NonNull Group> getSortedGroups() throws NamelessException {
 		return Collections.unmodifiableList(
 				StreamSupport.stream(this.getUserInfo().getAsJsonArray("groups").spliterator(), false)
 						.map(JsonElement::getAsJsonObject)
@@ -257,7 +257,7 @@ public final class NamelessUser implements LanguageEntity {
 	 *
 	 * @return Player's group with the lowest order
 	 */
-	public @NotNull Optional<@NotNull Group> getPrimaryGroup() throws NamelessException {
+	public @NonNull Optional<@NonNull Group> getPrimaryGroup() throws NamelessException {
 		final JsonArray groups = this.getUserInfo().getAsJsonArray("groups");
 		if (groups.size() > 0) {
 			return Optional.of(new Group(groups.get(0).getAsJsonObject()));
@@ -266,21 +266,21 @@ public final class NamelessUser implements LanguageEntity {
 		}
 	}
 
-	public void addGroups(@NotNull final Group@NotNull ... groups) throws NamelessException {
+	public void addGroups(@NonNull final Group@NonNull ... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.add("groups", groupsToJsonArray(groups));
 		this.requests.post("users/" + this.getUserTransformer() + "/groups/add", post);
 		invalidateCache(); // Groups modified, invalidate cache
 	}
 
-	public void removeGroups(@NotNull final Group@NotNull... groups) throws NamelessException {
+	public void removeGroups(@NonNull final Group@NonNull... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.add("groups", groupsToJsonArray(groups));
 		this.requests.post("users/" + this.getUserTransformer() + "/groups/remove", post);
 		invalidateCache(); // Groups modified, invalidate cache
 	}
 
-	private JsonArray groupsToJsonArray(@NotNull final Group@NotNull [] groups) {
+	private JsonArray groupsToJsonArray(@NonNull final Group@NonNull [] groups) {
 		final JsonArray array = new JsonArray();
 		for (final Group group : groups) {
 			array.add(group.getId());
@@ -293,7 +293,7 @@ public final class NamelessUser implements LanguageEntity {
 		return response.getAsJsonArray("notifications").size();
 	}
 
-	public @NotNull List<Notification> getNotifications() throws NamelessException {
+	public @NonNull List<Notification> getNotifications() throws NamelessException {
 		final JsonObject response = this.requests.get("users/" + this.getUserTransformer() + "/notifications");
 
 		final List<Notification> notifications = new ArrayList<>();
@@ -318,7 +318,7 @@ public final class NamelessUser implements LanguageEntity {
 	 * @throws AlreadyHasOpenReportException If the user creating this report already has an open report for this user
 	 * @throws CannotReportSelfException If the user tries to report themselves
 	 */
-	public void createReport(@NotNull final NamelessUser user, @NotNull final String reason)
+	public void createReport(@NonNull final NamelessUser user, @NonNull final String reason)
 			throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, CannotReportSelfException {
 		Objects.requireNonNull(user, "User to report is null");
 		Objects.requireNonNull(reason, "Report reason is null");
@@ -354,9 +354,9 @@ public final class NamelessUser implements LanguageEntity {
 	 * @throws AlreadyHasOpenReportException If the user creating this report already has an open report for this user
 	 * @throws CannotReportSelfException If the user tries to report themselves
 	 */
-	public void createReport(final @NotNull UUID reportedUuid,
-							 final @NotNull String reportedName,
-							 final @NotNull String reason)
+	public void createReport(final @NonNull UUID reportedUuid,
+							 final @NonNull String reportedName,
+							 final @NonNull String reason)
 			throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, CannotReportSelfException {
 		Objects.requireNonNull(reportedUuid, "Reported uuid is null");
 		Objects.requireNonNull(reportedName, "Reported name is null");
@@ -383,7 +383,7 @@ public final class NamelessUser implements LanguageEntity {
 		}
 	}
 
-	public void setDiscordRoles(final long@NotNull[] roleIds) throws NamelessException {
+	public void setDiscordRoles(final long@NonNull[] roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
 		post.add("roles", NamelessAPI.GSON.toJsonTree(roleIds));
@@ -394,8 +394,8 @@ public final class NamelessUser implements LanguageEntity {
 	 * Get announcements visible to this user
 	 * @return List of announcements visible to this user
 	 */
-	@NotNull
-	public List<@NotNull Announcement> getAnnouncements() throws NamelessException {
+	@NonNull
+	public List<@NonNull Announcement> getAnnouncements() throws NamelessException {
 		final JsonObject response = this.requests.get("users/" + this.getUserTransformer() + "/announcements");
 		return NamelessAPI.getAnnouncements(response);
 	}
@@ -408,7 +408,7 @@ public final class NamelessUser implements LanguageEntity {
 		this.requests.post("users/" + this.getUserTransformer() + "/ban", new JsonObject());
 	}
 
-	public @NotNull Collection<@NotNull CustomProfileFieldValue> getProfileFields() throws NamelessException {
+	public @NonNull Collection<@NonNull CustomProfileFieldValue> getProfileFields() throws NamelessException {
 		if (!this.getUserInfo().has("profile_fields")) {
 			return Collections.emptyList();
 		}

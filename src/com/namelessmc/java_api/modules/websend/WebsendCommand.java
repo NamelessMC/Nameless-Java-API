@@ -1,23 +1,24 @@
 package com.namelessmc.java_api.modules.websend;
 
-import org.jetbrains.annotations.NotNull;
+import org.checkerframework.checker.index.qual.Positive;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class WebsendCommand {
 
-	private final int id;
-	private final @NotNull String commandLine;
+	private final @Positive int id;
+	private final @NonNull String commandLine;
 
-	public WebsendCommand(final int id,
-						  final @NotNull String commandLine) {
+	public WebsendCommand(final @Positive int id,
+						  final @NonNull String commandLine) {
 		this.id = id;
 		this.commandLine = commandLine;
 	}
 
-	public int getId() {
+	public @Positive int getId() {
 		return id;
 	}
 
-	public @NotNull String getCommandLine() {
+	public @NonNull String getCommandLine() {
 		return this.commandLine;
 	}
 

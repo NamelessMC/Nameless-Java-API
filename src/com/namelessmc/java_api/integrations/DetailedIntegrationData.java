@@ -1,21 +1,21 @@
 package com.namelessmc.java_api.integrations;
 
 import com.google.gson.JsonObject;
-import org.jetbrains.annotations.NotNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Date;
 
 public class DetailedIntegrationData extends IntegrationData {
 
 	private final boolean verified;
-	private final @NotNull Date linkedDate;
+	private final @NonNull Date linkedDate;
 	private final boolean shownPublicly;
 
-	public DetailedIntegrationData(final @NotNull String integrationType,
-							final @NotNull String identifier,
-							final @NotNull String username,
+	public DetailedIntegrationData(final @NonNull String integrationType,
+							final @NonNull String identifier,
+							final @NonNull String username,
 							final boolean verified,
-							final @NotNull Date linkedDate,
+							final @NonNull Date linkedDate,
 							final boolean shownPublicly) {
 		super(integrationType, identifier, username);
 		this.verified = verified;
@@ -23,7 +23,7 @@ public class DetailedIntegrationData extends IntegrationData {
 		this.shownPublicly = shownPublicly;
 	}
 
-	public DetailedIntegrationData(final @NotNull JsonObject json) {
+	public DetailedIntegrationData(final @NonNull JsonObject json) {
 		this(
 				json.get("integration").getAsString(),
 				json.get("identifier").getAsString(),
@@ -38,7 +38,7 @@ public class DetailedIntegrationData extends IntegrationData {
 		return verified;
 	}
 
-	public @NotNull Date getLinkedDate() {
+	public @NonNull Date getLinkedDate() {
 		return this.linkedDate;
 	}
 

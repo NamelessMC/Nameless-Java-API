@@ -1,24 +1,24 @@
 package com.namelessmc.java_api;
 
-import org.jetbrains.annotations.NotNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Objects;
 
 public class CustomProfileField {
 
 	private final int id;
-	private final @NotNull String name;
-	private final @NotNull CustomProfileFieldType type;
+	private final @NonNull String name;
+	private final @NonNull CustomProfileFieldType type;
 	private final boolean isPublic;
 	private final boolean isRequired;
-	private final @NotNull String description;
+	private final @NonNull String description;
 
 	CustomProfileField(final int id,
-					   final @NotNull String name,
-					   final @NotNull CustomProfileFieldType type,
+					   final @NonNull String name,
+					   final @NonNull CustomProfileFieldType type,
 					   final boolean isPublic,
 					   final boolean isRequired,
-					   final @NotNull String description) {
+					   final @NonNull String description) {
 		this.id = id;
 		this.name = name;
 		this.type = type;
@@ -31,11 +31,11 @@ public class CustomProfileField {
 		return id;
 	}
 
-	public @NotNull String getName() {
+	public @NonNull String getName() {
 		return name;
 	}
 
-	public @NotNull CustomProfileFieldType getType() {
+	public @NonNull CustomProfileFieldType getType() {
 		return type;
 	}
 
@@ -47,7 +47,7 @@ public class CustomProfileField {
 		return isRequired;
 	}
 
-	public @NotNull String getDescription() {
+	public @NonNull String getDescription() {
 		return description;
 	}
 

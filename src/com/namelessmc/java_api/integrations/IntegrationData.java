@@ -1,30 +1,30 @@
 package com.namelessmc.java_api.integrations;
 
-import org.jetbrains.annotations.NotNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class IntegrationData {
 
-	private final @NotNull String integrationType;
-	private final @NotNull String identifier;
-	private final @NotNull String username;
+	private final @NonNull String integrationType;
+	private final @NonNull String identifier;
+	private final @NonNull String username;
 
-	public IntegrationData(final @NotNull String integrationType,
-					final @NotNull String identifier,
-					final @NotNull String username) {
+	public IntegrationData(final @NonNull String integrationType,
+					final @NonNull String identifier,
+					final @NonNull String username) {
 		this.integrationType = integrationType;
 		this.identifier = identifier;
 		this.username = username;
 	}
 
-	public @NotNull String getIntegrationType() {
+	public @NonNull String getIntegrationType() {
 		return this.integrationType;
 	}
 
-	public @NotNull String getIdentifier() {
+	public @NonNull String getIdentifier() {
 		return this.identifier;
 	}
 
-	public @NotNull String getUsername() {
+	public @NonNull String getUsername() {
 		return this.username;
 	}
 

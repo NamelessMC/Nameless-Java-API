@@ -1,7 +1,7 @@
 package com.namelessmc.java_api;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +34,7 @@ public class LanguageCodeMap {
 		NAMELESS_TO_POSIX.put("Chinese(Simplified)", "zh_CN");
 	}
 
-	static @Nullable String getLanguagePosix(final @NotNull String language) {
+	static @Nullable String getLanguagePosix(final @NonNull String language) {
 		return NAMELESS_TO_POSIX.get(language);
 	}
 
