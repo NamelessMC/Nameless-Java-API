@@ -6,6 +6,7 @@ import com.namelessmc.java_api.exception.UnknownNamelessVersionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
@@ -16,7 +17,7 @@ public class Website implements LanguageEntity {
 	private final @NotNull String version;
 	private final @Nullable Update update;
 	private final @NotNull String@NotNull[] modules;
-	private final @NotNull String language;
+	private final @NotNull String rawLanguage;
 
 	Website(@NotNull final JsonObject json) {
 		Objects.requireNonNull(json, "Provided json object is null");
@@ -41,7 +42,8 @@ public class Website implements LanguageEntity {
 			this.update = null;
 		}
 
-		this.language = json.get("language").getAsString();
+		this.rawLanguage = json.get("language").getAsString();
+
 	}
 
 	@NotNull
@@ -66,17 +68,8 @@ public class Website implements LanguageEntity {
 	}
 
 	@Override
-	public @NotNull String getLanguage() {
-		return this.language;
-	}
-
-	/**
-	 * Get POSIX code for website language (uses lookup table)
-	 * @return Language code or null if the website's language does not exist in our lookup table
-	 */
-	@Override
-	public @Nullable String getLanguagePosix() {
-		return LanguageCodeMap.getLanguagePosix(this.language);
+	public @NotNull String getRawLanguage() throws NamelessException {
+		return this.rawLanguage;
 	}
 
 	public static class Update {
