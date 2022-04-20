@@ -42,8 +42,7 @@ public class Website implements LanguageEntity {
 			this.update = null;
 		}
 
-		this.rawLanguage = json.get("language").getAsString();
-
+		this.rawLanguage = json.get("locale").getAsString();
 	}
 
 	@NotNull
@@ -68,7 +67,7 @@ public class Website implements LanguageEntity {
 	}
 
 	@Override
-	public @NotNull String getRawLanguage() throws NamelessException {
+	public @NotNull String getRawLocale() throws NamelessException {
 		return this.rawLanguage;
 	}
 

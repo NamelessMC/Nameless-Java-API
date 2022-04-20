@@ -191,8 +191,8 @@ public final class NamelessUser implements LanguageEntity {
 	}
 
 	@Override
-	public @NotNull String getRawLanguage() throws NamelessException {
-		return this.getUserInfo().get("language").getAsString();
+	public @NotNull String getRawLocale() throws NamelessException {
+		return this.getUserInfo().get("locale").getAsString();
 	}
 
 	public @NotNull VerificationInfo getVerificationInfo() throws NamelessException {
