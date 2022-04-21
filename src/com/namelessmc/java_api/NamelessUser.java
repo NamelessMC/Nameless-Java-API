@@ -384,7 +384,7 @@ public final class NamelessUser implements LanguageEntity {
 	public void setDiscordRoles(final long@NonNull[] roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
-		post.add("roles", NamelessAPI.GSON.toJsonTree(roleIds));
+		post.add("roles", this.requests.gson().toJsonTree(roleIds));
 		this.requests.post("discord/set-roles", post);
 	}
 

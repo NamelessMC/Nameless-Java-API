@@ -1,7 +1,6 @@
 package com.namelessmc.java_api;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -19,8 +18,6 @@ import java.util.stream.StreamSupport;
 
 public final class NamelessAPI {
 
-	static final Gson GSON = new Gson();
-
 	private final @NonNull RequestHandler requests;
 
 	// Not actually used by the Nameless Java API, but could be useful to applications using it.
@@ -35,16 +32,13 @@ public final class NamelessAPI {
 		this.apiKey = apiKey;
 	}
 
-
 	@NonNull RequestHandler getRequestHandler() {
 		return this.requests;
 	}
 
-
 	public @NonNull URL getApiUrl() {
 		return this.apiUrl;
 	}
-
 
 	public @NonNull String getApiKey() {
 		return this.apiKey;

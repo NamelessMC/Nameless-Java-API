@@ -48,6 +48,10 @@ public class RequestHandler {
 		this.responseLengthLimit = responseLengthLimit;
 	}
 
+	@NonNull Gson gson() {
+		return this.gson;
+	}
+
 	public @NonNull JsonObject post(final @NonNull String route,
 									final @NonNull JsonObject postData) throws NamelessException {
 		return makeConnection(route, postData);
