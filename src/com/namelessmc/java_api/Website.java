@@ -44,13 +44,11 @@ public class Website implements LanguageEntity {
 		this.language = json.get("language").getAsString();
 	}
 
-	@NonNull
-	public String getVersion() {
+	public @NonNull String getVersion() {
 		return this.version;
 	}
 
-	@NonNull
-	public NamelessVersion getParsedVersion() throws UnknownNamelessVersionException {
+	public @NonNull NamelessVersion getParsedVersion() throws UnknownNamelessVersionException {
 		return NamelessVersion.parse(this.version);
 	}
 
@@ -84,7 +82,7 @@ public class Website implements LanguageEntity {
 		private final boolean isUrgent;
 		private final @NonNull String version;
 
-		Update(final boolean isUrgent, @NonNull final String version) {
+		Update(final boolean isUrgent, final @NonNull String version) {
 			this.isUrgent = isUrgent;
 			this.version = version;
 		}
@@ -93,8 +91,8 @@ public class Website implements LanguageEntity {
 			return this.isUrgent;
 		}
 
-		@NonNull
-		public String getVersion() {
+
+		public @NonNull String getVersion() {
 			return this.version;
 		}
 

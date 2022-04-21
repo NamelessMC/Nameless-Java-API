@@ -21,8 +21,7 @@ public final class NamelessAPI {
 
 	static final Gson GSON = new Gson();
 
-	@NonNull
-	private final RequestHandler requests;
+	private final @NonNull RequestHandler requests;
 
 	// Not actually used by the Nameless Java API, but could be useful to applications using it.
 	private final @NonNull URL apiUrl;
@@ -55,8 +54,8 @@ public final class NamelessAPI {
 	 * Get announcements visible to guests. Use {@link NamelessUser#getAnnouncements()} for non-guest announcements.
 	 * @return List of announcements
 	 */
-	@NonNull
-	public List<@NonNull Announcement> getAnnouncements() throws NamelessException {
+
+	public @NonNull List<@NonNull Announcement> getAnnouncements() throws NamelessException {
 		final JsonObject response = this.requests.get("announcements");
 		return getAnnouncements(response);
 	}
@@ -67,9 +66,8 @@ public final class NamelessAPI {
 	 * @return List of announcements visible to the user
 	 * @deprecated Use {@link NamelessUser#getAnnouncements()}
 	 */
-	@NonNull
 	@Deprecated
-	public List<@NonNull Announcement> getAnnouncements(@NonNull final NamelessUser user) throws NamelessException {
+	public @NonNull List<@NonNull Announcement> getAnnouncements(final @NonNull NamelessUser user) throws NamelessException {
 		final JsonObject response = this.requests.get("users/" + user.getUserTransformer() + "/announcements");
 
 		return getAnnouncements(response);
@@ -80,8 +78,7 @@ public final class NamelessAPI {
 	 * @param response Announcements json API response
 	 * @return List of {@link Announcement} objects
 	 */
-	@NonNull
-	static List<@NonNull Announcement> getAnnouncements(@NonNull final JsonObject response) {
+	static @NonNull List<@NonNull Announcement> getAnnouncements(final @NonNull JsonObject response) {
 		return StreamSupport.stream(response.getAsJsonArray("announcements").spliterator(), false)
 					.map(JsonElement::getAsJsonObject)
 					.map(Announcement::new)
@@ -118,7 +115,7 @@ public final class NamelessAPI {
 		}
 	}
 
-	public @NonNull Optional<NamelessUser> getUser(@NonNull final String username) throws NamelessException {
+	public @NonNull Optional<NamelessUser> getUser(final @NonNull String username) throws NamelessException {
 		final NamelessUser user = getUserLazy(username);
 		if (user.exists()) {
 			return Optional.of(user);
@@ -127,7 +124,7 @@ public final class NamelessAPI {
 		}
 	}
 
-	public @NonNull Optional<NamelessUser> getUser(@NonNull final UUID uuid) throws NamelessException {
+	public @NonNull Optional<NamelessUser> getUser(final @NonNull UUID uuid) throws NamelessException {
 		final NamelessUser user = getUserLazy(uuid);
 		if (user.exists()) {
 			return Optional.of(user);
@@ -168,7 +165,7 @@ public final class NamelessAPI {
 	 * @param uuid Minecraft UUID
 	 * @return Nameless user object, never null
 	 */
-	public @NonNull NamelessUser getUserLazy(@NonNull final UUID uuid) {
+	public @NonNull NamelessUser getUserLazy(final @NonNull UUID uuid) {
 		return new NamelessUser(this, -1, null, true, uuid, false, -1L);
 	}
 
@@ -178,7 +175,7 @@ public final class NamelessAPI {
 	 * @param uuid The user's Mojang UUID
 	 * @return Nameless user object, never null
 	 */
-	public NamelessUser getUserLazy(@NonNull final String username, @NonNull final UUID uuid) {
+	public NamelessUser getUserLazy(final @NonNull String username, final @NonNull UUID uuid) {
 		return new NamelessUser(this, -1, username, true, uuid, false,-1L);
 	}
 
@@ -206,8 +203,7 @@ public final class NamelessAPI {
 	 * @param id Group id
 	 * @return Optional with a group if the group exists, empty optional if it doesn't
 	 */
-	@NonNull
-	public Optional<@NonNull Group> getGroup(final int id) throws NamelessException {
+	public @NonNull Optional<@NonNull Group> getGroup(final int id) throws NamelessException {
 		final JsonObject response = this.requests.get("groups", "id", id);
 		final JsonArray jsonArray = response.getAsJsonArray("groups");
 		if (jsonArray.size() != 1) {
@@ -222,8 +218,7 @@ public final class NamelessAPI {
 	 * @param name NamelessMC groups name
 	 * @return List of groups with this name, empty if there are no groups with this name.
 	 */
-	@NonNull
-	public List<@NonNull Group> getGroup(@NonNull final String name) throws NamelessException {
+	public @NonNull List<@NonNull Group> getGroup(final @NonNull String name) throws NamelessException {
 		Objects.requireNonNull(name, "Group name is null");
 		final JsonObject response = this.requests.get("groups", "name", name);
 		return groupListFromJsonArray(response.getAsJsonArray("groups"));
@@ -247,7 +242,7 @@ public final class NamelessAPI {
 				.toArray();
 	}
 
-	private @NonNull List<Group> groupListFromJsonArray(@NonNull final JsonArray array) {
+	private @NonNull List<Group> groupListFromJsonArray(final @NonNull JsonArray array) {
 		return StreamSupport.stream(array.spliterator(), false)
 				.map(JsonElement::getAsJsonObject)
 				.map(Group::new)
@@ -265,9 +260,9 @@ public final class NamelessAPI {
 	 * @return Email verification disabled: A link which the user needs to click to complete registration
 	 * <br>Email verification enabled: An empty string (the user needs to check their email to complete registration)
 	 */
-	public @NonNull Optional<String> registerUser(@NonNull final String username,
-												  @NonNull final String email,
-												  @NonNull IntegrationData@Nullable ... integrationData)
+	public @NonNull Optional<String> registerUser(final @NonNull String username,
+												  final @NonNull String email,
+												  final @NonNull IntegrationData@Nullable ... integrationData)
 			throws NamelessException, InvalidUsernameException, UsernameAlreadyExistsException,
 					CannotSendEmailException, IntegrationUsernameAlreadyExistsException,
 					IntegrationIdAlreadyExistsException, InvalidEmailAddressException, EmailAlreadyUsedException {
@@ -315,7 +310,7 @@ public final class NamelessAPI {
 	 * Set Discord bot URL (Nameless-Link internal webserver)
 	 * @param url Discord bot URL
 	 */
-	public void setDiscordBotUrl(@NonNull final URL url) throws NamelessException {
+	public void setDiscordBotUrl(final @NonNull URL url) throws NamelessException {
 		Objects.requireNonNull(url, "Bot url is null");
 
 		final JsonObject json = new JsonObject();
@@ -339,7 +334,7 @@ public final class NamelessAPI {
 	 * @param userId Bot user id
 	 * @see #setDiscordBotSettings(URL, long, String, long)
 	 */
-	public void setDiscordBotUser(@NonNull final String username, final long userId) throws NamelessException {
+	public void setDiscordBotUser(final @NonNull String username, final long userId) throws NamelessException {
 		Objects.requireNonNull(username, "Bot username is null");
 
 		final JsonObject json = new JsonObject();
@@ -358,7 +353,10 @@ public final class NamelessAPI {
 	 * @see #setDiscordGuildId(long)
 	 * @see #setDiscordBotUser(String, long)
 	 */
-	public void setDiscordBotSettings(@NonNull final URL url, final long guildId, @NonNull final String username, final long userId) throws NamelessException {
+	public void setDiscordBotSettings(final @NonNull URL url,
+									  final long guildId,
+									  final @NonNull String username,
+									  final long userId) throws NamelessException {
 		Objects.requireNonNull(url, "Bot url is null");
 		Objects.requireNonNull(username, "Bot username is null");
 
@@ -374,7 +372,7 @@ public final class NamelessAPI {
 	 * Send list of Discord roles to the website for populating the dropdown in StaffCP > API > Group sync
 	 * @param discordRoles Map of Discord roles, key is role id, value is role name
 	 */
-	public void submitDiscordRoleList(@NonNull final Map<Long, String> discordRoles) throws NamelessException {
+	public void submitDiscordRoleList(final @NonNull Map<Long, String> discordRoles) throws NamelessException {
 		final JsonArray roles = new JsonArray();
 		discordRoles.forEach((id, name) -> {
 			final JsonObject role = new JsonObject();
@@ -469,7 +467,7 @@ public final class NamelessAPI {
 	 * @param uuid UUID without dashes
 	 * @return UUID with dashes
 	 */
-	public static @NonNull UUID websiteUuidToJavaUuid(@NonNull final String uuid) {
+	public static @NonNull UUID websiteUuidToJavaUuid(final @NonNull String uuid) {
 		Objects.requireNonNull(uuid, "UUID string is null");
 		// Website sends UUIDs without dashes, so we can't use UUID#fromString
 		// https://stackoverflow.com/a/30760478
@@ -482,8 +480,8 @@ public final class NamelessAPI {
 		}
 	}
 
-	@NonNull
-	public static NamelessApiBuilder builder(@NonNull URL apiUrl, @NonNull String apiKey) {
+	public static @NonNull NamelessApiBuilder builder(final @NonNull URL apiUrl,
+											 final @NonNull String apiKey) {
 		return new NamelessApiBuilder(apiUrl, apiKey);
 	}
 

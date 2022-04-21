@@ -2,6 +2,7 @@ package com.namelessmc.java_api;
 
 import com.google.gson.JsonObject;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Objects;
 
@@ -41,7 +42,7 @@ public class Group implements Comparable<Group> {
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final @Nullable Object other) {
 		return other instanceof Group &&
 				((Group) other).id == this.id;
 	}

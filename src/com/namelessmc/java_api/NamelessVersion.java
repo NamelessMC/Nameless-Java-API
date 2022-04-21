@@ -30,7 +30,11 @@ public enum NamelessVersion {
 	private final boolean isBeta;
 
 	@SuppressWarnings("SameParameterValue")
-	NamelessVersion(@NonNull final String name, @NonNull String friendlyName, final int major, final int minor, final boolean isBeta) {
+	NamelessVersion(final @NonNull String name,
+					final @NonNull String friendlyName,
+					final int major,
+					final int minor,
+					final boolean isBeta) {
 		this.name = name;
 		this.friendlyName = friendlyName;
 		this.major = major;
@@ -74,7 +78,7 @@ public enum NamelessVersion {
 		}
 	}
 
-	public static @NonNull NamelessVersion parse(@NonNull final String versionName) throws UnknownNamelessVersionException {
+	public static @NonNull NamelessVersion parse(final @NonNull String versionName) throws UnknownNamelessVersionException {
 		Objects.requireNonNull(versionName, "Version name is null");
 		final NamelessVersion version = BY_NAME.get(versionName);
 		if (version == null) {

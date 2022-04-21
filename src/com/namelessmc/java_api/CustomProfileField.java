@@ -1,6 +1,7 @@
 package com.namelessmc.java_api;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Objects;
 
@@ -52,7 +53,7 @@ public class CustomProfileField {
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final @Nullable Object other) {
 		return other instanceof CustomProfileField &&
 				((CustomProfileField) other).id == this.id;
 	}

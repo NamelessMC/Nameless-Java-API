@@ -18,10 +18,9 @@ import java.util.stream.StreamSupport;
 
 public final class NamelessUser implements LanguageEntity {
 
-	@NonNull
-	private final NamelessAPI api;
-	@NonNull
-	private final RequestHandler requests;
+
+	private final @NonNull NamelessAPI api;
+	private final @NonNull RequestHandler requests;
 
 	private int id; // -1 if not known
 	private @Nullable String username; // null if not known
@@ -45,13 +44,13 @@ public final class NamelessUser implements LanguageEntity {
 	 * @param discordIdKnown True if it is known whether this user has a linked Discord id or not
 	 * @param discordId The user's discord id, or -1 if the user doesn't have a linked Discord id, or it is not known whether the user has a Discord id
 	 */
-	NamelessUser(@NonNull final NamelessAPI api,
+	NamelessUser(final @NonNull NamelessAPI api,
 				 final int id,
-				 @Nullable final String username,
-				 boolean uuidKnown,
-				 @Nullable UUID uuid,
-				 boolean discordIdKnown,
-				 long discordId
+				 final @Nullable String username,
+				 final boolean uuidKnown,
+				 final @Nullable UUID uuid,
+				 final boolean discordIdKnown,
+				 final long discordId
 	) {
 		this.api = api;
 		this.requests = api.getRequestHandler();
@@ -68,7 +67,7 @@ public final class NamelessUser implements LanguageEntity {
 		this.discordId = discordId;
 	}
 
-	private JsonObject getUserInfo() throws NamelessException {
+	private @NonNull JsonObject getUserInfo() throws NamelessException {
 		if (this._cachedUserInfo == null) {
 			final JsonObject response;
 			try {
@@ -91,7 +90,7 @@ public final class NamelessUser implements LanguageEntity {
 		return this._cachedUserInfo;
 	}
 
-	public String getUserTransformer() {
+	public @NonNull String getUserTransformer() {
 		if (id != -1) {
 			return "id:" + this.id;
 		} else if (this.uuidKnown && this.uuid != null) {
@@ -106,8 +105,7 @@ public final class NamelessUser implements LanguageEntity {
 		}
 	}
 
-	@NonNull
-	public NamelessAPI getApi() {
+	public @NonNull NamelessAPI getApi() {
 		return this.api;
 	}
 
@@ -266,21 +264,21 @@ public final class NamelessUser implements LanguageEntity {
 		}
 	}
 
-	public void addGroups(@NonNull final Group@NonNull ... groups) throws NamelessException {
+	public void addGroups(final @NonNull Group@NonNull ... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.add("groups", groupsToJsonArray(groups));
 		this.requests.post("users/" + this.getUserTransformer() + "/groups/add", post);
 		invalidateCache(); // Groups modified, invalidate cache
 	}
 
-	public void removeGroups(@NonNull final Group@NonNull... groups) throws NamelessException {
+	public void removeGroups(final @NonNull Group@NonNull... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.add("groups", groupsToJsonArray(groups));
 		this.requests.post("users/" + this.getUserTransformer() + "/groups/remove", post);
 		invalidateCache(); // Groups modified, invalidate cache
 	}
 
-	private JsonArray groupsToJsonArray(@NonNull final Group@NonNull [] groups) {
+	private JsonArray groupsToJsonArray(final @NonNull Group@NonNull [] groups) {
 		final JsonArray array = new JsonArray();
 		for (final Group group : groups) {
 			array.add(group.getId());
@@ -318,7 +316,7 @@ public final class NamelessUser implements LanguageEntity {
 	 * @throws AlreadyHasOpenReportException If the user creating this report already has an open report for this user
 	 * @throws CannotReportSelfException If the user tries to report themselves
 	 */
-	public void createReport(@NonNull final NamelessUser user, @NonNull final String reason)
+	public void createReport(final @NonNull NamelessUser user, final @NonNull String reason)
 			throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, CannotReportSelfException {
 		Objects.requireNonNull(user, "User to report is null");
 		Objects.requireNonNull(reason, "Report reason is null");
@@ -394,8 +392,7 @@ public final class NamelessUser implements LanguageEntity {
 	 * Get announcements visible to this user
 	 * @return List of announcements visible to this user
 	 */
-	@NonNull
-	public List<@NonNull Announcement> getAnnouncements() throws NamelessException {
+	public @NonNull List<@NonNull Announcement> getAnnouncements() throws NamelessException {
 		final JsonObject response = this.requests.get("users/" + this.getUserTransformer() + "/announcements");
 		return NamelessAPI.getAnnouncements(response);
 	}

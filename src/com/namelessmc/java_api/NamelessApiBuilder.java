@@ -50,7 +50,7 @@ public class NamelessApiBuilder {
 				.autoAcceptEncoding(true);
 	}
 
-	public @NonNull NamelessApiBuilder userAgent(@NonNull final String userAgent) {
+	public @NonNull NamelessApiBuilder userAgent(final @NonNull String userAgent) {
 		this.httpClientBuilder.userAgent(userAgent);
 		return this;
 	}
@@ -117,24 +117,24 @@ public class NamelessApiBuilder {
 		return this;
 	}
 
-	public @NonNull NamelessApiBuilder withProxy(ProxySelector proxy) {
+	public @NonNull NamelessApiBuilder withProxy(final ProxySelector proxy) {
 		this.httpClientBuilder.proxy(proxy);
 		return this;
 	}
 
 	@Deprecated
-	public @NonNull NamelessApiBuilder proxy(ProxySelector proxy) {
+	public @NonNull NamelessApiBuilder proxy(final ProxySelector proxy) {
 		this.httpClientBuilder.proxy(proxy);
 		return this;
 	}
 
 	@Deprecated
-	public @NonNull NamelessApiBuilder withAuthenticator(Authenticator authenticator) {
+	public @NonNull NamelessApiBuilder withAuthenticator(final Authenticator authenticator) {
 		this.httpClientBuilder.authenticator(authenticator);
 		return this;
 	}
 
-	public @NonNull NamelessApiBuilder authenticator(Authenticator authenticator) {
+	public @NonNull NamelessApiBuilder authenticator(final Authenticator authenticator) {
 		this.httpClientBuilder.authenticator(authenticator);
 		return this;
 	}
