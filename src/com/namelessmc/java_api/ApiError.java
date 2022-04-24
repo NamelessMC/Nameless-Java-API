@@ -44,9 +44,9 @@ public class ApiError extends NamelessException {
 	public static final int DISCORD_INTEGRATION_DISABLED = 34;
 	// 35 intentionally missing
 	public static final int REQUEST_NOT_AUTHORIZED = 36;
-	public static final int INVALID_INTEGRATION = 37;
-	public static final int INTEGRATION_USERNAME_ALREADY_EXISTS = 38;
-	public static final int INTEGRATION_ID_ALREADY_EXISTS = 39;
+	public static final int INTEGRATION_INVALID = 37;
+	public static final int INTEGRATION_USERNAME_INVALID = 38;
+	public static final int INTEGRATION_IDENTIFIER_INVALID = 39;
 
 	private static final long serialVersionUID = 3093028909912281912L;
 
