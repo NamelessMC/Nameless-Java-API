@@ -170,7 +170,7 @@ public class RequestHandler {
 			int totalLengthLimit = 1950; // fit in a Discord message with safety margin
 			String printableResponse = regularAsciiOnly(responseBody);
 			message.append(Ascii.truncate(printableResponse, totalLengthLimit - printableResponse.length(), "[truncated]\n"));
-			if (message.charAt(message.length()) != '\n') {
+			if (message.charAt(message.length() - 1) != '\n') {
 				message.append('\n');
 			}
 
