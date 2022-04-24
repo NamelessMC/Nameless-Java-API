@@ -85,28 +85,33 @@ public class RequestHandler {
 		return makeConnection(urlBuilder.toString(), null);
 	}
 
-	private void debug(final @NonNull String message,
-					   final @NonNull Supplier<Object[]> argsSupplier) {
+	private void debug(final @NonNull String message) {
 		if (this.debugLogger != null) {
-			this.debugLogger.log(String.format(message, argsSupplier.get()));
+			this.debugLogger.log(message);
+		}
+	}
+
+	private void debug(final @NonNull Supplier<String> messageSupplier) {
+		if (this.debugLogger != null) {
+			this.debugLogger.log(messageSupplier.get());
 		}
 	}
 
 	private @NonNull JsonObject makeConnection(final @NonNull String route,
 											   final @Nullable JsonObject postBody) throws NamelessException {
 		Preconditions.checkArgument(!route.startsWith("/"), "Route must not start with a slash");
-		final MutableRequest request = MutableRequest.create(URI.create(this.apiUrl.toString() + route));
+		final MutableRequest request = MutableRequest.create(URI.create(this.apiUrl + route));
 
-		debug("Making connection %s to %s",
-				() -> new Object[]{ postBody != null ? "POST" : "GET", request.uri()});
+		debug(() -> "Making connection " + (postBody != null ? "POST" : "GET") + " to " + request.uri());
 
 		if (postBody != null) {
 			byte[] postBytes = gson.toJson(postBody).getBytes(StandardCharsets.UTF_8);
 			request.POST(HttpRequest.BodyPublishers.ofByteArray(postBytes));
 			request.header("Content-Type", "application/json");
 
-			debug("Post body below\n-----------------\n%s\n-----------------",
-					() -> new Object[] { new String(postBytes, StandardCharsets.UTF_8) });
+			debug("Post body below\n-----------------");
+			debug(() -> new String(postBytes, StandardCharsets.UTF_8));
+			debug("\n-----------------");
 		} else {
 			request.GET();
 		}
@@ -123,7 +128,7 @@ public class RequestHandler {
 			final StringBuilder message = new StringBuilder("Network connection error (not a Nameless issue).");
 			if (exceptionMessage != null &&
 					exceptionMessage.contains("unable to find valid certification path to requested target")) {
-				message.append("\n HINT: Your certificate is invalid or incomplete. Ensure your website uses a valid *full chain* SSL/TLS certificate.");
+				message.append("\nHINT: Your certificate is invalid or incomplete. Ensure your website uses a valid *full chain* SSL/TLS certificate.");
 			}
 			message.append(" IOException: ");
 			message.append(e.getMessage());
@@ -132,8 +137,9 @@ public class RequestHandler {
 			throw new RuntimeException(e);
 		}
 
-		debug("Website response below\n-----------------\n%s\n-----------------",
-				() -> new Object[] { regularAsciiOnly(responseBody) });
+		debug("Website response below\n-----------------");
+		debug(() -> regularAsciiOnly(responseBody));
+		debug("\n-----------------");
 
 		if (responseBody.length() == 0) {
 			throw new NamelessException("Website sent empty response with status code " + statusCode);

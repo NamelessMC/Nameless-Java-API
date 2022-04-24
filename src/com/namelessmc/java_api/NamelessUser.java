@@ -49,33 +49,35 @@ public final class NamelessUser implements LanguageEntity {
 	}
 
 	private @NonNull JsonObject getUserInfo() throws NamelessException {
-		if (this._cachedUserInfo == null) {
-			final JsonObject response;
-			try {
-				response = this.requests.get("users/" + this.userTransformer);
-			} catch (final ApiError e) {
-				if (e.getError() == ApiError.UNABLE_TO_FIND_USER) {
-					throw new UserNotExistException();
-				} else {
-					throw e;
-				}
-			}
+		if (this._cachedUserInfo != null) {
+			return this._cachedUserInfo;
+		}
 
-			if (!response.get("exists").getAsBoolean()) {
+		final JsonObject response;
+		try {
+			response = this.requests.get("users/" + this.userTransformer);
+		} catch (final ApiError e) {
+			if (e.getError() == ApiError.UNABLE_TO_FIND_USER) {
 				throw new UserNotExistException();
-			}
-
-			this._cachedUserInfo = response;
-
-			if (this.id < 0) {
-				// The id was unknown before (we were using some other identifier to find the user)
-				// Now that we do know the id, use the id to identify the user instead
-				this.id = response.get("id").getAsInt();
-				this.userTransformer = "id:" + this.id;
+			} else {
+				throw e;
 			}
 		}
 
-		return this._cachedUserInfo;
+		if (!response.get("exists").getAsBoolean()) {
+			throw new UserNotExistException();
+		}
+
+		this._cachedUserInfo = response;
+
+		if (this.id < 0) {
+			// The id was unknown before (we were using some other identifier to find the user)
+			// Now that we do know the id, use the id to identify the user instead
+			this.id = response.get("id").getAsInt();
+			this.userTransformer = "id:" + this.id;
+		}
+
+		return response;
 	}
 
 	public @NonNull NamelessAPI getApi() {
@@ -390,7 +392,7 @@ public final class NamelessUser implements LanguageEntity {
 
 		final JsonObject userInfo = this.getUserInfo();
 		final JsonArray integrationsJsonArray = userInfo.getAsJsonArray("integrations");
-		this._cachedIntegrationData = new HashMap<>(integrationsJsonArray.size());
+		Map<String, DetailedIntegrationData> integrationDataMap = new HashMap<>(integrationsJsonArray.size());
 		for (JsonElement integrationElement : integrationsJsonArray) {
 			JsonObject integrationJson = integrationElement.getAsJsonObject();
 			String integrationName = integrationJson.get("integration").getAsString();
@@ -405,9 +407,10 @@ public final class NamelessUser implements LanguageEntity {
 				default:
 					integrationData = new DetailedIntegrationData(integrationJson);
 			}
-			this._cachedIntegrationData.put(integrationName, integrationData);
+			integrationDataMap.put(integrationName, integrationData);
 		}
-		return this._cachedIntegrationData;
+		this._cachedIntegrationData = integrationDataMap;
+		return integrationDataMap;
 	}
 
 	public Optional<UUID> getMinecraftUuid() throws NamelessException {

@@ -16,7 +16,7 @@ public class DetailedMinecraftIntegrationData extends DetailedIntegrationData im
 	}
 
 	@Override
-	public @NonNull UUID getUniqueId() {
+	public final @NonNull UUID getUniqueId() {
 		return this.uuid;
 	}
 }

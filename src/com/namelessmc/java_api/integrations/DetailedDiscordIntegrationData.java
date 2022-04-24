@@ -13,7 +13,7 @@ public class DetailedDiscordIntegrationData extends DetailedIntegrationData impl
 	}
 
 	@Override
-	public long getIdLong() {
+	public final long getIdLong() {
 		return this.idLong;
 	}
 }

@@ -1,5 +1,6 @@
 package com.namelessmc.java_api.integrations;
 
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class IntegrationData {
@@ -16,15 +17,15 @@ public class IntegrationData {
 		this.username = username;
 	}
 
-	public @NonNull String getIntegrationType() {
+	public final @NonNull String getIntegrationType(@UnknownInitialization(IntegrationData.class) IntegrationData this) {
 		return this.integrationType;
 	}
 
-	public @NonNull String getIdentifier() {
+	public final @NonNull String getIdentifier(@UnknownInitialization(IntegrationData.class) IntegrationData this) {
 		return this.identifier;
 	}
 
-	public @NonNull String getUsername() {
+	public final @NonNull String getUsername(@UnknownInitialization(IntegrationData.class) IntegrationData this) {
 		return this.username;
 	}
 

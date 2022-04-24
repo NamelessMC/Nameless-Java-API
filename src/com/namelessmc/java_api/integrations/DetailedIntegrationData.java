@@ -34,15 +34,15 @@ public class DetailedIntegrationData extends IntegrationData {
 		);
 	}
 
-	public boolean isVerified() {
-		return verified;
+	public final boolean isVerified() {
+		return this.verified;
 	}
 
-	public @NonNull Date getLinkedDate() {
+	public final @NonNull Date getLinkedDate() {
 		return this.linkedDate;
 	}
 
-	public boolean isShownPublicly() {
+	public final boolean isShownPublicly() {
 		return this.shownPublicly;
 	}
 
