@@ -29,7 +29,7 @@ public class DetailedIntegrationData extends IntegrationData {
 				json.get("identifier").getAsString(),
 				json.get("username").getAsString(),
 				json.get("verified").getAsBoolean(),
-				new Date(json.get("linked_date").getAsLong()),
+				new Date(json.get("linked_date").getAsLong() * 1000),
 				json.get("show_publicly").getAsBoolean()
 		);
 	}
