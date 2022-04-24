@@ -5,9 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.Notification.NotificationType;
-import com.namelessmc.java_api.exception.AlreadyHasOpenReportException;
-import com.namelessmc.java_api.exception.CannotReportSelfException;
-import com.namelessmc.java_api.exception.ReportUserBannedException;
+import com.namelessmc.java_api.exception.*;
 import com.namelessmc.java_api.integrations.*;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -430,6 +428,23 @@ public final class NamelessUser implements LanguageEntity {
 		}
 
 		return Optional.of(((IDiscordIntegrationData) integration).getIdLong());
+	}
+
+	public void verify(final @NonNull String verificationCode) throws NamelessException, AccountAlreadyActivatedException, InvalidValidateCodeException {
+		final JsonObject body = new JsonObject();
+		body.addProperty("code", verificationCode);
+		try {
+			this.requests.post("users/" + this.userTransformer + "/verify", body);
+		} catch (final ApiError e) {
+			switch(e.getError()) {
+				case ApiError.ACCOUNT_ALREADY_ACTIVATED:
+					throw new AccountAlreadyActivatedException();
+				case ApiError.INVALID_VALIDATE_CODE:
+					throw new InvalidValidateCodeException();
+				default:
+					throw e;
+			}
+		}
 	}
 
 }
