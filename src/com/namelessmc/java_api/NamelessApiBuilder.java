@@ -55,29 +55,18 @@ public class NamelessApiBuilder {
 		return this;
 	}
 
+	@Deprecated
 	public @NonNull NamelessApiBuilder debug(final boolean debug) {
 		if (debug) {
-			return this.withStdErrDebugLogging();
+			return this.stdErrDebugLogger();
 		} else {
 			this.debugLogger = null;
 			return this;
 		}
 	}
 
-	@Deprecated
-	public @NonNull NamelessApiBuilder withStdErrDebugLogging() {
-		this.debugLogger = PrintStreamLogger.DEFAULT_INSTANCE;
-		return this;
-	}
-
 	public @NonNull NamelessApiBuilder stdErrDebugLogger() {
 		this.debugLogger = PrintStreamLogger.DEFAULT_INSTANCE;
-		return this;
-	}
-
-	@Deprecated
-	public @NonNull NamelessApiBuilder withSlf4jDebugLogging() {
-		this.debugLogger = Slf4jLogger.DEFAULT_INSTANCE;
 		return this;
 	}
 
@@ -86,27 +75,8 @@ public class NamelessApiBuilder {
 		return this;
 	}
 
-	@Deprecated
-	public @NonNull NamelessApiBuilder withCustomDebugLogger(final @Nullable ApiLogger debugLogger) {
-		this.debugLogger = debugLogger;
-		return this;
-	}
-
 	public @NonNull NamelessApiBuilder customDebugLogger(final @Nullable ApiLogger debugLogger) {
 		this.debugLogger = debugLogger;
-		return this;
-	}
-
-	@Deprecated
-	public @NonNull NamelessApiBuilder withTimeoutMillis(final int timeout) {
-		return this.withTimeout(Duration.ofMillis(timeout));
-	}
-
-	@Deprecated
-	public @NonNull NamelessApiBuilder withTimeout(final @NonNull Duration timeout) {
-		this.httpClientBuilder.readTimeout(timeout)
-				.requestTimeout(timeout)
-				.connectTimeout(timeout);
 		return this;
 	}
 
@@ -122,37 +92,13 @@ public class NamelessApiBuilder {
 		return this;
 	}
 
-	@Deprecated
-	public @NonNull NamelessApiBuilder proxy(final ProxySelector proxy) {
-		this.httpClientBuilder.proxy(proxy);
-		return this;
-	}
-
-	@Deprecated
-	public @NonNull NamelessApiBuilder withAuthenticator(final Authenticator authenticator) {
-		this.httpClientBuilder.authenticator(authenticator);
-		return this;
-	}
-
 	public @NonNull NamelessApiBuilder authenticator(final Authenticator authenticator) {
 		this.httpClientBuilder.authenticator(authenticator);
 		return this;
 	}
 
-	@Deprecated
-	public @NonNull NamelessApiBuilder withPrettyJson() {
-		gsonBuilder.setPrettyPrinting();
-		return this;
-	}
-
 	public @NonNull NamelessApiBuilder pettyJsonRequests() {
 		gsonBuilder.setPrettyPrinting();
-		return this;
-	}
-
-	@Deprecated
-	public @NonNull NamelessApiBuilder withResponseSizeLimit(int responseSizeLimitBytes) {
-		this.responseSizeLimit = responseSizeLimitBytes;
 		return this;
 	}
 
