@@ -9,6 +9,7 @@ import com.namelessmc.java_api.exception.AlreadyHasOpenReportException;
 import com.namelessmc.java_api.exception.CannotReportSelfException;
 import com.namelessmc.java_api.exception.ReportUserBannedException;
 import com.namelessmc.java_api.integrations.*;
+import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -22,56 +23,36 @@ public final class NamelessUser implements LanguageEntity {
 	private final @NonNull NamelessAPI api;
 	private final @NonNull RequestHandler requests;
 
+	private @NonNull String userTransformer;
 	private int id; // -1 if not known
-	private @Nullable String username; // null if not known
-	private boolean uuidKnown;
-	private @Nullable UUID uuid; // null if not known or not present
-	private boolean discordIdKnown;
-	private long discordId; // -1 if not known or not present
 
 	// Do not use directly, instead use getUserInfo() and getIntegrations()
 	private @Nullable JsonObject _cachedUserInfo;
 	private @Nullable Map<String, DetailedIntegrationData> _cachedIntegrationData;
 
-
-	/**
-	 * Create a Nameless user. Only one of 'id', 'uuid', 'discordId' has to be provided.
-	 * @param api Nameless API
-	 * @param id The user's id, or -1 if not known
-	 * @param username The user's username, or null if not known
-	 * @param uuidKnown True if it is known whether this user has a UUID or not
-	 * @param uuid The user's uuid, or null if the user doesn't have a UUID, or it is not known whether the user has a UUID
-	 * @param discordIdKnown True if it is known whether this user has a linked Discord id or not
-	 * @param discordId The user's discord id, or -1 if the user doesn't have a linked Discord id, or it is not known whether the user has a Discord id
-	 */
 	NamelessUser(final @NonNull NamelessAPI api,
-				 final int id,
-				 final @Nullable String username,
-				 final boolean uuidKnown,
-				 final @Nullable UUID uuid,
-				 final boolean discordIdKnown,
-				 final long discordId
+				 final @Positive int id
 	) {
 		this.api = api;
 		this.requests = api.getRequestHandler();
 
-		if (id == -1 && username == null && !uuidKnown && !discordIdKnown) {
-			throw new IllegalArgumentException("You must specify at least one of ID, uuid, username, discordId");
-		}
-
 		this.id = id;
-		this.username = username;
-		this.uuidKnown = uuidKnown;
-		this.uuid = uuid;
-		this.discordIdKnown = discordIdKnown;
-		this.discordId = discordId;
+		this.userTransformer = "id:" + id;
+	}
+
+	NamelessUser(final @NonNull NamelessAPI api, final @NonNull String userTransformer) {
+		this.api = api;
+		this.requests = api.getRequestHandler();
+
+		this.id = -1;
+		this.userTransformer = userTransformer;
 	}
 
 	private @NonNull JsonObject getUserInfo() throws NamelessException {
 		if (this._cachedUserInfo == null) {
 			final JsonObject response;
 			try {
-				response = this.requests.get("users/" + this.getUserTransformer());
+				response = this.requests.get("users/" + this.userTransformer);
 			} catch (final ApiError e) {
 				if (e.getError() == ApiError.UNABLE_TO_FIND_USER) {
 					throw new UserNotExistException();
@@ -85,24 +66,16 @@ public final class NamelessUser implements LanguageEntity {
 			}
 
 			this._cachedUserInfo = response;
+
+			if (this.id < 0) {
+				// The id was unknown before (we were using some other identifier to find the user)
+				// Now that we do know the id, use the id to identify the user instead
+				this.id = response.get("id").getAsInt();
+				this.userTransformer = "id:" + this.id;
+			}
 		}
 
 		return this._cachedUserInfo;
-	}
-
-	public @NonNull String getUserTransformer() {
-		if (id != -1) {
-			return "id:" + this.id;
-		} else if (this.uuidKnown && this.uuid != null) {
-			return "integration_id:minecraft:" + NamelessAPI.javaUuidToWebsiteUuid(uuid);
-		} else if (this.discordIdKnown && this.discordId != -1) {
-			return "integration_id:discord:" + this.discordId;
-		} else if (this.username != null) {
-			return "username:" + username;
-		} else {
-			throw new IllegalStateException("ID, uuid, and username not known for this player. " +
-					"This should be impossible, the constructor checks for this.");
-		}
 	}
 
 	public @NonNull NamelessAPI getApi() {
@@ -121,14 +94,6 @@ public final class NamelessUser implements LanguageEntity {
 	public void invalidateCache() {
 		this._cachedUserInfo = null;
 		this._cachedIntegrationData = null;
-		if (this.id != -1) {
-			// Only clear if we know the user's NamelessMC user id, otherwise we remove
-			// the only way to identify this user
-			this.uuidKnown = false;
-			this.uuid = null;
-			this.discordIdKnown = false;
-			this.username = null;
-		}
 	}
 
 	public int getId() throws NamelessException {
@@ -140,17 +105,13 @@ public final class NamelessUser implements LanguageEntity {
 	}
 
 	public @NonNull String getUsername() throws NamelessException {
-		if (this.username == null) {
-			this.username = this.getUserInfo().get("username").getAsString();
-		}
-
-		return this.username;
+		return this.getUserInfo().get("username").getAsString();
 	}
 
 	public void updateUsername(final @NonNull String username) throws NamelessException {
 		JsonObject post = new JsonObject();
 		post.addProperty("username", username);
-		this.requests.post("users/" + this.getUserTransformer() + "/update-username", post);
+		this.requests.post("users/" + this.userTransformer + "/update-username", post);
 	}
 
 	public boolean exists() throws NamelessException {
@@ -258,14 +219,14 @@ public final class NamelessUser implements LanguageEntity {
 	public void addGroups(final @NonNull Group@NonNull ... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.add("groups", groupsToJsonArray(groups));
-		this.requests.post("users/" + this.getUserTransformer() + "/groups/add", post);
+		this.requests.post("users/" + this.userTransformer + "/groups/add", post);
 		invalidateCache(); // Groups modified, invalidate cache
 	}
 
 	public void removeGroups(final @NonNull Group@NonNull... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.add("groups", groupsToJsonArray(groups));
-		this.requests.post("users/" + this.getUserTransformer() + "/groups/remove", post);
+		this.requests.post("users/" + this.userTransformer + "/groups/remove", post);
 		invalidateCache(); // Groups modified, invalidate cache
 	}
 
@@ -278,12 +239,12 @@ public final class NamelessUser implements LanguageEntity {
 	}
 
 	public int getNotificationCount() throws NamelessException {
-		final JsonObject response = this.requests.get("users/" + this.getUserTransformer() + "/notifications");
+		final JsonObject response = this.requests.get("users/" + this.userTransformer + "/notifications");
 		return response.getAsJsonArray("notifications").size();
 	}
 
 	public @NonNull List<Notification> getNotifications() throws NamelessException {
-		final JsonObject response = this.requests.get("users/" + this.getUserTransformer() + "/notifications");
+		final JsonObject response = this.requests.get("users/" + this.userTransformer + "/notifications");
 
 		final List<Notification> notifications = new ArrayList<>();
 		response.getAsJsonArray("notifications").forEach((element) -> {
@@ -384,7 +345,7 @@ public final class NamelessUser implements LanguageEntity {
 	 * @return List of announcements visible to this user
 	 */
 	public @NonNull List<@NonNull Announcement> getAnnouncements() throws NamelessException {
-		final JsonObject response = this.requests.get("users/" + this.getUserTransformer() + "/announcements");
+		final JsonObject response = this.requests.get("users/" + this.userTransformer + "/announcements");
 		return NamelessAPI.getAnnouncements(response);
 	}
 
@@ -393,7 +354,7 @@ public final class NamelessUser implements LanguageEntity {
 	 * @since 2021-10-24 commit <code>cce8d262b0be3f70818c188725cd7e7fc4fdbb9a</code>
 	 */
 	public void banUser() throws NamelessException {
-		this.requests.post("users/" + this.getUserTransformer() + "/ban", new JsonObject());
+		this.requests.post("users/" + this.userTransformer + "/ban", new JsonObject());
 	}
 
 	public @NonNull Collection<@NonNull CustomProfileFieldValue> getProfileFields() throws NamelessException {
@@ -450,41 +411,22 @@ public final class NamelessUser implements LanguageEntity {
 	}
 
 	public Optional<UUID> getMinecraftUuid() throws NamelessException {
-		if (this.uuidKnown) {
-			return Optional.ofNullable(this.uuid);
-		}
-
 		final DetailedIntegrationData integration = this.getIntegrations().get(StandardIntegrationTypes.MINECRAFT);
-		this.uuidKnown = true;
-
 		if (integration == null) {
-			this.uuid = null;
-		} else {
-			this.uuid = ((IMinecraftIntegrationData) integration).getUniqueId();
+			return Optional.empty();
 		}
 
-		return this.getMinecraftUuid();
+		return Optional.of(((IMinecraftIntegrationData) integration).getUniqueId());
 	}
 
 	public Optional<Long> getDiscordId() throws NamelessException {
-		if (this.discordIdKnown) {
-			if (this.discordId == -1) {
-				return Optional.empty();
-			} else {
-				return Optional.of(this.discordId);
-			}
-		}
-
 		final DetailedIntegrationData integration = this.getIntegrations().get(StandardIntegrationTypes.DISCORD);
 
-		this.discordIdKnown = true;
 		if (integration == null) {
-			this.discordId = -1;
-		} else {
-			this.discordId = ((IDiscordIntegrationData) integration).getIdLong();
+			return Optional.empty();
 		}
 
-		return this.getDiscordId();
+		return Optional.of(((IDiscordIntegrationData) integration).getIdLong());
 	}
 
 }

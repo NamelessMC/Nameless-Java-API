@@ -61,19 +61,7 @@ public class FilteredUserListBuilder {
 		for (final JsonElement e : array) {
 			final JsonObject o = e.getAsJsonObject();
 			final int id = o.get("id").getAsInt();
-			final String username = o.get("username").getAsString();
-			final UUID uuid;
-			if (o.has("uuid")) {
-				final String uuidString = o.get("uuid").getAsString();
-				if (uuidString == null || uuidString.equals("none") || uuidString.equals("")) {
-					uuid = null;
-				} else {
-					uuid = NamelessAPI.websiteUuidToJavaUuid(uuidString);
-				}
-			} else {
-				uuid = null;
-			}
-			users.add(new NamelessUser(this.api, id, username, true, uuid, false, -1L));
+			users.add(this.api.getUserLazy(id));
 		}
 
 		return Collections.unmodifiableList(users);

@@ -55,19 +55,6 @@ public final class NamelessAPI {
 	}
 
 	/**
-	 * Get announcements visible to a {@link NamelessUser}
-	 * @param user User to get visible announcements for
-	 * @return List of announcements visible to the user
-	 * @deprecated Use {@link NamelessUser#getAnnouncements()}
-	 */
-	@Deprecated
-	public @NonNull List<@NonNull Announcement> getAnnouncements(final @NonNull NamelessUser user) throws NamelessException {
-		final JsonObject response = this.requests.get("users/" + user.getUserTransformer() + "/announcements");
-
-		return getAnnouncements(response);
-	}
-
-	/**
 	 * Convert announcement json to objects
 	 * @param response Announcements json API response
 	 * @return List of {@link Announcement} objects
@@ -102,38 +89,32 @@ public final class NamelessAPI {
 
 	public @NonNull Optional<NamelessUser> getUser(final int id) throws NamelessException {
 		final NamelessUser user = getUserLazy(id);
-		if (user.exists()) {
-			return Optional.of(user);
-		} else {
-			return Optional.empty();
-		}
+		return user.exists() ? Optional.of(user) : Optional.empty();
 	}
 
-	public @NonNull Optional<NamelessUser> getUser(final @NonNull String username) throws NamelessException {
-		final NamelessUser user = getUserLazy(username);
-		if (user.exists()) {
-			return Optional.of(user);
-		} else {
-			return Optional.empty();
-		}
+	public @NonNull Optional<NamelessUser> getUserByUsername(final @NonNull String username) throws NamelessException {
+		final NamelessUser user = getUserByUsernameLazy(username);
+		return user.exists() ? Optional.of(user) : Optional.empty();
 	}
 
-	public @NonNull Optional<NamelessUser> getUser(final @NonNull UUID uuid) throws NamelessException {
-		final NamelessUser user = getUserLazy(uuid);
-		if (user.exists()) {
-			return Optional.of(user);
-		} else {
-			return Optional.empty();
-		}
+	public @NonNull Optional<NamelessUser> getUserByMinecraftUuid(final @NonNull UUID uuid) throws NamelessException {
+		final NamelessUser user = getUserByMinecraftUuidLazy(uuid);
+		return user.exists() ? Optional.of(user) : Optional.empty();
 	}
 
-	public @NonNull Optional<NamelessUser> getUserByDiscordId(final long discordId) throws NamelessException {
-		final NamelessUser user = getUserLazyDiscord(discordId);
-		if (user.exists()) {
-			return Optional.of(user);
-		} else {
-			return Optional.empty();
-		}
+	public @NonNull Optional<NamelessUser> getUserByMinecraftUsername(final @NonNull String username) throws NamelessException {
+		final NamelessUser user = getUserByMinecraftUsernameLazy(username);
+		return user.exists() ? Optional.of(user) : Optional.empty();
+	}
+
+	public @NonNull Optional<NamelessUser> getUserByDiscordId(final long id) throws NamelessException {
+		final NamelessUser user = getUserByDiscordIdLazy(id);
+		return user.exists() ? Optional.of(user) : Optional.empty();
+	}
+
+	public @NonNull Optional<NamelessUser> getUserByDiscordUsername(final @NonNull String username) throws NamelessException {
+		final NamelessUser user = getUserByDiscordUsernameLazy(username);
+		return user.exists() ? Optional.of(user) : Optional.empty();
 	}
 
 	/**
@@ -142,54 +123,31 @@ public final class NamelessAPI {
 	 * @return Nameless user object, never null
 	 */
 	public @NonNull NamelessUser getUserLazy(final int id) {
-		return new NamelessUser(this, id, null, false, null, false, -1L);
+		return new NamelessUser(this, id);
 	}
 
-	/**
-	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
-	 * @param username NamelessMC user
-	 * @return Nameless user object, never null
-	 */
-	public @NonNull NamelessUser getUserLazy(final @NonNull String username) {
-		return new NamelessUser(this, -1, username, false, null, false, -1L);
+	public @NonNull NamelessUser getUserLazy(final @NonNull String userTransformer) {
+		return new NamelessUser(this, userTransformer);
 	}
 
-	/**
-	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
-	 * @param uuid Minecraft UUID
-	 * @return Nameless user object, never null
-	 */
-	public @NonNull NamelessUser getUserLazy(final @NonNull UUID uuid) {
-		return new NamelessUser(this, -1, null, true, uuid, false, -1L);
+	public @NonNull NamelessUser getUserByUsernameLazy(final @NonNull String username) {
+		return getUserLazy("username:" + username);
 	}
 
-	/**
-	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
-	 * @param username The user's username
-	 * @param uuid The user's Mojang UUID
-	 * @return Nameless user object, never null
-	 */
-	public NamelessUser getUserLazy(final @NonNull String username, final @NonNull UUID uuid) {
-		return new NamelessUser(this, -1, username, true, uuid, false,-1L);
+	public @NonNull NamelessUser getUserByMinecraftUuidLazy(final @NonNull UUID uuid) {
+		return getUserLazy("integration_id:minecraft:" + javaUuidToWebsiteUuid(uuid));
 	}
 
-	/**
-	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
-	 * @param id NamelessMC user id
-	 * @return Nameless user object, never null
-	 */
-	public NamelessUser getUserLazy(final int id, final @NonNull String username, final @NonNull UUID uuid) {
-		return new NamelessUser(this, id, username, true, uuid, false, -1L);
+	public @NonNull NamelessUser getUserByMinecraftUsernameLazy(final @NonNull String username) {
+		return getUserLazy("integration_username:minecraft:" + username);
 	}
 
-	/**
-	 * Construct a NamelessUser object without making API requests (so without checking if the user exists)
-	 * @param discordId Discord user id
-	 * @return Nameless user object, never null
-	 */
-	public NamelessUser getUserLazyDiscord(final long discordId) {
-		Preconditions.checkArgument(discordId > 0, "Discord id must be a positive long");
-		return new NamelessUser(this, -1, null, false, null, true, discordId);
+	public @NonNull NamelessUser getUserByDiscordIdLazy(final long id) {
+		return getUserLazy("integration_id:discord:" + id);
+	}
+
+	public @NonNull NamelessUser getUserByDiscordUsernameLazy(final @NonNull String username) {
+		return getUserLazy("integration_username:discord:" + username);
 	}
 
 	/**
