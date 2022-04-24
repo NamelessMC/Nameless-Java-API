@@ -42,7 +42,7 @@ public class NamelessApiBuilder {
 		this.gsonBuilder.disableHtmlEscaping();
 
 		this.httpClientBuilder = Methanol.newBuilder()
-				.defaultHeader("X-Api-Key", this.apiKey)
+				.defaultHeader("Authorization", "Bearer " + this.apiKey)
 				.userAgent(DEFAULT_USER_AGENT)
 				.readTimeout(DEFAULT_TIMEOUT)
 				.requestTimeout(DEFAULT_TIMEOUT)
