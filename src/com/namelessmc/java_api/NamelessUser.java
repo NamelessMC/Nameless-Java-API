@@ -94,7 +94,7 @@ public final class NamelessUser implements LanguageEntity {
 		if (id != -1) {
 			return "id:" + this.id;
 		} else if (this.uuidKnown && this.uuid != null) {
-			return "integration_id:minecraft:" + this.uuid;
+			return "integration_id:minecraft:" + NamelessAPI.javaUuidToWebsiteUuid(uuid);
 		} else if (this.discordIdKnown && this.discordId != -1) {
 			return "integration_id:discord:" + this.discordId;
 		} else if (this.username != null) {

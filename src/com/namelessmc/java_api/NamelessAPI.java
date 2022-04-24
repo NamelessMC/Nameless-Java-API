@@ -474,6 +474,10 @@ public final class NamelessAPI {
 		}
 	}
 
+	public static @NonNull String javaUuidToWebsiteUuid(final @NonNull UUID uuid) {
+		return uuid.toString().replace("-", "");
+	}
+
 	public static @NonNull NamelessApiBuilder builder(final @NonNull URL apiUrl,
 											 final @NonNull String apiKey) {
 		return new NamelessApiBuilder(apiUrl, apiKey);
