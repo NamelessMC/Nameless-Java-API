@@ -6,6 +6,7 @@ import com.namelessmc.java_api.exception.UnknownNamelessVersionException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
@@ -16,7 +17,7 @@ public class Website implements LanguageEntity {
 	private final @NonNull String version;
 	private final @Nullable Update update;
 	private final @NonNull String@NonNull[] modules;
-	private final @NonNull String language;
+	private final @NonNull String rawLanguage;
 
 	Website(final @NonNull JsonObject json) {
 		Objects.requireNonNull(json, "Provided json object is null");
@@ -41,7 +42,7 @@ public class Website implements LanguageEntity {
 			this.update = null;
 		}
 
-		this.language = json.get("language").getAsString();
+		this.rawLanguage = json.get("locale").getAsString();
 	}
 
 	public @NonNull String getVersion() {
@@ -64,17 +65,8 @@ public class Website implements LanguageEntity {
 	}
 
 	@Override
-	public @NonNull String getLanguage() {
-		return this.language;
-	}
-
-	/**
-	 * Get POSIX code for website language (uses lookup table)
-	 * @return Language code or null if the website's language does not exist in our lookup table
-	 */
-	@Override
-	public @Nullable String getLanguagePosix() {
-		return LanguageCodeMap.getLanguagePosix(this.language);
+	public @NonNull String getRawLocale() throws NamelessException {
+		return this.rawLanguage;
 	}
 
 	public static class Update {

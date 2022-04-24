@@ -189,17 +189,8 @@ public final class NamelessUser implements LanguageEntity {
 	}
 
 	@Override
-	public @NonNull String getLanguage() throws NamelessException {
-		return this.getUserInfo().get("language").getAsString();
-	}
-
-	/**
-	 * Get POSIX code for user language (uses lookup table)
-	 * @return Language code or null if the user's language does not exist in our lookup table
-	 */
-	@Override
-	public @NonNull String getLanguagePosix() throws NamelessException {
-		return LanguageCodeMap.getLanguagePosix(this.getLanguage());
+	public @NonNull String getRawLocale() throws NamelessException {
+		return this.getUserInfo().get("locale").getAsString();
 	}
 
 	public @NonNull VerificationInfo getVerificationInfo() throws NamelessException {
