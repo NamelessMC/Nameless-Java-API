@@ -8,7 +8,7 @@ import java.util.Optional;
 public class ApiError extends NamelessException {
 
 	public static final int UNKNOWN_ERROR = 0;
-	public static final int INVALID_API_KEY = 1;
+	// 1 intentionally missing
 	// 2 intentionally missing
 	public static final int INVALID_API_METHOD = 3;
 	public static final int NO_UNIQUE_SITE_ID_AVAILABLE = 4;
