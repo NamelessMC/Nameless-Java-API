@@ -100,7 +100,11 @@ public class RequestHandler {
 	private @NonNull JsonObject makeConnection(final @NonNull String route,
 											   final @Nullable JsonObject postBody) throws NamelessException {
 		Preconditions.checkArgument(!route.startsWith("/"), "Route must not start with a slash");
-		final MutableRequest request = MutableRequest.create(URI.create(this.apiUrl + route));
+		final URI uri = URI.create(this.apiUrl + route);
+		if (uri.getHost() == null) {
+			throw new NamelessException("URI has empty host, does it contain invalid characters? Please note that although underscores are legal in subdomains, the Java URI class does not accept them.");
+		}
+		final MutableRequest request = MutableRequest.create(uri);
 
 		debug(() -> "Making connection " + (postBody != null ? "POST" : "GET") + " to " + request.uri());
 
