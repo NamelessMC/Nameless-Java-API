@@ -102,7 +102,9 @@ public class RequestHandler {
 		Preconditions.checkArgument(!route.startsWith("/"), "Route must not start with a slash");
 		final URI uri = URI.create(this.apiUrl + route);
 		if (uri.getHost() == null) {
-			throw new NamelessException("URI has empty host, does it contain invalid characters? Please note that although underscores are legal in subdomains, the Java URI class does not accept them.");
+			throw new NamelessException("URI has empty host, does it contain invalid characters? Please note that although underscores are " +
+					"legal in domain names, the Java URI class (and the Java HttpClient) does not accept them, because it uses the specification " +
+					"for 'host names' not 'domain names'.");
 		}
 		final MutableRequest request = MutableRequest.create(uri);
 
