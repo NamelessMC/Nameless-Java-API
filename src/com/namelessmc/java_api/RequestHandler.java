@@ -131,13 +131,21 @@ public class RequestHandler {
 			responseBody = getBodyAsString(httpResponse);
 		} catch (final IOException e) {
 			final @Nullable String exceptionMessage = e.getMessage();
-			final StringBuilder message = new StringBuilder("Network connection error (not a Nameless issue).");
-			if (exceptionMessage != null &&
-					exceptionMessage.contains("unable to find valid certification path to requested target")) {
-				message.append("\nHINT: Your certificate is invalid or incomplete. Ensure your website uses a valid *full chain* SSL/TLS certificate.");
-			}
-			message.append(" IOException: ");
+			final StringBuilder message = new StringBuilder("Network connection error (not a Nameless issue). IOException message: \"");
 			message.append(e.getMessage());
+			message.append('"');
+			if (exceptionMessage != null) {
+				if (exceptionMessage.contains("unable to find valid certification path to requested target")) {
+					message.append("\nHINT: Your HTTPS certificate is probably valid, but is it complete? Ensure your website uses a valid *full chain* SSL/TLS certificate.");
+				} else if (exceptionMessage.contains("No subject alternative DNS name matching")) {
+					message.append("\nHINT: Is your HTTPS certificate valid? Is it for the correct domain?");
+				} else if (exceptionMessage.contains("Connect timed out")) {
+					message.append("\nHINT: Is a webserver running at the provided domain? Are we blocked by a firewall? Is your webserver fast enough?");
+				} else if (exceptionMessage.contains("Connection refused")) {
+					message.append("\nHINT: Is the domain correct? Is your webserver running? Are we blocked by a firewall?");
+				}
+			}
+
 			throw new NamelessException(message.toString(), e);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
@@ -167,7 +175,7 @@ public class RequestHandler {
 			if (statusCode >= 301 && statusCode <= 303) {
 				message.append("HINT: The URL results in a redirect. If your URL uses http://, change to https://. If your website forces www., make sure to add www. to the url.\n");
 			} else if (statusCode == 520 || statusCode == 521) {
-				message.append("HINT: Status code 520/521 is sent by CloudFlare when the backend webserver is down or having issues.\n");
+				message.append("HINT: Status code 520/521 is sent by CloudFlare when the backend webserver is down or having issues. Check your webserver and CloudFlare configuration.\n");
 			} else if (responseBody.contains("/aes.js")) {
 				message.append("HINT: It looks like requests are being blocked by your web server or a proxy. ");
 				message.append("This is a common occurrence with free web hosting services; they usually don't allow API access.\n");
