@@ -38,7 +38,7 @@ public class FilteredUserListBuilder {
 		return this;
 	}
 
-	public @NonNull List<@NonNull NamelessUser> makeRequest() throws NamelessException {
+	public JsonObject makeRawRequest() throws NamelessException {
 		final Object[] parameters;
 		if (filters != null) {
 			int filterCount = filters.size();
@@ -55,15 +55,18 @@ public class FilteredUserListBuilder {
 			parameters = new Object[0];
 		}
 
-		final JsonObject response = this.api.getRequestHandler().get("users", parameters);
+		return this.api.getRequestHandler().get("users", parameters);
+	}
+
+	public @NonNull List<@NonNull NamelessUser> makeRequest() throws NamelessException {
+		final JsonObject response = this.makeRawRequest();
 		final JsonArray array = response.getAsJsonArray("users");
 		final List<NamelessUser> users = new ArrayList<>(array.size());
 		for (final JsonElement e : array) {
 			final JsonObject o = e.getAsJsonObject();
 			final int id = o.get("id").getAsInt();
-			users.add(this.api.getUserLazy(id));
+			users.add(new NamelessUser(this.api, id));
 		}
-
 		return Collections.unmodifiableList(users);
 	}
 
