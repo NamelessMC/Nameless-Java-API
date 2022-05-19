@@ -115,9 +115,7 @@ public class RequestHandler {
 			request.POST(HttpRequest.BodyPublishers.ofByteArray(postBytes));
 			request.header("Content-Type", "application/json");
 
-			debug("Post body below\n-----------------");
-			debug(() -> new String(postBytes, StandardCharsets.UTF_8));
-			debug("\n-----------------");
+			debug(() -> "POST request body:\n" + new String(postBytes, StandardCharsets.UTF_8));
 		} else {
 			request.GET();
 		}
@@ -151,9 +149,7 @@ public class RequestHandler {
 			throw new RuntimeException(e);
 		}
 
-		debug("Website response below\n-----------------");
-		debug(() -> regularAsciiOnly(responseBody));
-		debug("\n-----------------");
+		debug(() -> "Website response body:\n" + regularAsciiOnly(responseBody));
 
 		if (responseBody.length() == 0) {
 			throw new NamelessException("Website sent empty response with status code " + statusCode);
