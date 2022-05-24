@@ -207,12 +207,13 @@ public final class NamelessUser implements LanguageEntity {
 	 *
 	 * @return Player's group with the lowest order
 	 */
-	public @NonNull Optional<@NonNull Group> getPrimaryGroup() throws NamelessException {
+	public @Nullable Group getPrimaryGroup() throws NamelessException {
 		final JsonArray groups = this.getUserInfo().getAsJsonArray("groups");
 		if (groups.size() > 0) {
-			return Optional.of(new Group(groups.get(0).getAsJsonObject()));
+			// Website group response is ordered, first group is primary group.
+			return new Group(groups.get(0).getAsJsonObject());
 		} else {
-			return Optional.empty();
+			return null;
 		}
 	}
 
@@ -411,23 +412,23 @@ public final class NamelessUser implements LanguageEntity {
 		return integrationDataMap;
 	}
 
-	public Optional<UUID> getMinecraftUuid() throws NamelessException {
+	public @Nullable UUID getMinecraftUuid() throws NamelessException {
 		final DetailedIntegrationData integration = this.getIntegrations().get(StandardIntegrationTypes.MINECRAFT);
 		if (integration == null) {
-			return Optional.empty();
+			return null;
 		}
 
-		return Optional.of(((IMinecraftIntegrationData) integration).getUniqueId());
+		return ((IMinecraftIntegrationData) integration).getUniqueId();
 	}
 
-	public Optional<Long> getDiscordId() throws NamelessException {
+	public @Nullable Long getDiscordId() throws NamelessException {
 		final DetailedIntegrationData integration = this.getIntegrations().get(StandardIntegrationTypes.DISCORD);
 
 		if (integration == null) {
-			return Optional.empty();
+			return null;
 		}
 
-		return Optional.of(((IDiscordIntegrationData) integration).getIdLong());
+		return ((IDiscordIntegrationData) integration).getIdLong();
 	}
 
 	public void verify(final @NonNull String verificationCode) throws NamelessException, AccountAlreadyActivatedException, InvalidValidateCodeException {

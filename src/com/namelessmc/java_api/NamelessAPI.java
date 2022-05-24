@@ -87,34 +87,34 @@ public final class NamelessAPI {
 		return new FilteredUserListBuilder(this);
 	}
 
-	public @NonNull Optional<NamelessUser> getUser(final int id) throws NamelessException {
+	public @Nullable NamelessUser getUser(final int id) throws NamelessException {
 		final NamelessUser user = getUserLazy(id);
-		return user.exists() ? Optional.of(user) : Optional.empty();
+		return user.exists() ? user : null;
 	}
 
-	public @NonNull Optional<NamelessUser> getUserByUsername(final @NonNull String username) throws NamelessException {
+	public @Nullable NamelessUser getUserByUsername(final @NonNull String username) throws NamelessException {
 		final NamelessUser user = getUserByUsernameLazy(username);
-		return user.exists() ? Optional.of(user) : Optional.empty();
+		return user.exists() ? user : null;
 	}
 
-	public @NonNull Optional<NamelessUser> getUserByMinecraftUuid(final @NonNull UUID uuid) throws NamelessException {
+	public @Nullable NamelessUser getUserByMinecraftUuid(final @NonNull UUID uuid) throws NamelessException {
 		final NamelessUser user = getUserByMinecraftUuidLazy(uuid);
-		return user.exists() ? Optional.of(user) : Optional.empty();
+		return user.exists() ? user : null;
 	}
 
-	public @NonNull Optional<NamelessUser> getUserByMinecraftUsername(final @NonNull String username) throws NamelessException {
+	public @Nullable NamelessUser getUserByMinecraftUsername(final @NonNull String username) throws NamelessException {
 		final NamelessUser user = getUserByMinecraftUsernameLazy(username);
-		return user.exists() ? Optional.of(user) : Optional.empty();
+		return user.exists() ? user : null;
 	}
 
-	public @NonNull Optional<NamelessUser> getUserByDiscordId(final long id) throws NamelessException {
+	public @Nullable NamelessUser getUserByDiscordId(final long id) throws NamelessException {
 		final NamelessUser user = getUserByDiscordIdLazy(id);
-		return user.exists() ? Optional.of(user) : Optional.empty();
+		return user.exists() ? user : null;
 	}
 
-	public @NonNull Optional<NamelessUser> getUserByDiscordUsername(final @NonNull String username) throws NamelessException {
+	public @Nullable NamelessUser getUserByDiscordUsername(final @NonNull String username) throws NamelessException {
 		final NamelessUser user = getUserByDiscordUsernameLazy(username);
-		return user.exists() ? Optional.of(user) : Optional.empty();
+		return user.exists() ? user : null;
 	}
 
 	/**
@@ -153,15 +153,17 @@ public final class NamelessAPI {
 	/**
 	 * Get NamelessMC group by ID
 	 * @param id Group id
-	 * @return Optional with a group if the group exists, empty optional if it doesn't
+	 * @return Group or null if it doesn't exist
 	 */
-	public @NonNull Optional<@NonNull Group> getGroup(final int id) throws NamelessException {
+	public @Nullable Group getGroup(final int id) throws NamelessException {
 		final JsonObject response = this.requests.get("groups", "id", id);
 		final JsonArray jsonArray = response.getAsJsonArray("groups");
-		if (jsonArray.size() != 1) {
-			return Optional.empty();
+		if (jsonArray.size() == 1) {
+			return new Group(jsonArray.get(0).getAsJsonObject());
+		} else if (jsonArray.isEmpty()) {
+			return null;
 		} else {
-			return Optional.of(new Group(jsonArray.get(0).getAsJsonObject()));
+			throw new IllegalStateException("Website returned multiple groups for one id");
 		}
 	}
 
@@ -170,7 +172,7 @@ public final class NamelessAPI {
 	 * @param name NamelessMC groups name
 	 * @return List of groups with this name, empty if there are no groups with this name.
 	 */
-	public @NonNull List<@NonNull Group> getGroup(final @NonNull String name) throws NamelessException {
+	public List<Group> getGroup(final @NonNull String name) throws NamelessException {
 		Objects.requireNonNull(name, "Group name is null");
 		final JsonObject response = this.requests.get("groups", "name", name);
 		return groupListFromJsonArray(response.getAsJsonArray("groups"));
@@ -180,13 +182,13 @@ public final class NamelessAPI {
 	 * Get a list of all groups on the website
 	 * @return list of groups
 	 */
-	public @NonNull List<Group> getAllGroups() throws NamelessException {
+	public List<Group> getAllGroups() throws NamelessException {
 		final JsonObject response = this.requests.get("groups");
 		return groupListFromJsonArray(response.getAsJsonArray("groups"));
 
 	}
 
-	public int @NonNull[] getAllGroupIds() throws NamelessException {
+	public int[] getAllGroupIds() throws NamelessException {
 		final JsonObject response = this.requests.get("groups");
 		return StreamSupport.stream(response.getAsJsonArray("groups").spliterator(), false)
 				.map(JsonElement::getAsJsonObject)
@@ -212,7 +214,7 @@ public final class NamelessAPI {
 	 * @return Email verification disabled: A link which the user needs to click to complete registration
 	 * <br>Email verification enabled: An empty string (the user needs to check their email to complete registration)
 	 */
-	public @NonNull Optional<String> registerUser(final @NonNull String username,
+	public Optional<String> registerUser(final @NonNull String username,
 												  final @NonNull String email,
 												  final @NonNull IntegrationData@Nullable ... integrationData)
 			throws NamelessException, InvalidUsernameException, UsernameAlreadyExistsException,

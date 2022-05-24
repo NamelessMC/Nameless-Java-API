@@ -56,8 +56,8 @@ public class Website implements LanguageEntity {
 	/**
 	 * @return Information about an update, or empty if no update is available.
 	 */
-	public @NonNull Optional<@NonNull Update> getUpdate() {
-		return Optional.ofNullable(this.update);
+	public @Nullable Update getUpdate() {
+		return this.update;
 	}
 
 	public @NonNull String@NonNull [] getModules() {
@@ -72,9 +72,9 @@ public class Website implements LanguageEntity {
 	public static class Update {
 
 		private final boolean isUrgent;
-		private final @NonNull String version;
+		private final String version;
 
-		Update(final boolean isUrgent, final @NonNull String version) {
+		Update(final boolean isUrgent, final String version) {
 			this.isUrgent = isUrgent;
 			this.version = version;
 		}
@@ -84,7 +84,7 @@ public class Website implements LanguageEntity {
 		}
 
 
-		public @NonNull String getVersion() {
+		public String getVersion() {
 			return this.version;
 		}
 

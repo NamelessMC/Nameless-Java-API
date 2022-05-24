@@ -63,8 +63,8 @@ public class ApiError extends NamelessException {
 		return this.code;
 	}
 
-	public @NonNull Optional<@NonNull String> getMeta() {
-		return Optional.ofNullable(meta);
+	public @Nullable String getMeta() {
+		return meta;
 	}
 
 }
