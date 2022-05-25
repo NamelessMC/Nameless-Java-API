@@ -5,7 +5,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.Notification.NotificationType;
-import com.namelessmc.java_api.exception.*;
+import com.namelessmc.java_api.exception.ApiError;
+import com.namelessmc.java_api.exception.ApiException;
 import com.namelessmc.java_api.integrations.*;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -46,24 +47,15 @@ public final class NamelessUser implements LanguageEntity {
 		this.userTransformer = userTransformer;
 	}
 
-	private @NonNull JsonObject getUserInfo() throws NamelessException {
+	@NonNull JsonObject getUserInfo() throws NamelessException {
 		if (this._cachedUserInfo != null) {
 			return this._cachedUserInfo;
 		}
 
-		final JsonObject response;
-		try {
-			response = this.requests.get("users/" + this.userTransformer);
-		} catch (final ApiError e) {
-			if (e.getError() == ApiError.UNABLE_TO_FIND_USER) {
-				throw new UserNotExistException();
-			} else {
-				throw e;
-			}
-		}
+		final JsonObject response = this.requests.get("users/" + this.userTransformer);
 
 		if (!response.get("exists").getAsBoolean()) {
-			throw new UserNotExistException();
+			throw new IllegalStateException("User was returned by the API without an error code so it should exist");
 		}
 
 		this._cachedUserInfo = response;
@@ -112,15 +104,6 @@ public final class NamelessUser implements LanguageEntity {
 		JsonObject post = new JsonObject();
 		post.addProperty("username", username);
 		this.requests.post("users/" + this.userTransformer + "/update-username", post);
-	}
-
-	public boolean exists() throws NamelessException {
-		try {
-			this.getUserInfo();
-			return true;
-		} catch (final UserNotExistException e) {
-			return false;
-		}
 	}
 
 	public @NonNull String getDisplayName() throws NamelessException {
@@ -264,13 +247,8 @@ public final class NamelessUser implements LanguageEntity {
 	 * @param reason Reason why this player has been reported
 	 * @throws IllegalArgumentException Report reason is too long (>255 characters)
 	 * @throws IllegalArgumentException Report reason is too long (>255 characters)
-	 * @throws NamelessException Unexpected http or api error
-	 * @throws ReportUserBannedException If the user creating this report is banned
-	 * @throws AlreadyHasOpenReportException If the user creating this report already has an open report for this user
-	 * @throws CannotReportSelfException If the user tries to report themselves
 	 */
-	public void createReport(final @NonNull NamelessUser user, final @NonNull String reason)
-			throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, CannotReportSelfException {
+	public void createReport(final @NonNull NamelessUser user, final @NonNull String reason) throws NamelessException {
 		Objects.requireNonNull(user, "User to report is null");
 		Objects.requireNonNull(reason, "Report reason is null");
 		Preconditions.checkArgument(reason.length() < 255,
@@ -281,16 +259,12 @@ public final class NamelessUser implements LanguageEntity {
 		post.addProperty("content", reason);
 		try {
 			this.requests.post("reports/create", post);
-		} catch (final ApiError e) {
-			switch (e.getError()) {
-				case ApiError.USER_CREATING_REPORT_BANNED: throw new ReportUserBannedException();
-				case ApiError.REPORT_CONTENT_TOO_LARGE:
-					throw new IllegalStateException("Website said report reason is too long, but we have " +
-							"client-side validation for this so it should be impossible");
-				case ApiError.USER_ALREADY_HAS_OPEN_REPORT: throw new AlreadyHasOpenReportException();
-				case ApiError.CANNOT_REPORT_YOURSELF: throw new CannotReportSelfException();
-				default: throw e;
+		} catch (final ApiException e) {
+			if (e.apiError() == ApiError.CORE_REPORT_CONTENT_TOO_LONG) {
+				throw new IllegalStateException("Website said report reason is too long, but we have " +
+						"client-side validation for this so it should be impossible");
 			}
+			throw e;
 		}
 	}
 
@@ -300,15 +274,10 @@ public final class NamelessUser implements LanguageEntity {
 	 * @param reportedName The Minecraft username of this player
 	 * @param reason Report reason
 	 * @throws IllegalArgumentException Report reason is too long (>255 characters)
-	 * @throws NamelessException Unexpected http or api error
-	 * @throws ReportUserBannedException If the user creating this report is banned
-	 * @throws AlreadyHasOpenReportException If the user creating this report already has an open report for this user
-	 * @throws CannotReportSelfException If the user tries to report themselves
 	 */
 	public void createReport(final @NonNull UUID reportedUuid,
 							 final @NonNull String reportedName,
-							 final @NonNull String reason)
-			throws NamelessException, ReportUserBannedException, AlreadyHasOpenReportException, CannotReportSelfException {
+							 final @NonNull String reason) throws NamelessException {
 		Objects.requireNonNull(reportedUuid, "Reported uuid is null");
 		Objects.requireNonNull(reportedName, "Reported name is null");
 		Objects.requireNonNull(reason, "Report reason is null");
@@ -321,16 +290,12 @@ public final class NamelessUser implements LanguageEntity {
 		post.addProperty("content", reason);
 		try {
 			this.requests.post("reports/create", post);
-		} catch (final ApiError e) {
-			switch (e.getError()) {
-				case ApiError.USER_CREATING_REPORT_BANNED: throw new ReportUserBannedException();
-				case ApiError.REPORT_CONTENT_TOO_LARGE:
-					throw new IllegalStateException("Website said report reason is too long, but we have " +
-							"client-side validation for this so it should be impossible");
-				case ApiError.USER_ALREADY_HAS_OPEN_REPORT: throw new AlreadyHasOpenReportException();
-				case ApiError.CANNOT_REPORT_YOURSELF: throw new CannotReportSelfException();
-				default: throw e;
+		} catch (final ApiException e) {
+			if (e.apiError() == ApiError.CORE_REPORT_CONTENT_TOO_LONG) {
+				throw new IllegalStateException("Website said report reason is too long, but we have " +
+						"client-side validation for this so it should be impossible");
 			}
+			throw e;
 		}
 	}
 
@@ -431,21 +396,10 @@ public final class NamelessUser implements LanguageEntity {
 		return ((IDiscordIntegrationData) integration).getIdLong();
 	}
 
-	public void verify(final @NonNull String verificationCode) throws NamelessException, AccountAlreadyActivatedException, InvalidValidateCodeException {
+	public void verify(final @NonNull String verificationCode) throws NamelessException {
 		final JsonObject body = new JsonObject();
 		body.addProperty("code", verificationCode);
-		try {
-			this.requests.post("users/" + this.userTransformer + "/verify", body);
-		} catch (final ApiError e) {
-			switch(e.getError()) {
-				case ApiError.ACCOUNT_ALREADY_ACTIVATED:
-					throw new AccountAlreadyActivatedException();
-				case ApiError.INVALID_VALIDATE_CODE:
-					throw new InvalidValidateCodeException();
-				default:
-					throw e;
-			}
-		}
+		this.requests.post("users/" + this.userTransformer + "/verify", body);
 	}
 
 }

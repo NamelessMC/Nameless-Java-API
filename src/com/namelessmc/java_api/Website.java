@@ -2,13 +2,10 @@ package com.namelessmc.java_api;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.namelessmc.java_api.exception.UnknownNamelessVersionException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.Locale;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 public class Website implements LanguageEntity {
@@ -49,7 +46,7 @@ public class Website implements LanguageEntity {
 		return this.version;
 	}
 
-	public @NonNull NamelessVersion getParsedVersion() throws UnknownNamelessVersionException {
+	public @Nullable NamelessVersion getParsedVersion() {
 		return NamelessVersion.parse(this.version);
 	}
 
@@ -88,7 +85,7 @@ public class Website implements LanguageEntity {
 			return this.version;
 		}
 
-		public NamelessVersion getParsedVersion() throws UnknownNamelessVersionException {
+		public @Nullable NamelessVersion getParsedVersion() {
 			return NamelessVersion.parse(this.version);
 		}
 

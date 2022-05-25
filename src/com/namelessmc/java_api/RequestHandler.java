@@ -9,7 +9,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import com.namelessmc.java_api.exception.ApiDisabledException;
+import com.namelessmc.java_api.exception.ApiError;
+import com.namelessmc.java_api.exception.ApiException;
 import com.namelessmc.java_api.logger.ApiLogger;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -155,10 +156,6 @@ public class RequestHandler {
 			throw new NamelessException("Website sent empty response with status code " + statusCode);
 		}
 
-		if (responseBody.equals("API is disabled")) {
-			throw new ApiDisabledException();
-		}
-
 		JsonObject json;
 
 		try {
@@ -193,16 +190,20 @@ public class RequestHandler {
 			throw new NamelessException(message.toString(), e);
 		}
 
-		if (!json.has("error")) {
-			throw new NamelessException("Unexpected response from website (missing json key 'error')");
-		}
+		if (json.has("error")) {
+			final String errorString = json.get("error").getAsString();
+			final ApiError apiError = ApiError.fromString(errorString);
+			if (apiError == null) {
+				throw new NamelessException("Unknown API error: " + errorString);
+			}
 
-		if (json.get("error").getAsBoolean()) {
-			@Nullable String meta = null;
+			final String meta;
 			if (json.has("meta") && !json.get("meta").isJsonNull()) {
 				meta = json.get("meta").toString();
+			} else {
+				meta = null;
 			}
-			throw new ApiError(json.get("code").getAsInt(), meta);
+			throw new ApiException(apiError, meta);
 		}
 
 		return json;

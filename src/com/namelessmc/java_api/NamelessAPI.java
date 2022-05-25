@@ -87,34 +87,40 @@ public final class NamelessAPI {
 		return new FilteredUserListBuilder(this);
 	}
 
+	public @Nullable NamelessUser userAsNullable(NamelessUser user) throws NamelessException {
+		try {
+			user.getUserInfo();
+			return user;
+		} catch (ApiException e) {
+			if (e.apiError() == ApiError.NAMELESS_CANNOT_FIND_USER) {
+				return null;
+			}
+			throw e;
+		}
+	}
+
 	public @Nullable NamelessUser getUser(final int id) throws NamelessException {
-		final NamelessUser user = getUserLazy(id);
-		return user.exists() ? user : null;
+		return userAsNullable(getUserLazy(id));
 	}
 
 	public @Nullable NamelessUser getUserByUsername(final @NonNull String username) throws NamelessException {
-		final NamelessUser user = getUserByUsernameLazy(username);
-		return user.exists() ? user : null;
+		return userAsNullable(getUserByUsernameLazy(username));
 	}
 
 	public @Nullable NamelessUser getUserByMinecraftUuid(final @NonNull UUID uuid) throws NamelessException {
-		final NamelessUser user = getUserByMinecraftUuidLazy(uuid);
-		return user.exists() ? user : null;
+		return userAsNullable(getUserByMinecraftUuidLazy(uuid));
 	}
 
 	public @Nullable NamelessUser getUserByMinecraftUsername(final @NonNull String username) throws NamelessException {
-		final NamelessUser user = getUserByMinecraftUsernameLazy(username);
-		return user.exists() ? user : null;
+		return userAsNullable(getUserByMinecraftUsernameLazy(username));
 	}
 
 	public @Nullable NamelessUser getUserByDiscordId(final long id) throws NamelessException {
-		final NamelessUser user = getUserByDiscordIdLazy(id);
-		return user.exists() ? user : null;
+		return userAsNullable(getUserByDiscordIdLazy(id));
 	}
 
 	public @Nullable NamelessUser getUserByDiscordUsername(final @NonNull String username) throws NamelessException {
-		final NamelessUser user = getUserByDiscordUsernameLazy(username);
-		return user.exists() ? user : null;
+		return userAsNullable(getUserByDiscordUsernameLazy(username));
 	}
 
 	/**
@@ -217,9 +223,7 @@ public final class NamelessAPI {
 	public Optional<String> registerUser(final @NonNull String username,
 												  final @NonNull String email,
 												  final @NonNull IntegrationData@Nullable ... integrationData)
-			throws NamelessException, InvalidUsernameException, UsernameAlreadyExistsException,
-					CannotSendEmailException, IntegrationUsernameInvalidException,
-			IntegrationIdentifierInvalidException, InvalidEmailAddressException, EmailAlreadyUsedException {
+			throws NamelessException {
 
 		Objects.requireNonNull(username, "Username is null");
 		Objects.requireNonNull(email, "Email address is null");
@@ -238,25 +242,12 @@ public final class NamelessAPI {
 			post.add("integrations", integrationsJson);
 		}
 
-		try {
-			final JsonObject response = this.requests.post("users/register", post);
+		final JsonObject response = this.requests.post("users/register", post);
 
-			if (response.has("link")) {
-				return Optional.of(response.get("link").getAsString());
-			} else {
-				return Optional.empty();
-			}
-		} catch (final ApiError e) {
-			switch (e.getError()) {
-				case ApiError.INVALID_USERNAME: throw new InvalidUsernameException();
-				case ApiError.USERNAME_ALREADY_EXISTS: throw new UsernameAlreadyExistsException();
-				case ApiError.UNABLE_TO_SEND_REGISTRATION_EMAIL: throw new CannotSendEmailException();
-				case ApiError.INTEGRATION_USERNAME_INVALID: throw new IntegrationUsernameInvalidException();
-				case ApiError.INTEGRATION_IDENTIFIER_INVALID: throw new IntegrationIdentifierInvalidException();
-				case ApiError.INVALID_EMAIL_ADDRESS: throw new InvalidEmailAddressException();
-				case ApiError.EMAIL_ALREADY_EXISTS: throw new EmailAlreadyUsedException();
-				default: throw e;
-			}
+		if (response.has("link")) {
+			return Optional.of(response.get("link").getAsString());
+		} else {
+			return Optional.empty();
 		}
 	}
 
@@ -393,23 +384,13 @@ public final class NamelessAPI {
 	}
 
 	public void verifyIntegration(final @NonNull IntegrationData integrationData,
-								   final @NonNull String verificationCode)
-			throws NamelessException, InvalidValidateCodeException {
+								   final @NonNull String verificationCode) throws NamelessException {
 		JsonObject data = new JsonObject();
 		data.addProperty("integration", integrationData.getIntegrationType());
 		data.addProperty("identifier", integrationData.getIdentifier());
 		data.addProperty("username", integrationData.getUsername());
 		data.addProperty("code", Objects.requireNonNull(verificationCode, "Verification code is null"));
-		try {
-			this.requests.post("integration/verify", data);
-		} catch (ApiError e) {
-			switch (e.getError()) {
-				case ApiError.INVALID_VALIDATE_CODE:
-					throw new InvalidValidateCodeException();
-				default:
-					throw e;
-			}
-		}
+		this.requests.post("integration/verify", data);
 	}
 
 	public @NonNull WebsendAPI websend() {

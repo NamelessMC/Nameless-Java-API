@@ -1,7 +1,7 @@
 package com.namelessmc.java_api;
 
-import com.namelessmc.java_api.exception.UnknownNamelessVersionException;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.*;
 
@@ -78,13 +78,9 @@ public enum NamelessVersion {
 		}
 	}
 
-	public static @NonNull NamelessVersion parse(final @NonNull String versionName) throws UnknownNamelessVersionException {
+	public static @Nullable NamelessVersion parse(final @NonNull String versionName) {
 		Objects.requireNonNull(versionName, "Version name is null");
-		final NamelessVersion version = BY_NAME.get(versionName);
-		if (version == null) {
-			throw new UnknownNamelessVersionException(versionName);
-		}
-		return version;
+		return BY_NAME.get(versionName);
 	}
 
 	/**
