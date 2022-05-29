@@ -12,6 +12,8 @@ import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -22,12 +24,13 @@ public final class NamelessUser implements LanguageEntity {
 	private final @NonNull NamelessAPI api;
 	private final @NonNull RequestHandler requests;
 
-	private @NonNull String userTransformer;
 	private int id; // -1 if not known
+	private String userTransformer;
 
 	// Do not use directly, instead use getUserInfo() and getIntegrations()
 	private @Nullable JsonObject _cachedUserInfo;
 	private @Nullable Map<String, DetailedIntegrationData> _cachedIntegrationData;
+
 
 	NamelessUser(final @NonNull NamelessAPI api,
 				 final @Positive int id
@@ -44,7 +47,7 @@ public final class NamelessUser implements LanguageEntity {
 		this.requests = api.getRequestHandler();
 
 		this.id = -1;
-		this.userTransformer = userTransformer;
+		this.userTransformer = URLEncoder.encode(userTransformer, StandardCharsets.UTF_8);
 	}
 
 	@NonNull JsonObject getUserInfo() throws NamelessException {
@@ -86,6 +89,10 @@ public final class NamelessUser implements LanguageEntity {
 	public void invalidateCache() {
 		this._cachedUserInfo = null;
 		this._cachedIntegrationData = null;
+	}
+
+	public String getEncodedUserTransformer() {
+		return return this.userTransformer;
 	}
 
 	public int getId() throws NamelessException {
