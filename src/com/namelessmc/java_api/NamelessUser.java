@@ -8,6 +8,7 @@ import com.namelessmc.java_api.Notification.NotificationType;
 import com.namelessmc.java_api.exception.ApiError;
 import com.namelessmc.java_api.exception.ApiException;
 import com.namelessmc.java_api.integrations.*;
+import com.namelessmc.java_api.modules.store.StoreUser;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -92,7 +93,7 @@ public final class NamelessUser implements LanguageEntity {
 	}
 
 	public String getEncodedUserTransformer() {
-		return return this.userTransformer;
+		return this.userTransformer;
 	}
 
 	public int getId() throws NamelessException {
@@ -407,6 +408,10 @@ public final class NamelessUser implements LanguageEntity {
 		final JsonObject body = new JsonObject();
 		body.addProperty("code", verificationCode);
 		this.requests.post("users/" + this.userTransformer + "/verify", body);
+	}
+
+	public StoreUser store() {
+		return new StoreUser(this);
 	}
 
 }
