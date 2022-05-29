@@ -6,6 +6,8 @@ import com.namelessmc.java_api.NamelessException;
 import com.namelessmc.java_api.NamelessUser;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.util.UUID;
+
 public class StoreCustomer {
 
 	private final NamelessAPI api;
@@ -20,6 +22,10 @@ public class StoreCustomer {
 		this.userId = json.has("user_id") ? json.get("user_id").getAsInt() : null;
 		this.username = json.has("username") ? json.get("username").getAsString() : null;
 		this.identifier = json.has("identifier") ? json.get("identifier").getAsString() : null;
+
+		if (this.username == null && this.identifier == null) {
+			throw new IllegalStateException("Username and identifier cannot be null at the same time");
+		}
 	}
 
 	public int id() {
@@ -36,6 +42,11 @@ public class StoreCustomer {
 
 	public @Nullable String identifier() {
 		return this.identifier;
+	}
+
+	public @Nullable UUID identifierAsUuid() {
+		// Unlike NamelessMC, the store module sends UUIDs with dashes
+		return this.identifier != null ? UUID.fromString(this.identifier) : null;
 	}
 
 }

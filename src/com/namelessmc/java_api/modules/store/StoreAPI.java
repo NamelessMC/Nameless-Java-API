@@ -41,8 +41,8 @@ public class StoreAPI {
 		return payments;
 	}
 
-	public PendingCommandsResponse pendingCommands() throws NamelessException {
-		JsonObject response = this.requests.get("store/pending-commands");
+	public PendingCommandsResponse pendingCommands(int connectionId) throws NamelessException {
+		JsonObject response = this.requests.get("store/pending-commands", "connection_id", connectionId);
 		return new PendingCommandsResponse(this.api, response);
 	}
 
