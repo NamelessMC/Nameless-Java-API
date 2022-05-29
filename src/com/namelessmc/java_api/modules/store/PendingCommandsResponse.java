@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.NamelessAPI;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,15 @@ public class PendingCommandsResponse {
 			for (JsonElement element : commands) {
 				this.pendingCommands.add(new PendingCommand(element.getAsJsonObject()));
 			}
+		}
+
+		@Override
+		public @NonNull String username() {
+			String username = super.username();
+			if (username == null) {
+				throw new IllegalStateException("Pending commands response cannot contain null username");
+			}
+			return username;
 		}
 
 		public List<PendingCommand> pendingCommands() {
