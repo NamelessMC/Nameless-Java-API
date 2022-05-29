@@ -4,8 +4,10 @@ import com.google.common.base.Preconditions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.namelessmc.java_api.exception.*;
+import com.namelessmc.java_api.exception.ApiError;
+import com.namelessmc.java_api.exception.ApiException;
 import com.namelessmc.java_api.integrations.IntegrationData;
+import com.namelessmc.java_api.modules.store.StoreAPI;
 import com.namelessmc.java_api.modules.websend.WebsendAPI;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -32,7 +34,7 @@ public final class NamelessAPI {
 		this.apiKey = apiKey;
 	}
 
-	@NonNull RequestHandler getRequestHandler() {
+	public @NonNull RequestHandler getRequestHandler() {
 		return this.requests;
 	}
 
@@ -393,8 +395,12 @@ public final class NamelessAPI {
 		this.requests.post("integration/verify", data);
 	}
 
-	public @NonNull WebsendAPI websend() {
+	public WebsendAPI websend() {
 		return new WebsendAPI(this.requests);
+	}
+
+	public StoreAPI store() {
+		return new StoreAPI(this);
 	}
 
 	/**
