@@ -12,11 +12,11 @@ public class StorePaymentProduct {
 		this.name = json.get("name").getAsString();
 	}
 
-	public int getId() {
+	public int id() {
 		return id;
 	}
 
-	public String getName() {
+	public String name() {
 		return name;
 	}
 

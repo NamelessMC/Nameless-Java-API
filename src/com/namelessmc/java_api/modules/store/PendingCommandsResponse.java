@@ -26,13 +26,13 @@ public class PendingCommandsResponse {
 		return this.useUuids;
 	}
 
-	public List<PendingCommandsCustomer> getCustomers() {
+	public List<PendingCommandsCustomer> customers() {
 		return this.customers;
 	}
 
 	public static class PendingCommandsCustomer extends StoreCustomer {
 
-		private List<PendingCommand> pendingCommands;
+		private final List<PendingCommand> pendingCommands;
 
 		private PendingCommandsCustomer(NamelessAPI api, JsonObject json) {
 			super(api, json);
@@ -42,6 +42,10 @@ public class PendingCommandsResponse {
 			for (JsonElement element : commands) {
 				this.pendingCommands.add(new PendingCommand(element.getAsJsonObject()));
 			}
+		}
+
+		public List<PendingCommand> pendingCommands() {
+			return this.pendingCommands;
 		}
 
 	}
@@ -60,15 +64,15 @@ public class PendingCommandsResponse {
 			this.requireOnline = json.get("require_online").getAsBoolean();
 		}
 
-		public int getId() {
+		public int id() {
 			return id;
 		}
 
-		public String getCommand() {
+		public String command() {
 			return command;
 		}
 
-		public int getOrderId() {
+		public int orderId() {
 			return orderId;
 		}
 

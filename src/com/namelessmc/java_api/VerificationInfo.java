@@ -31,6 +31,7 @@ public class VerificationInfo {
 		return isVerifiedCustom("email");
 	}
 
+	// TODO are these still relevant with the new integration system?
 	public boolean isVerifiedMinecraft() {
 		return isVerifiedCustom("minecraft");
 	}

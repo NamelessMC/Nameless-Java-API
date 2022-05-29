@@ -48,7 +48,7 @@ public class FilteredUserListBuilder {
 			Iterator<Map.Entry<UserFilter<?>, Object>> iterator = filters.entrySet().iterator();
 			for (int i = 1; i < filterCount; i++) {
 				Map.Entry<UserFilter<?>, Object> entry = iterator.next();
-				parameters[i*2] = entry.getKey().getName();
+				parameters[i*2] = entry.getKey().name();
 				parameters[i*2+1] = entry.getValue();
 			}
 		} else {

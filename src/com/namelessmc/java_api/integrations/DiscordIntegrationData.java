@@ -12,7 +12,7 @@ public class DiscordIntegrationData extends IntegrationData {
 		this.id = id;
 	}
 
-	public final long getIdLong() {
+	public final long idLong() {
 		return this.id;
 	}
 

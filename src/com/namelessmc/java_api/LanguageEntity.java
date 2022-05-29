@@ -6,10 +6,10 @@ import java.util.Locale;
 
 public interface LanguageEntity {
 
-	@NonNull String getRawLocale() throws NamelessException;
+	@NonNull String rawLocale() throws NamelessException;
 
-	default @NonNull Locale getLocale() throws NamelessException {
-		final String language = this.getRawLocale();
+	default @NonNull Locale locale() throws NamelessException {
+		final String language = this.rawLocale();
 		final String[] langSplit = language.split("_");
 		if (langSplit.length != 2) {
 			throw new IllegalArgumentException("Invalid language: " + language);

@@ -31,28 +31,23 @@ public class Announcement {
 						.toArray();
 	}
 
-	public int getId() {
+	public int id() {
 		return id;
 	}
 
-	public @NonNull String getHeader() {
+	public @NonNull String header() {
 		return this.header;
 	}
 
-	public @NonNull String getMessage() {
+	public @NonNull String message() {
 		return this.message;
 	}
 
-	@Deprecated
-	public @NonNull String getContent() {
-		return this.message;
-	}
-
-	public @NonNull Set<@NonNull String> getDisplayPages() {
+	public @NonNull Set<@NonNull String> displayedPages() {
 		return this.displayPages;
 	}
 
-	public int @NonNull[] getDisplayGroupIds() {
+	public int @NonNull[] displayedGroupIds() {
 		return this.displayGroups;
 	}
 

@@ -20,19 +20,19 @@ public class StoreProduct {
 		this.disabled = json.get("disabled").getAsBoolean();
 	}
 
-	public int getId() {
+	public int id() {
 		return this.id;
 	}
 
-	public int getCategoryId() {
+	public int categoryId() {
 		return this.categoryId;
 	}
 
-	public String getName() {
+	public String name() {
 		return this.name;
 	}
 
-	public float getPrice() {
+	public float price() {
 		return this.price;
 	}
 

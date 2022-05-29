@@ -13,11 +13,11 @@ public class CustomProfileFieldValue {
 		this.value = value;
 	}
 
-	public @NonNull CustomProfileField getField() {
+	public @NonNull CustomProfileField field() {
 		return this.field;
 	}
 
-	public @Nullable String getValue() {
+	public @Nullable String value() {
 		return value;
 	}
 

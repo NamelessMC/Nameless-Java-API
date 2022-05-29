@@ -22,19 +22,19 @@ public class StoreCustomer {
 		this.identifier = json.has("identifier") ? json.get("identifier").getAsString() : null;
 	}
 
-	public int getId() {
+	public int id() {
 		return this.id;
 	}
 
-	public @Nullable NamelessUser getNamelessUser() throws NamelessException {
+	public @Nullable NamelessUser user() throws NamelessException {
 		return this.userId != null ? this.api.getUser(this.userId) : null;
 	}
 
-	public @Nullable String getUsername() {
+	public @Nullable String username() {
 		return this.username;
 	}
 
-	public @Nullable String getIdentifier() {
+	public @Nullable String identifier() {
 		return this.identifier;
 	}
 

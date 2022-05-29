@@ -14,11 +14,11 @@ public class WebsendCommand {
 		this.commandLine = commandLine;
 	}
 
-	public @Positive int getId() {
+	public @Positive int id() {
 		return id;
 	}
 
-	public @NonNull String getCommandLine() {
+	public @NonNull String command() {
 		return this.commandLine;
 	}
 

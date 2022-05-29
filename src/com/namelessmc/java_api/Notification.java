@@ -4,27 +4,27 @@ public class Notification {
 
 	private final String message;
 	private final String url;
-	private final NotificationType type;
+	private final Type type;
 
-	public Notification(final String message, final String url, final NotificationType type) {
+	public Notification(final String message, final String url, final Type type) {
 		this.message = message;
 		this.url = url;
 		this.type = type;
 	}
 
-	public String getMessage() {
+	public String message() {
 		return this.message;
 	}
 
-	public String getUrl() {
+	public String url() {
 		return this.url;
 	}
 
-	public NotificationType getType() {
+	public Type type() {
 		return this.type;
 	}
 
-	public enum NotificationType {
+	public enum Type {
 
 		TAG,
 		MESSAGE,
@@ -36,11 +36,11 @@ public class Notification {
 
 		UNKNOWN;
 
-		public static NotificationType fromString(final String string) {
+		public static Type fromString(final String string) {
 			try {
-				return NotificationType.valueOf(string.replace('-', '_').toUpperCase());
+				return Type.valueOf(string.replace('-', '_').toUpperCase());
 			} catch (final IllegalArgumentException e) {
-				return NotificationType.UNKNOWN;
+				return Type.UNKNOWN;
 			}
 		}
 

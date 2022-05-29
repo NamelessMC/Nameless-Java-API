@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.namelessmc.java_api.Notification.NotificationType;
+import com.namelessmc.java_api.Notification.Type;
 import com.namelessmc.java_api.exception.ApiError;
 import com.namelessmc.java_api.exception.ApiException;
 import com.namelessmc.java_api.integrations.*;
@@ -28,7 +28,7 @@ public final class NamelessUser implements LanguageEntity {
 	private int id; // -1 if not known
 	private String userTransformer;
 
-	// Do not use directly, instead use getUserInfo() and getIntegrations()
+	// Do not use directly, instead use userInfo() and integrations()
 	private @Nullable JsonObject _cachedUserInfo;
 	private @Nullable Map<String, DetailedIntegrationData> _cachedIntegrationData;
 
@@ -51,7 +51,7 @@ public final class NamelessUser implements LanguageEntity {
 		this.userTransformer = URLEncoder.encode(userTransformer, StandardCharsets.UTF_8);
 	}
 
-	@NonNull JsonObject getUserInfo() throws NamelessException {
+	@NonNull JsonObject userInfo() throws NamelessException {
 		if (this._cachedUserInfo != null) {
 			return this._cachedUserInfo;
 		}
@@ -74,7 +74,7 @@ public final class NamelessUser implements LanguageEntity {
 		return response;
 	}
 
-	public @NonNull NamelessAPI getApi() {
+	public @NonNull NamelessAPI api() {
 		return this.api;
 	}
 
@@ -92,20 +92,20 @@ public final class NamelessUser implements LanguageEntity {
 		this._cachedIntegrationData = null;
 	}
 
-	public String getEncodedUserTransformer() {
+	public String userTransformer() {
 		return this.userTransformer;
 	}
 
 	public int getId() throws NamelessException {
 		if (this.id == -1) {
-			this.id = this.getUserInfo().get("id").getAsInt();
+			this.id = this.userInfo().get("id").getAsInt();
 		}
 
 		return this.id;
 	}
 
-	public @NonNull String getUsername() throws NamelessException {
-		return this.getUserInfo().get("username").getAsString();
+	public @NonNull String username() throws NamelessException {
+		return this.userInfo().get("username").getAsString();
 	}
 
 	public void updateUsername(final @NonNull String username) throws NamelessException {
@@ -114,40 +114,40 @@ public final class NamelessUser implements LanguageEntity {
 		this.requests.post("users/" + this.userTransformer + "/update-username", post);
 	}
 
-	public @NonNull String getDisplayName() throws NamelessException {
-		return this.getUserInfo().get("displayname").getAsString();
+	public @NonNull String displayName() throws NamelessException {
+		return this.userInfo().get("displayname").getAsString();
 	}
 
 	/**
 	 * @return The date the user registered on the website.
 	 */
-	public @NonNull Date getRegisteredDate() throws NamelessException {
-		return new Date(this.getUserInfo().get("registered_timestamp").getAsLong() * 1000);
+	public @NonNull Date registeredDate() throws NamelessException {
+		return new Date(this.userInfo().get("registered_timestamp").getAsLong() * 1000);
 	}
 
-	public @NonNull Date getLastOnline() throws NamelessException {
-		return new Date(this.getUserInfo().get("last_online_timestamp").getAsLong() * 1000);
+	public @NonNull Date lastOnline() throws NamelessException {
+		return new Date(this.userInfo().get("last_online_timestamp").getAsLong() * 1000);
 	}
 
 	/**
 	 * @return Whether this account is banned from the website.
 	 */
 	public boolean isBanned() throws NamelessException {
-		return this.getUserInfo().get("banned").getAsBoolean();
+		return this.userInfo().get("banned").getAsBoolean();
 	}
 
 	public boolean isVerified() throws NamelessException {
-		return this.getUserInfo().get("validated").getAsBoolean();
+		return this.userInfo().get("validated").getAsBoolean();
 	}
 
 	@Override
-	public @NonNull String getRawLocale() throws NamelessException {
-		return this.getUserInfo().get("locale").getAsString();
+	public @NonNull String rawLocale() throws NamelessException {
+		return this.userInfo().get("locale").getAsString();
 	}
 
-	public @NonNull VerificationInfo getVerificationInfo() throws NamelessException {
+	public @NonNull VerificationInfo verificationInfo() throws NamelessException {
 		final boolean verified = isVerified();
-		final JsonObject verification = this.getUserInfo().getAsJsonObject("verification");
+		final JsonObject verification = this.userInfo().getAsJsonObject("verification");
 		return new VerificationInfo(verified, verification);
 	}
 
@@ -155,7 +155,7 @@ public final class NamelessUser implements LanguageEntity {
 	 * @return True if the user is member of at least one staff group, otherwise false
 	 */
 	public boolean isStaff() throws NamelessException {
-		JsonArray groups = this.getUserInfo().getAsJsonArray("groups");
+		JsonArray groups = this.userInfo().getAsJsonArray("groups");
 		for (JsonElement elem : groups) {
 			JsonObject group = elem.getAsJsonObject();
 			if (group.has("staff") &&
@@ -167,24 +167,12 @@ public final class NamelessUser implements LanguageEntity {
 	}
 
 	/**
-	 * @return Set of user's groups
-	 * @see #getSortedGroups()
-	 */
-	public @NonNull Set<@NonNull Group> getGroups() throws NamelessException {
-		return Collections.unmodifiableSet(
-				StreamSupport.stream(this.getUserInfo().getAsJsonArray("groups").spliterator(), false)
-						.map(JsonElement::getAsJsonObject)
-						.map(Group::new)
-						.collect(Collectors.toSet()));
-	}
-
-	/**
 	 * @return List of the user's groups, sorted from low order to high order.
-	 * @see #getGroups()
 	 */
-	public @NonNull List<@NonNull Group> getSortedGroups() throws NamelessException {
+	public @NonNull List<@NonNull Group> groups() throws NamelessException {
+		// TODO sorting may be unnecessary since the website already returns sorted groups
 		return Collections.unmodifiableList(
-				StreamSupport.stream(this.getUserInfo().getAsJsonArray("groups").spliterator(), false)
+				StreamSupport.stream(this.userInfo().getAsJsonArray("groups").spliterator(), false)
 						.map(JsonElement::getAsJsonObject)
 						.map(Group::new)
 						.sorted()
@@ -192,14 +180,14 @@ public final class NamelessUser implements LanguageEntity {
 	}
 
 	/**
-	 * Same as doing {@link #getGroups()}.get(0), but with better performance
+	 * Same as doing {@link #groups()}.get(0), but with better performance
 	 * since it doesn't need to create and sort a list of group objects.
 	 * Empty if the user is not in any groups.
 	 *
 	 * @return Player's group with the lowest order
 	 */
-	public @Nullable Group getPrimaryGroup() throws NamelessException {
-		final JsonArray groups = this.getUserInfo().getAsJsonArray("groups");
+	public @Nullable Group primaryGroup() throws NamelessException {
+		final JsonArray groups = this.userInfo().getAsJsonArray("groups");
 		if (groups.size() > 0) {
 			// Website group response is ordered, first group is primary group.
 			return new Group(groups.get(0).getAsJsonObject());
@@ -230,19 +218,19 @@ public final class NamelessUser implements LanguageEntity {
 		return array;
 	}
 
-	public int getNotificationCount() throws NamelessException {
+	public int notificationCount() throws NamelessException {
 		final JsonObject response = this.requests.get("users/" + this.userTransformer + "/notifications");
 		return response.getAsJsonArray("notifications").size();
 	}
 
-	public @NonNull List<Notification> getNotifications() throws NamelessException {
+	public List<Notification> notifications() throws NamelessException {
 		final JsonObject response = this.requests.get("users/" + this.userTransformer + "/notifications");
 
 		final List<Notification> notifications = new ArrayList<>();
 		response.getAsJsonArray("notifications").forEach((element) -> {
 			final String message = element.getAsJsonObject().get("message").getAsString();
 			final String url = element.getAsJsonObject().get("url").getAsString();
-			final NotificationType type = NotificationType.fromString(element.getAsJsonObject().get("type").getAsString());
+			final Type type = Type.fromString(element.getAsJsonObject().get("type").getAsString());
 			notifications.add(new Notification(message, url, type));
 		});
 
@@ -307,7 +295,7 @@ public final class NamelessUser implements LanguageEntity {
 		}
 	}
 
-	public void setDiscordRoles(final long@NonNull[] roleIds) throws NamelessException {
+	public void discordRoles(final long@NonNull[] roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
 		post.addProperty("user", this.getId());
 		post.add("roles", this.requests.gson().toJsonTree(roleIds));
@@ -318,7 +306,7 @@ public final class NamelessUser implements LanguageEntity {
 	 * Get announcements visible to this user
 	 * @return List of announcements visible to this user
 	 */
-	public @NonNull List<@NonNull Announcement> getAnnouncements() throws NamelessException {
+	public @NonNull List<@NonNull Announcement> announcements() throws NamelessException {
 		final JsonObject response = this.requests.get("users/" + this.userTransformer + "/announcements");
 		return NamelessAPI.getAnnouncements(response);
 	}
@@ -331,12 +319,12 @@ public final class NamelessUser implements LanguageEntity {
 		this.requests.post("users/" + this.userTransformer + "/ban", new JsonObject());
 	}
 
-	public @NonNull Collection<@NonNull CustomProfileFieldValue> getProfileFields() throws NamelessException {
-		if (!this.getUserInfo().has("profile_fields")) {
+	public Collection<CustomProfileFieldValue> profileFields() throws NamelessException {
+		if (!this.userInfo().has("profile_fields")) {
 			return Collections.emptyList();
 		}
 
-		final JsonObject fieldsJson = this.getUserInfo().getAsJsonObject("profile_fields");
+		final JsonObject fieldsJson = this.userInfo().getAsJsonObject("profile_fields");
 		final List<CustomProfileFieldValue> fieldValues = new ArrayList<>(fieldsJson.size());
 		for (final Map.Entry<String, JsonElement> e : fieldsJson.entrySet()) {
 			int id = Integer.parseInt(e.getKey());
@@ -357,12 +345,12 @@ public final class NamelessUser implements LanguageEntity {
 		return fieldValues;
 	}
 
-	public Map<String, DetailedIntegrationData> getIntegrations() throws NamelessException {
+	public Map<String, DetailedIntegrationData> integrations() throws NamelessException {
 		if (this._cachedIntegrationData != null) {
 			return this._cachedIntegrationData;
 		}
 
-		final JsonObject userInfo = this.getUserInfo();
+		final JsonObject userInfo = this.userInfo();
 		final JsonArray integrationsJsonArray = userInfo.getAsJsonArray("integrations");
 		Map<String, DetailedIntegrationData> integrationDataMap = new HashMap<>(integrationsJsonArray.size());
 		for (JsonElement integrationElement : integrationsJsonArray) {
@@ -385,23 +373,23 @@ public final class NamelessUser implements LanguageEntity {
 		return integrationDataMap;
 	}
 
-	public @Nullable UUID getMinecraftUuid() throws NamelessException {
-		final DetailedIntegrationData integration = this.getIntegrations().get(StandardIntegrationTypes.MINECRAFT);
+	public @Nullable UUID minecraftUuid() throws NamelessException {
+		final DetailedIntegrationData integration = this.integrations().get(StandardIntegrationTypes.MINECRAFT);
 		if (integration == null) {
 			return null;
 		}
 
-		return ((IMinecraftIntegrationData) integration).getUniqueId();
+		return ((IMinecraftIntegrationData) integration).uuid();
 	}
 
-	public @Nullable Long getDiscordId() throws NamelessException {
-		final DetailedIntegrationData integration = this.getIntegrations().get(StandardIntegrationTypes.DISCORD);
+	public @Nullable Long discordId() throws NamelessException {
+		final DetailedIntegrationData integration = this.integrations().get(StandardIntegrationTypes.DISCORD);
 
 		if (integration == null) {
 			return null;
 		}
 
-		return ((IDiscordIntegrationData) integration).getIdLong();
+		return ((IDiscordIntegrationData) integration).idLong();
 	}
 
 	public void verify(final @NonNull String verificationCode) throws NamelessException {

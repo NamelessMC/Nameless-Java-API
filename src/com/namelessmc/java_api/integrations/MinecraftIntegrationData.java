@@ -15,7 +15,7 @@ public class MinecraftIntegrationData extends IntegrationData implements IMinecr
 		this.uuid = uuid;
 	}
 
-	public final @NonNull UUID getUniqueId() {
+	public final @NonNull UUID uuid() {
 		return this.uuid;
 	}
 

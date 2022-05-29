@@ -17,15 +17,15 @@ public class IntegrationData {
 		this.username = username;
 	}
 
-	public final @NonNull String getIntegrationType(@UnknownInitialization(IntegrationData.class) IntegrationData this) {
+	public final @NonNull String type(@UnknownInitialization(IntegrationData.class) IntegrationData this) {
 		return this.integrationType;
 	}
 
-	public final @NonNull String getIdentifier(@UnknownInitialization(IntegrationData.class) IntegrationData this) {
+	public final @NonNull String identifier(@UnknownInitialization(IntegrationData.class) IntegrationData this) {
 		return this.identifier;
 	}
 
-	public final @NonNull String getUsername(@UnknownInitialization(IntegrationData.class) IntegrationData this) {
+	public final @NonNull String username(@UnknownInitialization(IntegrationData.class) IntegrationData this) {
 		return this.username;
 	}
 

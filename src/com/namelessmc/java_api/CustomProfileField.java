@@ -28,15 +28,15 @@ public class CustomProfileField {
 		this.description = description;
 	}
 
-	public int getId() {
+	public int id() {
 		return id;
 	}
 
-	public @NonNull String getName() {
+	public @NonNull String name() {
 		return name;
 	}
 
-	public @NonNull CustomProfileFieldType getType() {
+	public @NonNull CustomProfileFieldType type() {
 		return type;
 	}
 
@@ -48,7 +48,7 @@ public class CustomProfileField {
 		return isRequired;
 	}
 
-	public @NonNull String getDescription() {
+	public @NonNull String description() {
 		return description;
 	}
 

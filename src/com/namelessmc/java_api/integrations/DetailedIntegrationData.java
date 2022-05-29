@@ -38,7 +38,7 @@ public class DetailedIntegrationData extends IntegrationData {
 		return this.verified;
 	}
 
-	public final @NonNull Date getLinkedDate() {
+	public final @NonNull Date linkedDate() {
 		return this.linkedDate;
 	}
 

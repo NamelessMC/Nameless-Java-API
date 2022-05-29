@@ -12,11 +12,11 @@ public class DetailedMinecraftIntegrationData extends DetailedIntegrationData im
 
 	public DetailedMinecraftIntegrationData(final @NonNull JsonObject json) {
 		super(json);
-		this.uuid = NamelessAPI.websiteUuidToJavaUuid(this.getIdentifier());
+		this.uuid = NamelessAPI.websiteUuidToJavaUuid(this.identifier());
 	}
 
 	@Override
-	public final @NonNull UUID getUniqueId() {
+	public final @NonNull UUID uuid() {
 		return this.uuid;
 	}
 }

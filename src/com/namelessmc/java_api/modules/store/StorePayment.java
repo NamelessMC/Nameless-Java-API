@@ -46,55 +46,55 @@ public class StorePayment {
 		}
 	}
 
-	public int getId() {
+	public int id() {
 		return id;
 	}
 
-	public int getOrderId() {
+	public int orderId() {
 		return orderId;
 	}
 
-	public int getGatewayId() {
+	public int gatewayId() {
 		return gatewayId;
 	}
 
-	public String getTransaction() {
+	public String transaction() {
 		return transaction;
 	}
 
-	public String getAmount() {
+	public String amount() {
 		return amount;
 	}
 
-	public String getCurrency() {
+	public String currency() {
 		return currency;
 	}
 
-	public String getFee() {
+	public String fee() {
 		return fee;
 	}
 
-	public PaymentStatus getStatus() {
+	public PaymentStatus status() {
 		return status;
 	}
 
-	public Date getCreationDate() {
+	public Date creationDate() {
 		return creationDate;
 	}
 
-	public Date getLastUpdateDate() {
+	public Date lastUpdatedDate() {
 		return lastUpdateDate;
 	}
 
-	public StoreCustomer getPayingCustomer() {
+	public StoreCustomer payingCustomer() {
 		return payingCustomer;
 	}
 
-	public StoreCustomer getReceivingCustomer() {
+	public StoreCustomer receivingCustomer() {
 		return receivingCustomer;
 	}
 
-	public List<StorePaymentProduct> getProducts() {
+	public List<StorePaymentProduct> products() {
 		return products;
 	}
 

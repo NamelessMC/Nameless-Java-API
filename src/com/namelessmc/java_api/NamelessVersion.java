@@ -42,19 +42,19 @@ public enum NamelessVersion {
 		this.isBeta = isBeta;
 	}
 
-	public @NonNull String getName() {
+	public @NonNull String internalName() {
 		return this.name;
 	}
 
-	public @NonNull String getFriendlyName() {
+	public @NonNull String friendlyName() {
 		return this.friendlyName;
 	}
 
-	public int getMajor() {
+	public int major() {
 		return this.major;
 	}
 
-	public int getMinor() {
+	public int minor() {
 		return this.minor;
 	}
 
@@ -74,7 +74,7 @@ public enum NamelessVersion {
 
 	static {
 		for (final NamelessVersion version : values()) {
-			BY_NAME.put(version.getName(), version);
+			BY_NAME.put(version.internalName(), version);
 		}
 	}
 
@@ -86,7 +86,7 @@ public enum NamelessVersion {
 	/**
 	 * @return List of NamelessMC versions supported by the Java API
 	 */
-	public static Set<NamelessVersion> getSupportedVersions() {
+	public static Set<NamelessVersion> supportedVersions() {
 		return SUPPORTED_VERSIONS;
 	}
 

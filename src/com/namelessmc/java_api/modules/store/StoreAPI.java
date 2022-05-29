@@ -21,7 +21,7 @@ public class StoreAPI {
 		this.requests = api.getRequestHandler();
 	}
 
-	public List<StoreProduct> getProducts() throws NamelessException {
+	public List<StoreProduct> products() throws NamelessException {
 		JsonObject response = this.requests.get("store/products");
 		JsonArray productsJson = response.getAsJsonArray("products");
 		List<StoreProduct> products = new ArrayList<>(productsJson.size());
@@ -31,7 +31,7 @@ public class StoreAPI {
 		return products;
 	}
 
-	public List<StorePayment> getPayments() throws NamelessException {
+	public List<StorePayment> payments() throws NamelessException {
 		JsonObject response = this.requests.get("store/payments");
 		JsonArray paymentsJson = response.getAsJsonArray("payments");
 		List<StorePayment> payments = new ArrayList<>(paymentsJson.size());
@@ -41,7 +41,7 @@ public class StoreAPI {
 		return payments;
 	}
 
-	public PendingCommandsResponse getPendingCommands() throws NamelessException {
+	public PendingCommandsResponse pendingCommands() throws NamelessException {
 		JsonObject response = this.requests.get("store/pending-commands");
 		return new PendingCommandsResponse(this.api, response);
 	}
@@ -49,7 +49,7 @@ public class StoreAPI {
 	public void markCommandsExecuted(Collection<PendingCommandsResponse.PendingCommand> commands) throws NamelessException {
 		JsonArray array = new JsonArray(commands.size());
 		for (PendingCommandsResponse.PendingCommand command : commands) {
-			array.add(command.getId());
+			array.add(command.id());
 		}
 		JsonObject body = new JsonObject();
 		body.add("commands", array);

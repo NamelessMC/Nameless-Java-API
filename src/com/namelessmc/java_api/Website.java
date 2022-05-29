@@ -10,7 +10,6 @@ import java.util.stream.StreamSupport;
 
 public class Website implements LanguageEntity {
 
-
 	private final @NonNull String version;
 	private final @Nullable Update update;
 	private final @NonNull String@NonNull[] modules;
@@ -42,18 +41,18 @@ public class Website implements LanguageEntity {
 		this.rawLanguage = json.get("locale").getAsString();
 	}
 
-	public @NonNull String getVersion() {
+	public @NonNull String rawVersion() {
 		return this.version;
 	}
 
-	public @Nullable NamelessVersion getParsedVersion() {
+	public @Nullable NamelessVersion parsedVersion() {
 		return NamelessVersion.parse(this.version);
 	}
 
 	/**
 	 * @return Information about an update, or empty if no update is available.
 	 */
-	public @Nullable Update getUpdate() {
+	public @Nullable Update update() {
 		return this.update;
 	}
 
@@ -62,7 +61,7 @@ public class Website implements LanguageEntity {
 	}
 
 	@Override
-	public @NonNull String getRawLocale() throws NamelessException {
+	public @NonNull String rawLocale() throws NamelessException {
 		return this.rawLanguage;
 	}
 
@@ -80,9 +79,12 @@ public class Website implements LanguageEntity {
 			return this.isUrgent;
 		}
 
-
-		public String getVersion() {
+		public String rawVersion() {
 			return this.version;
+		}
+
+		public @Nullable NamelessVersion parsedVersion() {
+			return NamelessVersion.parse(this.version);
 		}
 
 		public @Nullable NamelessVersion getParsedVersion() {

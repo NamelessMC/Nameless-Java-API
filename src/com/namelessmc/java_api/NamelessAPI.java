@@ -47,7 +47,7 @@ public final class NamelessAPI {
 	}
 
 	/**
-	 * Get announcements visible to guests. Use {@link NamelessUser#getAnnouncements()} for non-guest announcements.
+	 * Get announcements visible to guests. Use {@link NamelessUser#announcements()} for non-guest announcements.
 	 * @return List of announcements
 	 */
 
@@ -91,7 +91,7 @@ public final class NamelessAPI {
 
 	public @Nullable NamelessUser userAsNullable(NamelessUser user) throws NamelessException {
 		try {
-			user.getUserInfo();
+			user.userInfo();
 			return user;
 		} catch (ApiException e) {
 			if (e.apiError() == ApiError.NAMELESS_CANNOT_FIND_USER) {
@@ -237,9 +237,9 @@ public final class NamelessAPI {
 			JsonObject integrationsJson = new JsonObject();
 			for (IntegrationData integration : integrationData) {
 				JsonObject integrationJson = new JsonObject();
-				integrationJson.addProperty("identifier", integration.getIdentifier());
-				integrationJson.addProperty("username", integration.getUsername());
-				integrationsJson.add(integration.getIntegrationType().toString(), integrationJson);
+				integrationJson.addProperty("identifier", integration.identifier());
+				integrationJson.addProperty("username", integration.username());
+				integrationsJson.add(integration.type().toString(), integrationJson);
 			}
 			post.add("integrations", integrationsJson);
 		}
@@ -388,9 +388,9 @@ public final class NamelessAPI {
 	public void verifyIntegration(final @NonNull IntegrationData integrationData,
 								   final @NonNull String verificationCode) throws NamelessException {
 		JsonObject data = new JsonObject();
-		data.addProperty("integration", integrationData.getIntegrationType());
-		data.addProperty("identifier", integrationData.getIdentifier());
-		data.addProperty("username", integrationData.getUsername());
+		data.addProperty("integration", integrationData.type());
+		data.addProperty("identifier", integrationData.identifier());
+		data.addProperty("username", integrationData.username());
 		data.addProperty("code", Objects.requireNonNull(verificationCode, "Verification code is null"));
 		this.requests.post("integration/verify", data);
 	}

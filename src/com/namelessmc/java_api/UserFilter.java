@@ -15,7 +15,7 @@ public class UserFilter<FilterValueType> {
 		this.filterName = filterName;
 	}
 
-	public @NonNull String getName() {
+	public @NonNull String name() {
 		return this.filterName;
 	}
 
