@@ -8,6 +8,7 @@ import com.namelessmc.java_api.NamelessException;
 import com.namelessmc.java_api.RequestHandler;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class StoreAPI {
@@ -38,6 +39,21 @@ public class StoreAPI {
 			payments.add(new StorePayment(this.api, productElement.getAsJsonObject()));
 		}
 		return payments;
+	}
+
+	public PendingCommandsResponse getPendingCommands() throws NamelessException {
+		JsonObject response = this.requests.get("store/pending-commands");
+		return new PendingCommandsResponse(this.api, response);
+	}
+
+	public void markCommandsExecuted(Collection<PendingCommandsResponse.PendingCommand> commands) throws NamelessException {
+		JsonArray array = new JsonArray(commands.size());
+		for (PendingCommandsResponse.PendingCommand command : commands) {
+			array.add(command.getId());
+		}
+		JsonObject body = new JsonObject();
+		body.add("commands", array);
+		this.requests.post("store/commands-executed", body);
 	}
 
 }

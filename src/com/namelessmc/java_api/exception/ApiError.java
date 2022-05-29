@@ -44,6 +44,10 @@ public enum ApiError {
 	DISCORD_UNABLE_TO_SET_DISCORD_GUILD_ID("discord_integration", "unable_to_set_discord_guild_id"),
 	DISCORD_UNABLE_TO_SET_DISCORD_BOT_USERNAME("discord_integration", "unable_to_set_discord_bot_username"),
 
+	// https://github.com/partydragen/Nameless-Store/blob/master/upload/modules/Store/classes/StoreApiErrors.php
+	STORE_PAYMENT_NOT_FOUND("store", "payment_not_found"),
+	ERROR_INVALID_CREDITS_AMOUNT("store", "invalid_credits_amount"),
+
 	;
 
 	private final String key;

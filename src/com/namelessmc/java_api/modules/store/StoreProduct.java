@@ -8,7 +8,6 @@ public class StoreProduct {
 	private final int categoryId;
 	private final String name;
 	private final float price;
-	private final int order;
 	private final boolean hidden;
 	private final boolean disabled;
 
@@ -17,7 +16,6 @@ public class StoreProduct {
 		this.categoryId = json.get("category_id").getAsInt();
 		this.name = json.get("name").getAsString();
 		this.price = json.get("price").getAsFloat();
-		this.order = json.get("order").getAsInt();
 		this.hidden = json.get("hidden").getAsBoolean();
 		this.disabled = json.get("disabled").getAsBoolean();
 	}
@@ -36,10 +34,6 @@ public class StoreProduct {
 
 	public float getPrice() {
 		return this.price;
-	}
-
-	public int getOrder() {
-		return this.order;
 	}
 
 	public boolean isHidden() {
