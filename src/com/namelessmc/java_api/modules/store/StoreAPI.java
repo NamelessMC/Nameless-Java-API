@@ -31,8 +31,13 @@ public class StoreAPI {
 		return products;
 	}
 
-	public List<StorePayment> payments() throws NamelessException {
-		JsonObject response = this.requests.get("store/payments");
+	public List<StorePayment> payments(PaymentsFilter... filters) throws NamelessException {
+		Object[] params = new Object[filters.length * 2];
+		for (int i = 0; i < filters.length; i++) {
+			params[i*2] = filters[i].name();
+			params[i*2+1] = filters[i].value();
+		}
+		JsonObject response = this.requests.get("store/payments", params);
 		JsonArray paymentsJson = response.getAsJsonArray("payments");
 		List<StorePayment> payments = new ArrayList<>(paymentsJson.size());
 		for (JsonElement productElement : paymentsJson) {
