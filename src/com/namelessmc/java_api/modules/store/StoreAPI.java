@@ -9,6 +9,7 @@ import com.namelessmc.java_api.RequestHandler;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class StoreAPI {
@@ -28,7 +29,7 @@ public class StoreAPI {
 		for (JsonElement productElement : productsJson) {
 			products.add(new StoreProduct(productElement.getAsJsonObject()));
 		}
-		return products;
+		return Collections.unmodifiableList(products);
 	}
 
 	public List<StorePayment> payments(PaymentsFilter... filters) throws NamelessException {
@@ -43,7 +44,17 @@ public class StoreAPI {
 		for (JsonElement productElement : paymentsJson) {
 			payments.add(new StorePayment(this.api, productElement.getAsJsonObject()));
 		}
-		return payments;
+		return Collections.unmodifiableList(payments);
+	}
+
+	public List<StoreCategory> categories() throws NamelessException {
+		JsonObject response = this.requests.get("store/products");
+		JsonArray array = response.getAsJsonArray("categories");
+		List<StoreCategory> categories = new ArrayList<>(array.size());
+		for (JsonElement element : array) {
+			categories.add(new StoreCategory(element.getAsJsonObject()));
+		}
+		return Collections.unmodifiableList(categories);
 	}
 
 	public PendingCommandsResponse pendingCommands(int connectionId) throws NamelessException {
