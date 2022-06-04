@@ -36,6 +36,8 @@ public enum ApiError {
 	CORE_INVALID_CODE("core", "invalid_code"),
 	CORE_USER_ALREADY_ACTIVE("core", "user_already_active"),
 	CORE_UNABLE_TO_UPDATE_USERNAME("core", "unable_to_update_username"),
+	CORE_INTEGRATION_IDENTIFIER_ERROR("core", "integration_identifier_errors"),
+	CORE_INTEGRATION_USERNAME_ERROR("core", "integration_username_errors"),
 
 	// https://github.com/NamelessMC/Nameless/blob/v2/modules/Discord%20Integration/classes/DiscordApiErrors.php
 	DISCORD_DISCORD_INTEGRATION_DISABLED("discord_integration", "discord_integration_disabled"),
