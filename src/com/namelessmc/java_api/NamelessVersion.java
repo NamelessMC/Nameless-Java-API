@@ -18,8 +18,6 @@ public enum NamelessVersion {
 	;
 
 	private static final Set<NamelessVersion> SUPPORTED_VERSIONS = EnumSet.of(
-			// Actually, only pr13 is supported but pr13 development releases still report as pr12
-			V2_0_0_PR_12,
 			V2_0_0_PR_13
 	);
 
