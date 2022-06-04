@@ -55,7 +55,7 @@ public class FilteredUserListBuilder {
 			parameters = new Object[0];
 		}
 
-		return this.api.getRequestHandler().get("users", parameters);
+		return this.api.requests().get("users", parameters);
 	}
 
 	public @NonNull List<@NonNull NamelessUser> makeRequest() throws NamelessException {

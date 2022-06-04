@@ -37,7 +37,7 @@ public final class NamelessUser implements LanguageEntity {
 				 final @Positive int id
 	) {
 		this.api = api;
-		this.requests = api.getRequestHandler();
+		this.requests = api.requests();
 
 		this.id = id;
 		this.userTransformer = "id:" + id;
@@ -45,7 +45,7 @@ public final class NamelessUser implements LanguageEntity {
 
 	NamelessUser(final @NonNull NamelessAPI api, final @NonNull String userTransformer) {
 		this.api = api;
-		this.requests = api.getRequestHandler();
+		this.requests = api.requests();
 
 		this.id = -1;
 		this.userTransformer = URLEncoder.encode(userTransformer, StandardCharsets.UTF_8);
@@ -308,7 +308,7 @@ public final class NamelessUser implements LanguageEntity {
 	 */
 	public @NonNull List<@NonNull Announcement> announcements() throws NamelessException {
 		final JsonObject response = this.requests.get("users/" + this.userTransformer + "/announcements");
-		return NamelessAPI.getAnnouncements(response);
+		return NamelessAPI.announcements(response);
 	}
 
 	/**

@@ -34,15 +34,15 @@ public final class NamelessAPI {
 		this.apiKey = apiKey;
 	}
 
-	public @NonNull RequestHandler getRequestHandler() {
+	public @NonNull RequestHandler requests() {
 		return this.requests;
 	}
 
-	public @NonNull URL getApiUrl() {
+	public @NonNull URL apiUrl() {
 		return this.apiUrl;
 	}
 
-	public @NonNull String getApiKey() {
+	public @NonNull String apiKey() {
 		return this.apiKey;
 	}
 
@@ -51,9 +51,9 @@ public final class NamelessAPI {
 	 * @return List of announcements
 	 */
 
-	public @NonNull List<@NonNull Announcement> getAnnouncements() throws NamelessException {
+	public @NonNull List<@NonNull Announcement> announcements() throws NamelessException {
 		final JsonObject response = this.requests.get("announcements");
-		return getAnnouncements(response);
+		return announcements(response);
 	}
 
 	/**
@@ -61,7 +61,7 @@ public final class NamelessAPI {
 	 * @param response Announcements json API response
 	 * @return List of {@link Announcement} objects
 	 */
-	static @NonNull List<@NonNull Announcement> getAnnouncements(final @NonNull JsonObject response) {
+	static @NonNull List<@NonNull Announcement> announcements(final @NonNull JsonObject response) {
 		return StreamSupport.stream(response.getAsJsonArray("announcements").spliterator(), false)
 					.map(JsonElement::getAsJsonObject)
 					.map(Announcement::new)
@@ -80,12 +80,12 @@ public final class NamelessAPI {
 	 * Get website information
 	 * @return {@link Website} object containing website information
 	 */
-	public Website getWebsite() throws NamelessException {
+	public Website website() throws NamelessException {
 		final JsonObject json = this.requests.get("info");
 		return new Website(json);
 	}
 
-	public FilteredUserListBuilder getRegisteredUsers() {
+	public FilteredUserListBuilder users() {
 		return new FilteredUserListBuilder(this);
 	}
 
@@ -101,28 +101,28 @@ public final class NamelessAPI {
 		}
 	}
 
-	public @Nullable NamelessUser getUser(final int id) throws NamelessException {
-		return userAsNullable(getUserLazy(id));
+	public @Nullable NamelessUser user(final int id) throws NamelessException {
+		return userAsNullable(userLazy(id));
 	}
 
-	public @Nullable NamelessUser getUserByUsername(final @NonNull String username) throws NamelessException {
-		return userAsNullable(getUserByUsernameLazy(username));
+	public @Nullable NamelessUser userByUsername(final @NonNull String username) throws NamelessException {
+		return userAsNullable(userByUsernameLazy(username));
 	}
 
-	public @Nullable NamelessUser getUserByMinecraftUuid(final @NonNull UUID uuid) throws NamelessException {
-		return userAsNullable(getUserByMinecraftUuidLazy(uuid));
+	public @Nullable NamelessUser userByMinecraftUuid(final @NonNull UUID uuid) throws NamelessException {
+		return userAsNullable(userByMinecraftUuidLazy(uuid));
 	}
 
-	public @Nullable NamelessUser getUserByMinecraftUsername(final @NonNull String username) throws NamelessException {
-		return userAsNullable(getUserByMinecraftUsernameLazy(username));
+	public @Nullable NamelessUser userByMinecraftUsername(final @NonNull String username) throws NamelessException {
+		return userAsNullable(userByMinecraftUsernameLazy(username));
 	}
 
-	public @Nullable NamelessUser getUserByDiscordId(final long id) throws NamelessException {
-		return userAsNullable(getUserByDiscordIdLazy(id));
+	public @Nullable NamelessUser userByDiscordId(final long id) throws NamelessException {
+		return userAsNullable(userByDiscordIdLazy(id));
 	}
 
-	public @Nullable NamelessUser getUserByDiscordUsername(final @NonNull String username) throws NamelessException {
-		return userAsNullable(getUserByDiscordUsernameLazy(username));
+	public @Nullable NamelessUser userByDiscordUsername(final @NonNull String username) throws NamelessException {
+		return userAsNullable(userByDiscordUsernameLazy(username));
 	}
 
 	/**
@@ -130,32 +130,32 @@ public final class NamelessAPI {
 	 * @param id NamelessMC user id
 	 * @return Nameless user object, never null
 	 */
-	public @NonNull NamelessUser getUserLazy(final int id) {
+	public @NonNull NamelessUser userLazy(final int id) {
 		return new NamelessUser(this, id);
 	}
 
-	public @NonNull NamelessUser getUserLazy(final @NonNull String userTransformer) {
+	public @NonNull NamelessUser userLazy(final @NonNull String userTransformer) {
 		return new NamelessUser(this, userTransformer);
 	}
 
-	public @NonNull NamelessUser getUserByUsernameLazy(final @NonNull String username) {
-		return getUserLazy("username:" + username);
+	public @NonNull NamelessUser userByUsernameLazy(final @NonNull String username) {
+		return userLazy("username:" + username);
 	}
 
-	public @NonNull NamelessUser getUserByMinecraftUuidLazy(final @NonNull UUID uuid) {
-		return getUserLazy("integration_id:minecraft:" + javaUuidToWebsiteUuid(uuid));
+	public @NonNull NamelessUser userByMinecraftUuidLazy(final @NonNull UUID uuid) {
+		return userLazy("integration_id:minecraft:" + javaUuidToWebsiteUuid(uuid));
 	}
 
-	public @NonNull NamelessUser getUserByMinecraftUsernameLazy(final @NonNull String username) {
-		return getUserLazy("integration_username:minecraft:" + username);
+	public @NonNull NamelessUser userByMinecraftUsernameLazy(final @NonNull String username) {
+		return userLazy("integration_username:minecraft:" + username);
 	}
 
-	public @NonNull NamelessUser getUserByDiscordIdLazy(final long id) {
-		return getUserLazy("integration_id:discord:" + id);
+	public @NonNull NamelessUser userByDiscordIdLazy(final long id) {
+		return userLazy("integration_id:discord:" + id);
 	}
 
-	public @NonNull NamelessUser getUserByDiscordUsernameLazy(final @NonNull String username) {
-		return getUserLazy("integration_username:discord:" + username);
+	public @NonNull NamelessUser userByDiscordUsernameLazy(final @NonNull String username) {
+		return userLazy("integration_username:discord:" + username);
 	}
 
 	/**
@@ -163,7 +163,7 @@ public final class NamelessAPI {
 	 * @param id Group id
 	 * @return Group or null if it doesn't exist
 	 */
-	public @Nullable Group getGroup(final int id) throws NamelessException {
+	public @Nullable Group group(final int id) throws NamelessException {
 		final JsonObject response = this.requests.get("groups", "id", id);
 		final JsonArray jsonArray = response.getAsJsonArray("groups");
 		if (jsonArray.size() == 1) {
@@ -180,7 +180,7 @@ public final class NamelessAPI {
 	 * @param name NamelessMC groups name
 	 * @return List of groups with this name, empty if there are no groups with this name.
 	 */
-	public List<Group> getGroup(final @NonNull String name) throws NamelessException {
+	public List<Group> group(final @NonNull String name) throws NamelessException {
 		Objects.requireNonNull(name, "Group name is null");
 		final JsonObject response = this.requests.get("groups", "name", name);
 		return groupListFromJsonArray(response.getAsJsonArray("groups"));

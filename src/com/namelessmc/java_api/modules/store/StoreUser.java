@@ -12,7 +12,7 @@ public class StoreUser {
 
 	public StoreUser(NamelessUser user) {
 		this.user = user;
-		this.requests = user.api().getRequestHandler();
+		this.requests = user.api().requests();
 	}
 
 	public void addCredits(float creditsToAdd) throws NamelessException {

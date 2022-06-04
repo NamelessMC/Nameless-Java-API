@@ -15,8 +15,15 @@ public class Website implements LanguageEntity {
 	private final @NonNull String@NonNull[] modules;
 	private final @NonNull String rawLanguage;
 
-	Website(final @NonNull JsonObject json) {
+	Website(final @NonNull JsonObject json) throws NamelessException {
 		Objects.requireNonNull(json, "Provided json object is null");
+
+		if (!json.has("nameless_version")) {
+			// This is usually the point where people run into issues if the response is not from NamelessMC
+			// but from something else like a proxy or denial of service protection system, so we throw a useful
+			// exception.
+			throw new NamelessException("Website didn't include namelessmc_version in the info response. Is the response from NamelessMC?");
+		}
 
 		this.version = json.get("nameless_version").getAsString();
 

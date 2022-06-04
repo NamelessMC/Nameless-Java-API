@@ -19,7 +19,7 @@ public class StoreAPI {
 
 	public StoreAPI(NamelessAPI api) {
 		this.api = api;
-		this.requests = api.getRequestHandler();
+		this.requests = api.requests();
 	}
 
 	public List<StoreProduct> products() throws NamelessException {

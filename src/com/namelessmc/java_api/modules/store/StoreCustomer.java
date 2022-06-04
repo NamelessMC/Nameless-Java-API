@@ -33,7 +33,7 @@ public class StoreCustomer {
 	}
 
 	public @Nullable NamelessUser user() throws NamelessException {
-		return this.userId != null ? this.api.getUser(this.userId) : null;
+		return this.userId != null ? this.api.user(this.userId) : null;
 	}
 
 	public @Nullable String username() {
