@@ -30,9 +30,14 @@ public class WebsendAPI {
 		return Collections.unmodifiableList(commands);
 	}
 
-	public void sendConsoleLog(int serverId, @NonNull Collection<String> lines) throws NamelessException {
+	public void sendConsoleLog(int serverId, Collection<String> lines) throws NamelessException {
+		sendConsoleLog(serverId, lines, false);
+	}
+
+	public void sendConsoleLog(int serverId, Collection<String> lines, boolean clearPrevious) throws NamelessException {
 		JsonObject body = new JsonObject();
 		body.addProperty("server_id", serverId);
+		body.addProperty("clear_previous", clearPrevious);
 		JsonArray content = new JsonArray();
 		for (String line : lines) {
 			content.add(line);
