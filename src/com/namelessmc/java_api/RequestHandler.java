@@ -131,7 +131,7 @@ public class RequestHandler {
 		} catch (final IOException e) {
 			final @Nullable String exceptionMessage = e.getMessage();
 			final StringBuilder message = new StringBuilder("Network connection error (not a Nameless issue). IOException message: \"");
-			message.append(e.getMessage());
+			message.append(exceptionMessage);
 			message.append('"');
 			if (exceptionMessage != null) {
 				if (exceptionMessage.contains("unable to find valid certification path to requested target")) {
@@ -142,6 +142,10 @@ public class RequestHandler {
 					message.append("\nHINT: Is a webserver running at the provided domain? Are we blocked by a firewall? Is your webserver fast enough?");
 				} else if (exceptionMessage.contains("Connection refused")) {
 					message.append("\nHINT: Is the domain correct? Is your webserver running? Are we blocked by a firewall?");
+				} else if (exceptionMessage.contains("timed out")) {
+					// All timeouts are set to the same value, so we only need to print one.
+					long seconds = httpClient.connectTimeout().orElseThrow().getSeconds();
+					message.append("\nHINT: The website responded too slow, timeout is set to ").append(seconds).append(" seconds.");
 				}
 			}
 
