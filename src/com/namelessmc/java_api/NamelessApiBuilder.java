@@ -47,6 +47,7 @@ public class NamelessApiBuilder {
 				.readTimeout(DEFAULT_TIMEOUT)
 				.requestTimeout(DEFAULT_TIMEOUT)
 				.connectTimeout(DEFAULT_TIMEOUT)
+				.headersTimeout(DEFAULT_TIMEOUT)
 				.autoAcceptEncoding(true);
 	}
 
