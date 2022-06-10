@@ -44,11 +44,8 @@ public class NamelessApiBuilder {
 		this.httpClientBuilder = Methanol.newBuilder()
 				.defaultHeader("Authorization", "Bearer " + this.apiKey)
 				.userAgent(DEFAULT_USER_AGENT)
-				.readTimeout(DEFAULT_TIMEOUT)
-				.requestTimeout(DEFAULT_TIMEOUT)
-				.connectTimeout(DEFAULT_TIMEOUT)
-				.headersTimeout(DEFAULT_TIMEOUT)
 				.autoAcceptEncoding(true);
+		this.timeout(DEFAULT_TIMEOUT);
 	}
 
 	public @NonNull NamelessApiBuilder userAgent(final @NonNull String userAgent) {
@@ -84,7 +81,8 @@ public class NamelessApiBuilder {
 	public @NonNull NamelessApiBuilder timeout(final @NonNull Duration timeout) {
 		this.httpClientBuilder.readTimeout(timeout)
 				.requestTimeout(timeout)
-				.connectTimeout(timeout);
+				.connectTimeout(timeout)
+				.headersTimeout(timeout);
 		return this;
 	}
 
