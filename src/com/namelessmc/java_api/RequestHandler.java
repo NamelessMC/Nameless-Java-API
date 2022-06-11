@@ -196,6 +196,9 @@ public class RequestHandler {
 
 		if (json.has("error")) {
 			final String errorString = json.get("error").getAsString();
+			if (errorString.equals("true")) {
+				throw new NamelessException("Error string is 'true', are you using an older NamelessMC version?");
+			}
 			final ApiError apiError = ApiError.fromString(errorString);
 			if (apiError == null) {
 				throw new NamelessException("Unknown API error: " + errorString);
