@@ -3,6 +3,7 @@ package com.namelessmc.java_api.modules.websend;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.namelessmc.java_api.NamelessAPI;
 import com.namelessmc.java_api.NamelessException;
 import com.namelessmc.java_api.RequestHandler;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -11,10 +12,10 @@ import java.util.*;
 
 public class WebsendAPI {
 
-	private final @NonNull RequestHandler requests;
+	private final RequestHandler requests;
 
-	public WebsendAPI(@NonNull RequestHandler requests) {
-		this.requests = Objects.requireNonNull(requests, "Request handler is null");
+	public WebsendAPI(final NamelessAPI api) {
+		this.requests = api.requests();
 	}
 
 	public @NonNull List<WebsendCommand> commands(int serverId) throws NamelessException {

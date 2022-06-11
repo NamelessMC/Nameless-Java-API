@@ -49,7 +49,7 @@ public class RequestHandler {
 		this.responseLengthLimit = responseLengthLimit;
 	}
 
-	@NonNull Gson gson() {
+	public Gson gson() {
 		return this.gson;
 	}
 

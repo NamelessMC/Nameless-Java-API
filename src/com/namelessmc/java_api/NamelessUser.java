@@ -8,6 +8,7 @@ import com.namelessmc.java_api.Notification.Type;
 import com.namelessmc.java_api.exception.ApiError;
 import com.namelessmc.java_api.exception.ApiException;
 import com.namelessmc.java_api.integrations.*;
+import com.namelessmc.java_api.modules.discord.DiscordUser;
 import com.namelessmc.java_api.modules.store.StoreUser;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -20,7 +21,6 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public final class NamelessUser implements LanguageEntity {
-
 
 	private final @NonNull NamelessAPI api;
 	private final @NonNull RequestHandler requests;
@@ -295,13 +295,6 @@ public final class NamelessUser implements LanguageEntity {
 		}
 	}
 
-	public void discordRoles(final long@NonNull[] roleIds) throws NamelessException {
-		final JsonObject post = new JsonObject();
-		post.addProperty("user", this.getId());
-		post.add("roles", this.requests.gson().toJsonTree(roleIds));
-		this.requests.post("discord/set-roles", post);
-	}
-
 	/**
 	 * Get announcements visible to this user
 	 * @return List of announcements visible to this user
@@ -396,6 +389,10 @@ public final class NamelessUser implements LanguageEntity {
 		final JsonObject body = new JsonObject();
 		body.addProperty("code", verificationCode);
 		this.requests.post("users/" + this.userTransformer + "/verify", body);
+	}
+
+	public DiscordUser discord() {
+		return new DiscordUser(this);
 	}
 
 	public StoreUser store() {
