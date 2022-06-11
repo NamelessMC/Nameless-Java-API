@@ -13,21 +13,21 @@ import java.net.MalformedURLException;
 import java.net.ProxySelector;
 import java.net.URL;
 import java.time.Duration;
-import java.util.concurrent.Executor;
+import java.util.Objects;
 
 public class NamelessApiBuilder {
-
-	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(5);
-	private static final String DEFAULT_USER_AGENT = "Nameless-Java-API";
-	private static final int DEFAULT_RESPONSE_SIZE_LIMIT = 32*1024*1024;
 
 	private final @NonNull URL apiUrl;
 	private final @NonNull String apiKey;
 
-	private final @NonNull GsonBuilder gsonBuilder;
+	private Duration timeout = Duration.ofSeconds(10);
+	private int responseSizeLimit = 32*1024*1024;
+	private String userAgent = "Nameless-Java-API";
 	private @Nullable ApiLogger debugLogger = null;
-	private final Methanol.@NonNull Builder httpClientBuilder;
-	private int responseSizeLimit = DEFAULT_RESPONSE_SIZE_LIMIT;
+	private @Nullable ProxySelector proxy = null;
+	private @Nullable Authenticator authenticator = null;
+
+	private boolean pettyJsonRequests = false;
 
 	NamelessApiBuilder(final @NonNull URL apiUrl,
 					   final @NonNull String apiKey) {
@@ -37,67 +37,45 @@ public class NamelessApiBuilder {
 			throw new RuntimeException(e);
 		}
 		this.apiKey = apiKey;
-
-		this.gsonBuilder = new GsonBuilder();
-		this.gsonBuilder.disableHtmlEscaping();
-
-		this.httpClientBuilder = Methanol.newBuilder()
-				.defaultHeader("Authorization", "Bearer " + this.apiKey)
-				.userAgent(DEFAULT_USER_AGENT)
-				.autoAcceptEncoding(true);
-		this.timeout(DEFAULT_TIMEOUT);
 	}
 
-	public @NonNull NamelessApiBuilder userAgent(final @NonNull String userAgent) {
-		this.httpClientBuilder.userAgent(userAgent);
+	public NamelessApiBuilder userAgent(final String userAgent) {
+		this.userAgent = userAgent;
 		return this;
 	}
 
-	@Deprecated
-	public @NonNull NamelessApiBuilder debug(final boolean debug) {
-		if (debug) {
-			return this.stdErrDebugLogger();
-		} else {
-			this.debugLogger = null;
-			return this;
-		}
-	}
-
-	public @NonNull NamelessApiBuilder stdErrDebugLogger() {
+	public NamelessApiBuilder stdErrDebugLogger() {
 		this.debugLogger = PrintStreamLogger.DEFAULT_INSTANCE;
 		return this;
 	}
 
-	public @NonNull NamelessApiBuilder slf4jDebugLogger() {
+	public NamelessApiBuilder slf4jDebugLogger() {
 		this.debugLogger = Slf4jLogger.DEFAULT_INSTANCE;
 		return this;
 	}
 
-	public @NonNull NamelessApiBuilder customDebugLogger(final @Nullable ApiLogger debugLogger) {
+	public NamelessApiBuilder customDebugLogger(final @Nullable ApiLogger debugLogger) {
 		this.debugLogger = debugLogger;
 		return this;
 	}
 
-	public @NonNull NamelessApiBuilder timeout(final @NonNull Duration timeout) {
-		this.httpClientBuilder.readTimeout(timeout)
-				.requestTimeout(timeout)
-				.connectTimeout(timeout)
-				.headersTimeout(timeout);
+	public NamelessApiBuilder timeout(final Duration timeout) {
+		this.timeout = Objects.requireNonNull(timeout);
 		return this;
 	}
 
-	public @NonNull NamelessApiBuilder withProxy(final ProxySelector proxy) {
-		this.httpClientBuilder.proxy(proxy);
+	public NamelessApiBuilder withProxy(final @Nullable ProxySelector proxy) {
+		this.proxy = proxy;
 		return this;
 	}
 
-	public @NonNull NamelessApiBuilder authenticator(final Authenticator authenticator) {
-		this.httpClientBuilder.authenticator(authenticator);
+	public NamelessApiBuilder authenticator(final @Nullable Authenticator authenticator) {
+		this.authenticator = authenticator;
 		return this;
 	}
 
 	public @NonNull NamelessApiBuilder pettyJsonRequests() {
-		gsonBuilder.setPrettyPrinting();
+		this.pettyJsonRequests = true;
 		return this;
 	}
 
@@ -106,17 +84,34 @@ public class NamelessApiBuilder {
 		return this;
 	}
 
-	public @NonNull NamelessApiBuilder executor(final @NonNull Executor executor) {
-		this.httpClientBuilder.executor(executor);
-		return this;
-	}
-
 	public @NonNull NamelessAPI build() {
+		final Methanol.Builder methanolBuilder = Methanol.newBuilder()
+				.defaultHeader("Authorization", "Bearer " + this.apiKey)
+				.userAgent(this.userAgent)
+				.autoAcceptEncoding(true)
+				.readTimeout(this.timeout)
+				.requestTimeout(this.timeout)
+				.connectTimeout(this.timeout)
+				.headersTimeout(this.timeout);
+		if (this.proxy != null) {
+			methanolBuilder.proxy(this.proxy);
+		}
+		if (this.authenticator != null) {
+			methanolBuilder.authenticator(this.authenticator);
+		}
+
+		GsonBuilder gsonBuilder = new GsonBuilder()
+				.disableHtmlEscaping();
+
+		if (this.pettyJsonRequests) {
+			gsonBuilder.setPrettyPrinting();
+		}
+
 		return new NamelessAPI(
 				new RequestHandler(
 						this.apiUrl,
-						this.httpClientBuilder.build(),
-						this.gsonBuilder.create(),
+						methanolBuilder.build(),
+						gsonBuilder.create(),
 						this.debugLogger,
 						this.responseSizeLimit
 				),
