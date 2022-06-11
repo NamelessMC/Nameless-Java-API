@@ -26,6 +26,10 @@ public final class NamelessAPI {
 	private final @NonNull URL apiUrl;
 	private final @NonNull String apiKey;
 
+	private static final long CACHED_WEBSITE_INFO_VALIDITY = 60_000;
+	private @Nullable Website cachedWebsiteInfo = null;
+	private long cachedWebsiteInfoTime = 0;
+
 	NamelessAPI(final @NonNull RequestHandler requests,
 				final @NonNull URL apiUrl,
 				final @NonNull String apiKey) {
@@ -81,8 +85,16 @@ public final class NamelessAPI {
 	 * @return {@link Website} object containing website information
 	 */
 	public Website website() throws NamelessException {
+		if (this.cachedWebsiteInfoTime + CACHED_WEBSITE_INFO_VALIDITY > System.currentTimeMillis() &&
+				this.cachedWebsiteInfo != null) {
+			return this.cachedWebsiteInfo;
+		}
+
 		final JsonObject json = this.requests.get("info");
-		return new Website(json);
+		final Website website = new Website(json);
+		this.cachedWebsiteInfo = website;
+		this.cachedWebsiteInfoTime = System.currentTimeMillis();
+		return website;
 	}
 
 	public FilteredUserListBuilder users() {
