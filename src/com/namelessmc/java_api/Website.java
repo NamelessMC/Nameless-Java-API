@@ -2,22 +2,20 @@ package com.namelessmc.java_api;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class Website implements LanguageEntity {
 
-	private final @NonNull String version;
+	private final String version;
 	private final @Nullable Update update;
-	private final @NonNull String@NonNull[] modules;
-	private final @NonNull String rawLanguage;
+	private final Set<String> modules;
+	private final String rawLanguage;
 
-	Website(final @NonNull JsonObject json) throws NamelessException {
-		Objects.requireNonNull(json, "Provided json object is null");
-
+	Website(final JsonObject json) throws NamelessException {
 		if (!json.has("nameless_version")) {
 			// This is usually the point where people run into issues if the response is not from NamelessMC
 			// but from something else like a proxy or denial of service protection system, so we throw a useful
@@ -29,7 +27,7 @@ public class Website implements LanguageEntity {
 
 		this.modules = StreamSupport.stream(json.get("modules").getAsJsonArray().spliterator(), false)
 				.map(JsonElement::getAsString)
-				.toArray(String[]::new);
+				.collect(Collectors.toUnmodifiableSet());
 
 		if (json.has("version_update")) {
 			final JsonObject updateJson = json.get("version_update").getAsJsonObject();
@@ -48,7 +46,7 @@ public class Website implements LanguageEntity {
 		this.rawLanguage = json.get("locale").getAsString();
 	}
 
-	public @NonNull String rawVersion() {
+	public String rawVersion() {
 		return this.version;
 	}
 
@@ -63,12 +61,12 @@ public class Website implements LanguageEntity {
 		return this.update;
 	}
 
-	public @NonNull String@NonNull [] getModules() {
+	public Set<String> modules() {
 		return this.modules;
 	}
 
 	@Override
-	public @NonNull String rawLocale() throws NamelessException {
+	public String rawLocale() throws NamelessException {
 		return this.rawLanguage;
 	}
 
