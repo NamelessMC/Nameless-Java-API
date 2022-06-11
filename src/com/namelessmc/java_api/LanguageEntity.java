@@ -1,5 +1,6 @@
 package com.namelessmc.java_api;
 
+import com.namelessmc.java_api.exception.NamelessException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Locale;

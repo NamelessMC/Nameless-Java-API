@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.namelessmc.java_api.Notification.Type;
 import com.namelessmc.java_api.exception.ApiError;
 import com.namelessmc.java_api.exception.ApiException;
+import com.namelessmc.java_api.exception.NamelessException;
 import com.namelessmc.java_api.integrations.*;
 import com.namelessmc.java_api.modules.discord.DiscordUser;
 import com.namelessmc.java_api.modules.store.StoreUser;
@@ -391,11 +392,11 @@ public final class NamelessUser implements LanguageEntity {
 		this.requests.post("users/" + this.userTransformer + "/verify", body);
 	}
 
-	public DiscordUser discord() {
+	public DiscordUser discord() throws NamelessException {
 		return new DiscordUser(this);
 	}
 
-	public StoreUser store() {
+	public StoreUser store() throws NamelessException {
 		return new StoreUser(this);
 	}
 

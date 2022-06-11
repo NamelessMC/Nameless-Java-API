@@ -1,18 +1,20 @@
 package com.namelessmc.java_api.modules.store;
 
 import com.google.gson.JsonObject;
-import com.namelessmc.java_api.NamelessException;
+import com.namelessmc.java_api.exception.NamelessException;
 import com.namelessmc.java_api.NamelessUser;
 import com.namelessmc.java_api.RequestHandler;
+import com.namelessmc.java_api.modules.ModuleNames;
 
 public class StoreUser {
 
 	private final NamelessUser user;
 	private final RequestHandler requests;
 
-	public StoreUser(NamelessUser user) {
+	public StoreUser(NamelessUser user) throws NamelessException {
 		this.user = user;
 		this.requests = user.api().requests();
+		user.api().ensureModuleInstalled(ModuleNames.STORE);
 	}
 
 	public void addCredits(float creditsToAdd) throws NamelessException {

@@ -4,8 +4,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.NamelessAPI;
-import com.namelessmc.java_api.NamelessException;
+import com.namelessmc.java_api.exception.NamelessException;
 import com.namelessmc.java_api.RequestHandler;
+import com.namelessmc.java_api.modules.ModuleNames;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.*;
@@ -14,8 +15,9 @@ public class WebsendAPI {
 
 	private final RequestHandler requests;
 
-	public WebsendAPI(final NamelessAPI api) {
+	public WebsendAPI(final NamelessAPI api) throws NamelessException {
 		this.requests = api.requests();
+		api.ensureModuleInstalled(ModuleNames.WEBSEND);
 	}
 
 	public @NonNull List<WebsendCommand> commands(int serverId) throws NamelessException {

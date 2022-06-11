@@ -5,6 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.exception.ApiError;
 import com.namelessmc.java_api.exception.ApiException;
+import com.namelessmc.java_api.exception.MissingModuleException;
+import com.namelessmc.java_api.exception.NamelessException;
 import com.namelessmc.java_api.integrations.IntegrationData;
 import com.namelessmc.java_api.modules.discord.DiscordAPI;
 import com.namelessmc.java_api.modules.store.StoreAPI;
@@ -275,15 +277,26 @@ public final class NamelessAPI {
 		this.requests.post("integration/verify", data);
 	}
 
-	public DiscordAPI discord() {
+	/**
+	 * Ensures the given module is installed, throwing {@link MissingModuleException} if missing.
+	 * @param moduleName Module name to check
+	 * @see com.namelessmc.java_api.modules.ModuleNames
+	 */
+	public void ensureModuleInstalled(String moduleName) throws NamelessException {
+		if (!this.website().modules().contains(moduleName)) {
+			throw new MissingModuleException(moduleName);
+		}
+	}
+
+	public DiscordAPI discord() throws NamelessException {
 		return new DiscordAPI(this);
 	}
 
-	public StoreAPI store() {
+	public StoreAPI store() throws NamelessException {
 		return new StoreAPI(this);
 	}
 
-	public WebsendAPI websend() {
+	public WebsendAPI websend() throws NamelessException {
 		return new WebsendAPI(this);
 	}
 

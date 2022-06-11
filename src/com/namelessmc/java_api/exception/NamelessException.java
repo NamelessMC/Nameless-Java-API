@@ -1,4 +1,4 @@
-package com.namelessmc.java_api;
+package com.namelessmc.java_api.exception;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -7,7 +7,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  */
 public class NamelessException extends Exception {
 
-	private static final long serialVersionUID = -3698433855091611529L;
+	private static final long serialVersionUID = 1L;
 
 	public NamelessException(final @NonNull String message) {
 		super(message);

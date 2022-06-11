@@ -1,6 +1,5 @@
 package com.namelessmc.java_api.exception;
 
-import com.namelessmc.java_api.NamelessException;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class ApiException extends NamelessException {

@@ -2,7 +2,7 @@ package com.namelessmc.java_api.modules.store;
 
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.NamelessAPI;
-import com.namelessmc.java_api.NamelessException;
+import com.namelessmc.java_api.exception.NamelessException;
 import com.namelessmc.java_api.NamelessUser;
 import org.checkerframework.checker.nullness.qual.Nullable;
 

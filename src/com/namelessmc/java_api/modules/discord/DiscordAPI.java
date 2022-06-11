@@ -4,8 +4,9 @@ import com.google.common.base.Preconditions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.NamelessAPI;
-import com.namelessmc.java_api.NamelessException;
+import com.namelessmc.java_api.exception.NamelessException;
 import com.namelessmc.java_api.RequestHandler;
+import com.namelessmc.java_api.modules.ModuleNames;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.net.URL;
@@ -16,8 +17,9 @@ public class DiscordAPI {
 
 	private final RequestHandler requests;
 
-	public DiscordAPI(NamelessAPI api) {
+	public DiscordAPI(NamelessAPI api) throws NamelessException {
 		this.requests = api.requests();
+		api.ensureModuleInstalled(ModuleNames.DISCORD_INTEGRATION);
 	}
 
 	/**
