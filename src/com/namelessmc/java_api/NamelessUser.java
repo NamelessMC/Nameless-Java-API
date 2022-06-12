@@ -11,6 +11,7 @@ import com.namelessmc.java_api.exception.NamelessException;
 import com.namelessmc.java_api.integrations.*;
 import com.namelessmc.java_api.modules.discord.DiscordUser;
 import com.namelessmc.java_api.modules.store.StoreUser;
+import com.namelessmc.java_api.modules.suggestions.SuggestionsUser;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -398,6 +399,10 @@ public final class NamelessUser implements LanguageEntity {
 
 	public StoreUser store() throws NamelessException {
 		return new StoreUser(this);
+	}
+
+	public SuggestionsUser suggestions() throws NamelessException {
+		return new SuggestionsUser(this);
 	}
 
 }
