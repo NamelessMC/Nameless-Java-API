@@ -44,6 +44,10 @@ public class Website implements LanguageEntity {
 			this.update = null;
 		}
 
+		if (json.get("locale").isJsonNull()) {
+			throw new NamelessException("Website returned null locale. This can happen if you upgraded from v2-pr12 to v2-pr13, please try switching the site's language to something else and back.");
+		}
+
 		this.rawLanguage = json.get("locale").getAsString();
 	}
 
