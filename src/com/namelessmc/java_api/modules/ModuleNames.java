@@ -13,5 +13,6 @@ public class ModuleNames {
 
 	public static final String STORE = "Store";
 	public static final String WEBSEND = "Websend";
+	public static final String SUGGESTIONS = "Suggestions";
 
 }

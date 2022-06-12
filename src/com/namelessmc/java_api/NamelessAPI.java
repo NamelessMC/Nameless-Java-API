@@ -10,13 +10,17 @@ import com.namelessmc.java_api.exception.NamelessException;
 import com.namelessmc.java_api.integrations.IntegrationData;
 import com.namelessmc.java_api.modules.discord.DiscordAPI;
 import com.namelessmc.java_api.modules.store.StoreAPI;
+import com.namelessmc.java_api.modules.suggestions.SuggestionsAPI;
 import com.namelessmc.java_api.modules.websend.WebsendAPI;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.math.BigInteger;
 import java.net.URL;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -294,6 +298,10 @@ public final class NamelessAPI {
 
 	public StoreAPI store() throws NamelessException {
 		return new StoreAPI(this);
+	}
+
+	public SuggestionsAPI suggestions() throws NamelessException {
+		return new SuggestionsAPI(this);
 	}
 
 	public WebsendAPI websend() throws NamelessException {

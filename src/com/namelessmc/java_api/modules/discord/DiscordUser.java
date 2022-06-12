@@ -20,7 +20,7 @@ public class DiscordUser {
 
 	public void updateDiscordRoles(final long@NonNull [] roleIds) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.addProperty("user", this.user.getId());
+		post.addProperty("user", this.user.id());
 		post.add("roles", this.requests.gson().toJsonTree(roleIds));
 		this.requests.post("discord/set-roles", post);
 	}

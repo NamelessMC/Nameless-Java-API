@@ -97,7 +97,7 @@ public final class NamelessUser implements LanguageEntity {
 		return this.userTransformer;
 	}
 
-	public int getId() throws NamelessException {
+	public int id() throws NamelessException {
 		if (this.id == -1) {
 			this.id = this.userInfo().get("id").getAsInt();
 		}
@@ -251,8 +251,8 @@ public final class NamelessUser implements LanguageEntity {
 		Preconditions.checkArgument(reason.length() < 255,
 				"Report reason too long, it's %s characters but must be less than 255", reason.length());
 		final JsonObject post = new JsonObject();
-		post.addProperty("reporter", this.getId());
-		post.addProperty("reported", user.getId());
+		post.addProperty("reporter", this.id());
+		post.addProperty("reported", user.id());
 		post.addProperty("content", reason);
 		try {
 			this.requests.post("reports/create", post);
@@ -281,7 +281,7 @@ public final class NamelessUser implements LanguageEntity {
 		Preconditions.checkArgument(reason.length() < 255,
 				"Report reason too long, it's %s characters but must be less than 255", reason.length());
 		final JsonObject post = new JsonObject();
-		post.addProperty("reporter", this.getId());
+		post.addProperty("reporter", this.id());
 		post.addProperty("reported_uid", reportedUuid.toString());
 		post.addProperty("reported_username", reportedName);
 		post.addProperty("content", reason);
