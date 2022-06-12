@@ -25,7 +25,10 @@ public class FilteredUserListBuilder {
 			filters = new HashMap<>();
 		}
 
-		filters.put(filter, value);
+		filters.put(
+				Objects.requireNonNull(filter, "Filter is null"),
+				Objects.requireNonNull(value, "Value for filter " + filter.name() + " is null")
+		);
 		return this;
 	}
 
@@ -46,11 +49,10 @@ public class FilteredUserListBuilder {
 			parameters = new Object[filterCount * 2 + 2];
 			parameters[0] = "operator";
 			parameters[1] = operator;
-			Iterator<Map.Entry<UserFilter<?>, Object>> iterator = filters.entrySet().iterator();
-			for (int i = 1; i < filterCount; i++) {
-				Map.Entry<UserFilter<?>, Object> entry = iterator.next();
-				parameters[i*2] = entry.getKey().name();
-				parameters[i*2+1] = entry.getValue();
+			int i = 2;
+			for (Map.Entry<UserFilter<?>, Object> filter : this.filters.entrySet()) {
+				parameters[i++] = filter.getKey().name();
+				parameters[i++] = filter.getValue();
 			}
 		} else {
 			parameters = new Object[0];
