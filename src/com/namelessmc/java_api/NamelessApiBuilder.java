@@ -12,6 +12,7 @@ import java.net.Authenticator;
 import java.net.MalformedURLException;
 import java.net.ProxySelector;
 import java.net.URL;
+import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.Objects;
 
@@ -26,6 +27,7 @@ public class NamelessApiBuilder {
 	private @Nullable ApiLogger debugLogger = null;
 	private @Nullable ProxySelector proxy = null;
 	private @Nullable Authenticator authenticator = null;
+	private HttpClient.@Nullable Version httpVersion = null;
 
 	private boolean pettyJsonRequests = false;
 
@@ -74,17 +76,22 @@ public class NamelessApiBuilder {
 		return this;
 	}
 
-	public @NonNull NamelessApiBuilder pettyJsonRequests() {
+	public NamelessApiBuilder pettyJsonRequests() {
 		this.pettyJsonRequests = true;
 		return this;
 	}
 
-	public @NonNull NamelessApiBuilder responseSizeLimit(int responseSizeLimitBytes) {
+	public NamelessApiBuilder responseSizeLimit(int responseSizeLimitBytes) {
 		this.responseSizeLimit = responseSizeLimitBytes;
 		return this;
 	}
 
-	public @NonNull NamelessAPI build() {
+	public NamelessApiBuilder httpversion(final HttpClient. @Nullable Version httpVersion) {
+		this.httpVersion = httpVersion;
+		return this;
+	}
+
+	public NamelessAPI build() {
 		final Methanol.Builder methanolBuilder = Methanol.newBuilder()
 				.defaultHeader("Authorization", "Bearer " + this.apiKey)
 				.userAgent(this.userAgent)
@@ -98,6 +105,9 @@ public class NamelessApiBuilder {
 		}
 		if (this.authenticator != null) {
 			methanolBuilder.authenticator(this.authenticator);
+		}
+		if (this.httpVersion != null) {
+			methanolBuilder.version(this.httpVersion);
 		}
 
 		GsonBuilder gsonBuilder = new GsonBuilder()
