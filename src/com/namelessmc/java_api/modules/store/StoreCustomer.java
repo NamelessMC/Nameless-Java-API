@@ -18,7 +18,7 @@ public class StoreCustomer {
 
 	StoreCustomer(NamelessAPI api, JsonObject json) {
 		this.api = api;
-		this.id = json.get("id").getAsInt();
+		this.id = json.get("customer_id").getAsInt();
 		this.userId = json.has("user_id") ? json.get("user_id").getAsInt() : null;
 		this.username = json.has("username") ? json.get("username").getAsString() : null;
 		this.identifier = json.has("identifier") ? json.get("identifier").getAsString() : null;
