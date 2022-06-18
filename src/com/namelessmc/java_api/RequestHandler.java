@@ -112,6 +112,8 @@ public class RequestHandler {
 
 		debug(() -> "Making connection " + (postBody != null ? "POST" : "GET") + " to " + request.uri());
 
+		final long requestStartTime = System.currentTimeMillis();
+
 		if (postBody != null) {
 			byte[] postBytes = gson.toJson(postBody).getBytes(StandardCharsets.UTF_8);
 			request.POST(HttpRequest.BodyPublishers.ofByteArray(postBytes));
@@ -146,7 +148,9 @@ public class RequestHandler {
 				} else if (exceptionMessage.contains("timed out")) {
 					// All timeouts are set to the same value, so we only need to print one.
 					long seconds = httpClient.connectTimeout().orElseThrow().getSeconds();
-					message.append("\nHINT: The website responded too slow, timeout is set to ").append(seconds).append(" seconds.");
+					message.append("\nHINT: The website responded too slow, no response after waiting for ");
+					message.append((System.currentTimeMillis() - requestStartTime) / 1000);
+					message.append(" seconds.");
 				}
 			}
 
@@ -155,7 +159,7 @@ public class RequestHandler {
 			throw new RuntimeException(e);
 		}
 
-		debug(() -> "Website response body:\n" + regularAsciiOnly(responseBody));
+		debug(() -> "Website response body, after " + (System.currentTimeMillis() - requestStartTime) + "ms:\n" + regularAsciiOnly(responseBody));
 
 		if (responseBody.length() == 0) {
 			throw new NamelessException("Website sent empty response with status code " + statusCode);
@@ -183,7 +187,9 @@ public class RequestHandler {
 				message.append("HINT: The website response contains invisible unicode characters. This seems to be caused by Partydragen's Store module, we have no idea why.\n");
 			}
 
-			message.append("Website response:\n");
+			message.append("Website response, after ");
+			message.append(System.currentTimeMillis() - requestStartTime);
+			message.append("ms:\n");
 			message.append("-----------------\n");
 			int totalLengthLimit = 1500; // fit in a Discord message
 			String printableResponse = regularAsciiOnly(responseBody);
