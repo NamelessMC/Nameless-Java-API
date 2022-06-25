@@ -9,7 +9,7 @@ public class DetailedDiscordIntegrationData extends DetailedIntegrationData impl
 
 	public DetailedDiscordIntegrationData(final @NonNull JsonObject json) {
 		super(json);
-		this.idLong = Integer.parseInt(this.identifier());
+		this.idLong = Long.parseLong(this.identifier());
 	}
 
 	@Override
