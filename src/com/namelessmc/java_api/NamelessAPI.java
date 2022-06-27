@@ -103,6 +103,10 @@ public final class NamelessAPI {
 		return website;
 	}
 
+	public @Nullable Website websiteIfCached() {
+		return this.cachedWebsiteInfo;
+	}
+
 	public FilteredUserListBuilder users() {
 		return new FilteredUserListBuilder(this);
 	}
