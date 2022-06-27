@@ -52,8 +52,7 @@ public class SuggestionsUser {
 			body.addProperty("category", categoryId);
 		}
 		final JsonObject response = this.requests.post("suggestions/create", body);
-		final int suggestionId = response.get("id").getAsInt();
-		return this.api.suggestions().suggestion(suggestionId);
+		return new Suggestion(this.api, response);
 	}
 
 	public Suggestion createSuggestion(final String title, final String content) throws NamelessException {
