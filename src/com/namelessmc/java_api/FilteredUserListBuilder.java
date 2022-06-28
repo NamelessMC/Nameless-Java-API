@@ -46,10 +46,12 @@ public class FilteredUserListBuilder {
 		final Object[] parameters;
 		if (filters != null) {
 			int filterCount = filters.size();
-			parameters = new Object[filterCount * 2 + 2];
-			parameters[0] = "operator";
-			parameters[1] = operator;
-			int i = 2;
+			parameters = new Object[4 + filterCount * 2];
+			int i = 0;
+			parameters[i++] = "operator";
+			parameters[i++] = operator;
+			parameters[i++] = "limit";
+			parameters[i++] = 0;
 			for (Map.Entry<UserFilter<?>, Object> filter : this.filters.entrySet()) {
 				parameters[i++] = filter.getKey().name();
 				parameters[i++] = filter.getValue();
