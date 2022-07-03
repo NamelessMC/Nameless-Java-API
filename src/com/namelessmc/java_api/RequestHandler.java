@@ -133,9 +133,11 @@ public class RequestHandler {
 			responseBody = getBodyAsString(httpResponse);
 		} catch (final IOException e) {
 			final @Nullable String exceptionMessage = e.getMessage();
-			final StringBuilder message = new StringBuilder("Network connection error (not a Nameless issue). IOException message: \"");
+			final StringBuilder message = new StringBuilder();
+			message.append("Network connection error (not a Nameless issue). ");
+			message.append(e.getClass().getSimpleName());
+			message.append(": ");
 			message.append(exceptionMessage);
-			message.append('"');
 			if (exceptionMessage != null) {
 				if (exceptionMessage.contains("unable to find valid certification path to requested target")) {
 					message.append("\nHINT: Your HTTPS certificate is probably valid, but is it complete? Ensure your website uses a valid *full chain* SSL/TLS certificate.");
