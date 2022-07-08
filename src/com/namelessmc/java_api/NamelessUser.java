@@ -35,9 +35,7 @@ public final class NamelessUser implements LanguageEntity {
 	private @Nullable Map<String, DetailedIntegrationData> _cachedIntegrationData;
 
 
-	NamelessUser(final @NonNull NamelessAPI api,
-				 final @Positive int id
-	) {
+	NamelessUser(final @NonNull NamelessAPI api, final @Positive int id) {
 		this.api = api;
 		this.requests = api.requests();
 
@@ -51,6 +49,11 @@ public final class NamelessUser implements LanguageEntity {
 
 		this.id = -1;
 		this.userTransformer = URLEncoder.encode(userTransformer, StandardCharsets.UTF_8);
+	}
+
+	NamelessUser(final NamelessAPI api, final JsonObject userInfo) {
+		this(api, userInfo.get("id").getAsInt());
+		this._cachedUserInfo = userInfo;
 	}
 
 	@NonNull JsonObject userInfo() throws NamelessException {

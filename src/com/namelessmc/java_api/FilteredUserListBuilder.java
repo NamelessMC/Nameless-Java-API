@@ -69,8 +69,7 @@ public class FilteredUserListBuilder {
 		final List<NamelessUser> users = new ArrayList<>(array.size());
 		for (final JsonElement e : array) {
 			final JsonObject o = e.getAsJsonObject();
-			final int id = o.get("id").getAsInt();
-			users.add(new NamelessUser(this.api, id));
+			users.add(new NamelessUser(this.api, e.getAsJsonObject()));
 		}
 		return Collections.unmodifiableList(users);
 	}
