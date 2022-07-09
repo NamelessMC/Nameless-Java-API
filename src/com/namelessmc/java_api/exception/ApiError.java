@@ -35,6 +35,7 @@ public enum ApiError {
 	CORE_INVALID_INTEGRATION("core", "invalid_integration"),
 	CORE_INVALID_CODE("core", "invalid_code"),
 	CORE_USER_ALREADY_ACTIVE("core", "user_already_active"),
+	CORE_INTEGRATION_ALREADY_VERIFIED("core", "integration_already_verified"),
 	CORE_UNABLE_TO_UPDATE_USERNAME("core", "unable_to_update_username"),
 	CORE_INTEGRATION_IDENTIFIER_ERROR("core", "integration_identifier_errors"),
 	CORE_INTEGRATION_USERNAME_ERROR("core", "integration_username_errors"),
