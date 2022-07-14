@@ -124,6 +124,8 @@ public class RequestHandler {
 			request.GET();
 		}
 
+		request.header("Accept", "application/json");
+
 		int statusCode;
 		String responseBody;
 		try {
