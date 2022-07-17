@@ -8,6 +8,7 @@ import com.namelessmc.java_api.exception.ApiException;
 import com.namelessmc.java_api.exception.MissingModuleException;
 import com.namelessmc.java_api.exception.NamelessException;
 import com.namelessmc.java_api.integrations.IntegrationData;
+import com.namelessmc.java_api.integrations.StandardIntegrationTypes;
 import com.namelessmc.java_api.modules.discord.DiscordAPI;
 import com.namelessmc.java_api.modules.store.StoreAPI;
 import com.namelessmc.java_api.modules.suggestions.SuggestionsAPI;
@@ -165,19 +166,27 @@ public final class NamelessAPI {
 	}
 
 	public @NonNull NamelessUser userByMinecraftUuidLazy(final @NonNull UUID uuid) {
-		return userLazy("integration_id:minecraft:" + javaUuidToWebsiteUuid(uuid));
+		return byIntegrationIdentifierLazy(StandardIntegrationTypes.MINECRAFT, javaUuidToWebsiteUuid(uuid));
 	}
 
 	public @NonNull NamelessUser userByMinecraftUsernameLazy(final @NonNull String username) {
-		return userLazy("integration_username:minecraft:" + username);
+		return byIntegrationUsernameLazy(StandardIntegrationTypes.MINECRAFT, username);
 	}
 
 	public @NonNull NamelessUser userByDiscordIdLazy(final long id) {
-		return userLazy("integration_id:discord:" + id);
+		return byIntegrationIdentifierLazy(StandardIntegrationTypes.DISCORD, String.valueOf(id));
 	}
 
 	public @NonNull NamelessUser userByDiscordUsernameLazy(final @NonNull String username) {
-		return userLazy("integration_username:discord:" + username);
+		return byIntegrationUsernameLazy(StandardIntegrationTypes.DISCORD, username);
+	}
+
+	public NamelessUser byIntegrationIdentifierLazy(String integrationName, String identifier) {
+		return userLazy("integration_id:" + integrationName + ":" + identifier);
+	}
+
+	public NamelessUser byIntegrationUsernameLazy(String integrationName, String username) {
+		return userLazy("integration_name:" + integrationName + ":" + username);
 	}
 
 	/**
