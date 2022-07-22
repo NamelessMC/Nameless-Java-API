@@ -29,4 +29,9 @@ public class StoreUser {
 		this.requests.post("users/" + this.user.userTransformer() + "/remove-credits", body);
 	}
 
+	public float credits() throws NamelessException {
+		JsonObject response = this.requests.get("users/" + this.user.userTransformer() + "/credits");
+		return response.get("credits").getAsFloat();
+	}
+
 }
