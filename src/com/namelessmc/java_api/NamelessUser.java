@@ -372,22 +372,23 @@ public final class NamelessUser implements LanguageEntity {
 	}
 
 	public @Nullable UUID minecraftUuid() throws NamelessException {
-		final DetailedIntegrationData integration = this.integrations().get(StandardIntegrationTypes.MINECRAFT);
-		if (integration == null) {
-			return null;
-		}
+		final IntegrationData integration = this.integrations().get(StandardIntegrationTypes.MINECRAFT);
+		return integration == null ? null : ((IMinecraftIntegrationData) integration).uuid();
+	}
 
-		return ((IMinecraftIntegrationData) integration).uuid();
+	public @Nullable String minecraftUsername() throws NamelessException {
+		final IntegrationData integration = this.integrations().get(StandardIntegrationTypes.MINECRAFT);
+		return integration == null ? null : integration.username();
 	}
 
 	public @Nullable Long discordId() throws NamelessException {
-		final DetailedIntegrationData integration = this.integrations().get(StandardIntegrationTypes.DISCORD);
+		final IntegrationData integration = this.integrations().get(StandardIntegrationTypes.DISCORD);
+		return integration == null ? null : ((IDiscordIntegrationData) integration).idLong();
+	}
 
-		if (integration == null) {
-			return null;
-		}
-
-		return ((IDiscordIntegrationData) integration).idLong();
+	public @Nullable String discordUsername() throws NamelessException {
+		final IntegrationData integration = this.integrations().get(StandardIntegrationTypes.DISCORD);
+		return integration == null ? null : integration.username();
 	}
 
 	public void verify(final @NonNull String verificationCode) throws NamelessException {
