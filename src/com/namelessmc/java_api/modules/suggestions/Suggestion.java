@@ -2,12 +2,16 @@ package com.namelessmc.java_api.modules.suggestions;
 
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.NamelessAPI;
+import com.namelessmc.java_api.exception.NamelessException;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
 
 public class Suggestion {
 
 	private final int id;
+	private final URL url;
 	private final SuggestionUser author;
 	private final SuggestionUser updatedBy;
 	private final SuggestionStatus status;
@@ -20,8 +24,14 @@ public class Suggestion {
 	private final int likeCount;
 	private final int dislikeCount;
 
-	Suggestion(final NamelessAPI api, final JsonObject json) {
+	Suggestion(final NamelessAPI api, final JsonObject json) throws NamelessException {
 		this.id = json.get("id").getAsInt();
+		final String urlString = json.get("link").getAsString();
+		try {
+			this.url = new URL(urlString);
+		} catch (MalformedURLException e) {
+			throw new NamelessException("Website provided invalid suggestion URL: " + urlString, e);
+		}
 		this.author = new SuggestionUser(api, json.getAsJsonObject("author"));
 		this.updatedBy = new SuggestionUser(api, json.getAsJsonObject("updated_by"));
 		this.status = new SuggestionStatus(json.getAsJsonObject("status"));
@@ -37,6 +47,10 @@ public class Suggestion {
 
 	public int id() {
 		return this.id;
+	}
+
+	public URL url() {
+		return this.url;
 	}
 
 	public SuggestionUser author() {
