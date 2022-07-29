@@ -20,8 +20,10 @@ public class StoreCustomer {
 		this.api = api;
 		this.id = json.get("customer_id").getAsInt();
 		this.userId = json.has("user_id") ? json.get("user_id").getAsInt() : null;
-		this.username = json.has("username") ? json.get("username").getAsString() : null;
-		this.identifier = json.has("identifier") ? json.get("identifier").getAsString() : null;
+		this.username = json.has("username") && !json.get("username").isJsonNull()
+				? json.get("username").getAsString() : null;
+		this.identifier = json.has("identifier") && !json.get("identifier").isJsonNull()
+				? json.get("identifier").getAsString() : null;
 
 		if (this.username == null && this.identifier == null) {
 			throw new IllegalStateException("Username and identifier cannot be null at the same time");
