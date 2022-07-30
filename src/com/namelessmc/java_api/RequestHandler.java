@@ -185,7 +185,9 @@ public class RequestHandler {
 			} else if (responseBody.contains("/aes.js")) {
 				message.append("HINT: It looks like requests are being blocked by your web server or a proxy. ");
 				message.append("This is a common occurrence with free web hosting services; they usually don't allow API access.\n");
-			} else if (responseBody.contains("<title>Please Wait... | Cloudflare</title>") || responseBody.contains("#cf-bubbles")) {
+			} else if (responseBody.contains("<title>Please Wait... | Cloudflare</title>") ||
+					responseBody.contains("#cf-bubbles") ||
+					responseBody.contains("_cf_ch1_opt")) {
 				message.append("HINT: CloudFlare is blocking our request. Please see https://docs.namelessmc.com/cloudflare-api\n");
 			} else if (responseBody.startsWith("\ufeff")) {
 				message.append("HINT: The website response contains invisible unicode characters. This seems to be caused by Partydragen's Store module, we have no idea why.\n");
