@@ -2,10 +2,10 @@ package com.namelessmc.java_api.modules.store;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.namelessmc.java_api.exception.NamelessException;
 import com.namelessmc.java_api.NamelessUser;
 import com.namelessmc.java_api.RequestHandler;
-import com.namelessmc.java_api.modules.ModuleNames;
+import com.namelessmc.java_api.exception.NamelessException;
+import com.namelessmc.java_api.modules.NamelessModule;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public class StoreUser {
 	public StoreUser(NamelessUser user) throws NamelessException {
 		this.user = user;
 		this.requests = user.api().requests();
-		user.api().ensureModuleInstalled(ModuleNames.STORE);
+		user.api().ensureModuleInstalled(NamelessModule.STORE);
 	}
 
 	@Deprecated

@@ -4,9 +4,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.NamelessAPI;
-import com.namelessmc.java_api.exception.NamelessException;
 import com.namelessmc.java_api.RequestHandler;
-import com.namelessmc.java_api.modules.ModuleNames;
+import com.namelessmc.java_api.exception.NamelessException;
+import com.namelessmc.java_api.modules.NamelessModule;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,7 +21,7 @@ public class StoreAPI {
 	public StoreAPI(final NamelessAPI api) throws NamelessException {
 		this.api = api;
 		this.requests = api.requests();
-		this.api.ensureModuleInstalled(ModuleNames.STORE);
+		this.api.ensureModuleInstalled(NamelessModule.STORE);
 	}
 
 	public List<StoreProduct> products() throws NamelessException {

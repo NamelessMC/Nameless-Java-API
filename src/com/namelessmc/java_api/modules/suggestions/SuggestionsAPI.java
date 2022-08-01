@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import com.namelessmc.java_api.NamelessAPI;
 import com.namelessmc.java_api.RequestHandler;
 import com.namelessmc.java_api.exception.NamelessException;
-import com.namelessmc.java_api.modules.ModuleNames;
+import com.namelessmc.java_api.modules.NamelessModule;
 
 public class SuggestionsAPI {
 
@@ -14,7 +14,7 @@ public class SuggestionsAPI {
 	public SuggestionsAPI(final NamelessAPI api) throws NamelessException {
 		this.api = api;
 		this.requests = api.requests();
-		api.ensureModuleInstalled(ModuleNames.SUGGESTIONS);
+		api.ensureModuleInstalled(NamelessModule.SUGGESTIONS);
 	}
 
 	public Suggestion suggestion(int suggestionId) throws NamelessException {

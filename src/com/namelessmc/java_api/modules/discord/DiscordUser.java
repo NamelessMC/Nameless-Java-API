@@ -1,10 +1,10 @@
 package com.namelessmc.java_api.modules.discord;
 
 import com.google.gson.JsonObject;
-import com.namelessmc.java_api.exception.NamelessException;
 import com.namelessmc.java_api.NamelessUser;
 import com.namelessmc.java_api.RequestHandler;
-import com.namelessmc.java_api.modules.ModuleNames;
+import com.namelessmc.java_api.exception.NamelessException;
+import com.namelessmc.java_api.modules.NamelessModule;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class DiscordUser {
@@ -15,7 +15,7 @@ public class DiscordUser {
 	public DiscordUser(NamelessUser user) throws NamelessException {
 		this.user = user;
 		this.requests = user.api().requests();
-		user.api().ensureModuleInstalled(ModuleNames.DISCORD_INTEGRATION);
+		user.api().ensureModuleInstalled(NamelessModule.DISCORD_INTEGRATION);
 	}
 
 	public void updateDiscordRoles(final long@NonNull [] roleIds) throws NamelessException {

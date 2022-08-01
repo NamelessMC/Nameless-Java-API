@@ -5,7 +5,7 @@ import com.namelessmc.java_api.NamelessAPI;
 import com.namelessmc.java_api.NamelessUser;
 import com.namelessmc.java_api.RequestHandler;
 import com.namelessmc.java_api.exception.NamelessException;
-import com.namelessmc.java_api.modules.ModuleNames;
+import com.namelessmc.java_api.modules.NamelessModule;
 
 import java.util.Objects;
 
@@ -20,7 +20,7 @@ public class SuggestionsUser {
 		this.api = this.user.api();
 		this.requests = this.api.requests();
 
-		this.api.ensureModuleInstalled(ModuleNames.SUGGESTIONS);
+		this.api.ensureModuleInstalled(NamelessModule.SUGGESTIONS);
 	}
 
 	public void like(final int suggestionId) throws NamelessException {

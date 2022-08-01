@@ -4,12 +4,15 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.NamelessAPI;
-import com.namelessmc.java_api.exception.NamelessException;
 import com.namelessmc.java_api.RequestHandler;
-import com.namelessmc.java_api.modules.ModuleNames;
+import com.namelessmc.java_api.exception.NamelessException;
+import com.namelessmc.java_api.modules.NamelessModule;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class WebsendAPI {
 
@@ -17,7 +20,7 @@ public class WebsendAPI {
 
 	public WebsendAPI(final NamelessAPI api) throws NamelessException {
 		this.requests = api.requests();
-		api.ensureModuleInstalled(ModuleNames.WEBSEND);
+		api.ensureModuleInstalled(NamelessModule.WEBSEND);
 	}
 
 	public @NonNull List<WebsendCommand> commands(int serverId) throws NamelessException {
