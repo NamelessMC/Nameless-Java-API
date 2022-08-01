@@ -55,6 +55,11 @@ public class StoreUser {
 		return response.get("cents").getAsInt();
 	}
 
+	public int customerId() throws NamelessException {
+		JsonObject response = this.requests.get("users/" + this.user.userTransformer() + "/credits");
+		return response.get("customer_id").getAsInt();
+	}
+
 	public void createOrder(StoreCustomer purchaser, StoreCustomer recipient, List<StoreProduct> products) throws NamelessException {
 		JsonArray productIds = new JsonArray(products.size());
 		for (int i = 0; i < products.size(); i++) {
