@@ -76,7 +76,7 @@ public class NamelessModule {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final @Nullable Object obj) {
 		return obj instanceof NamelessModule &&
 				((NamelessModule) obj).name().equals(this.name);
 	}

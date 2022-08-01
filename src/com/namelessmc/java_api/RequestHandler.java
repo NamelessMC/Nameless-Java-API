@@ -150,8 +150,6 @@ public class RequestHandler {
 				} else if (exceptionMessage.contains("Connection refused")) {
 					message.append("\nHINT: Is the domain correct? Is your webserver running? Are we blocked by a firewall?");
 				} else if (exceptionMessage.contains("timed out")) {
-					// All timeouts are set to the same value, so we only need to print one.
-					long seconds = httpClient.connectTimeout().orElseThrow().getSeconds();
 					message.append("\nHINT: The website responded too slow, no response after waiting for ");
 					message.append((System.currentTimeMillis() - requestStartTime) / 1000);
 					message.append(" seconds.");

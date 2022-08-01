@@ -24,7 +24,11 @@ public class SuggestionUser {
 	}
 
 	public NamelessUser user() throws NamelessException {
-		return this.api.user(this.id);
+		NamelessUser user = this.api.user(this.id);
+		if (user == null) {
+			throw new IllegalStateException("Suggestions module returned a user id that doesn't exist");
+		}
+		return user;
 	}
 
 	public String username() {
