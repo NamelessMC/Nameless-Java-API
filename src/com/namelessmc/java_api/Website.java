@@ -3,6 +3,7 @@ package com.namelessmc.java_api;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.exception.NamelessException;
+import com.namelessmc.java_api.modules.NamelessModule;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Set;
@@ -13,7 +14,7 @@ public class Website implements LanguageEntity {
 
 	private final String version;
 	private final @Nullable Update update;
-	private final Set<String> modules;
+	private final Set<NamelessModule> modules;
 	private final String rawLanguage;
 
 	Website(final JsonObject json) throws NamelessException {
@@ -28,6 +29,7 @@ public class Website implements LanguageEntity {
 
 		this.modules = StreamSupport.stream(json.get("modules").getAsJsonArray().spliterator(), false)
 				.map(JsonElement::getAsString)
+				.map(NamelessModule::byName)
 				.collect(Collectors.toUnmodifiableSet());
 
 		if (json.has("version_update")) {
@@ -66,7 +68,7 @@ public class Website implements LanguageEntity {
 		return this.update;
 	}
 
-	public Set<String> modules() {
+	public Set<NamelessModule> modules() {
 		return this.modules;
 	}
 

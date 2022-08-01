@@ -9,6 +9,7 @@ import com.namelessmc.java_api.exception.MissingModuleException;
 import com.namelessmc.java_api.exception.NamelessException;
 import com.namelessmc.java_api.integrations.IntegrationData;
 import com.namelessmc.java_api.integrations.StandardIntegrationTypes;
+import com.namelessmc.java_api.modules.NamelessModule;
 import com.namelessmc.java_api.modules.discord.DiscordAPI;
 import com.namelessmc.java_api.modules.store.StoreAPI;
 import com.namelessmc.java_api.modules.suggestions.SuggestionsAPI;
@@ -296,12 +297,12 @@ public final class NamelessAPI {
 
 	/**
 	 * Ensures the given module is installed, throwing {@link MissingModuleException} if missing.
-	 * @param moduleName Module name to check
-	 * @see com.namelessmc.java_api.modules.ModuleNames
+	 * @param module Module to check
+	 * @see NamelessModule
 	 */
-	public void ensureModuleInstalled(String moduleName) throws NamelessException {
-		if (!this.website().modules().contains(moduleName)) {
-			throw new MissingModuleException(moduleName);
+	public void ensureModuleInstalled(NamelessModule module) throws NamelessException {
+		if (!this.website().modules().contains(module)) {
+			throw new MissingModuleException(module);
 		}
 	}
 
