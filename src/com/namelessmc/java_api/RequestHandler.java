@@ -164,7 +164,10 @@ public class RequestHandler {
 		debug(() -> "Website response body, after " + (System.currentTimeMillis() - requestStartTime) + "ms:\n" + regularAsciiOnly(responseBody));
 
 		if (responseBody.length() == 0) {
-			throw new NamelessException("Website sent empty response with status code " + statusCode);
+			if (statusCode >= 301 && statusCode <= 303) {
+				throw new NamelessException("Website returned a redirect. Please ensure your URL is correct, paying attention to whether it should use HTTP or HTTPS, or whether it should or should not contain 'www.'.");
+			}
+			throw new NamelessException("Website returned empty response with status code " + statusCode);
 		}
 
 		JsonObject json;
@@ -177,7 +180,7 @@ public class RequestHandler {
 			message.append(statusCode);
 			message.append(".\n");
 			if (statusCode >= 301 && statusCode <= 303) {
-				message.append("HINT: The URL results in a redirect. If your URL uses http://, change to https://. If your website forces www., make sure to add www. to the url.\n");
+				message.append("HINT: The web server returned a redirect. If your URL uses http://, change to https://. If your website forces www., make sure to add www. to the url.\n");
 			} else if (statusCode == 520 || statusCode == 521) {
 				message.append("HINT: Status code 520/521 is sent by CloudFlare when the backend webserver is down or having issues. Check your webserver and CloudFlare configuration.\n");
 			} else if (responseBody.contains("/aes.js")) {
