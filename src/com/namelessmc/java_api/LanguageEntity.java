@@ -7,7 +7,7 @@ import java.util.Locale;
 
 public interface LanguageEntity {
 
-	@NonNull String rawLocale() throws NamelessException;
+	String rawLocale() throws NamelessException;
 
 	default @NonNull Locale locale() throws NamelessException {
 		final String language = this.rawLocale();
