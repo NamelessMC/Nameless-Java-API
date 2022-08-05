@@ -14,11 +14,13 @@ public enum NamelessVersion {
 	V2_0_0_PR_11("2.0.0-pr11", "2.0.0 pre-release 11", 2, 0, true),
 	V2_0_0_PR_12("2.0.0-pr12", "2.0.0 pre-release 12", 2, 0, true),
 	V2_0_0_PR_13("2.0.0-pr13", "2.0.0 pre-release 13", 2, 0, true),
+	V2_0_0("2.0.0", "2.0.0", 2, 0, false),
 
 	;
 
 	private static final Set<NamelessVersion> SUPPORTED_VERSIONS = EnumSet.of(
-			V2_0_0_PR_13
+			V2_0_0_PR_13,
+			V2_0_0
 	);
 
 	private final @NonNull String name;
