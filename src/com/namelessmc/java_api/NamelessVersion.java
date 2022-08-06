@@ -110,7 +110,7 @@ public enum NamelessVersion {
 		int minor = splitInts[1];
 
 		for (NamelessVersion version : allVersions()) {
-			if (version.major == major && version.minor == minor) {
+			if (version.major == major && version.minor == minor && !version.isPreRelease()) {
 				return version;
 			}
 		}
