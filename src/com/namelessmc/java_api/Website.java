@@ -33,7 +33,7 @@ public class Website implements LanguageEntity {
 				.map(NamelessModule::byName)
 				.collect(Collectors.toUnmodifiableSet());
 
-		if (json.has("version_update")) {
+		if (json.has("version_update") && false) {
 			final JsonObject updateJson = json.get("version_update").getAsJsonObject();
 			final boolean updateAvailable = updateJson.get("update").getAsBoolean();
 			if (updateAvailable) {
