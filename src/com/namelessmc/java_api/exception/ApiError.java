@@ -12,6 +12,7 @@ public enum ApiError {
 	NAMELESS_UNKNOWN_ERROR("nameless", "unknown_error"),
 	NAMELESS_NOT_AUTHORIZED("nameless", "not_authorized"),
 	NAMELESS_INVALID_API_KEY("nameless", "invalid_api_key"),
+	NAMELESS_MISSING_API_KEY("nameless", "missing_api_key"),
 	NAMELESS_INVALID_API_METHOD("nameless", "invalid_api_method"),
 	NAMELESS_CANNOT_FIND_USER("nameless", "cannot_find_user"),
 	NAMELESS_INVALID_POST_CONTENTS("nameless", "invalid_post_contents"),
