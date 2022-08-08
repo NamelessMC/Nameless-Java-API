@@ -12,6 +12,7 @@ import com.namelessmc.java_api.integrations.*;
 import com.namelessmc.java_api.modules.discord.DiscordUser;
 import com.namelessmc.java_api.modules.store.StoreUser;
 import com.namelessmc.java_api.modules.suggestions.SuggestionsUser;
+import com.namelessmc.java_api.util.GsonHelper;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -19,8 +20,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public final class NamelessUser implements LanguageEntity {
 
@@ -175,13 +174,7 @@ public final class NamelessUser implements LanguageEntity {
 	 * @return List of the user's groups, sorted from low order to high order.
 	 */
 	public @NonNull List<@NonNull Group> groups() throws NamelessException {
-		// TODO sorting may be unnecessary since the website already returns sorted groups
-		return Collections.unmodifiableList(
-				StreamSupport.stream(this.userInfo().getAsJsonArray("groups").spliterator(), false)
-						.map(JsonElement::getAsJsonObject)
-						.map(Group::new)
-						.sorted()
-						.collect(Collectors.toList()));
+		return GsonHelper.toObjectList(this.userInfo().getAsJsonArray("groups"), Group::new);
 	}
 
 	/**
