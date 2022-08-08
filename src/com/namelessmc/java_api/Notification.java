@@ -1,15 +1,17 @@
 package com.namelessmc.java_api;
 
+import com.google.gson.JsonObject;
+
 public class Notification {
 
 	private final String message;
 	private final String url;
 	private final Type type;
 
-	public Notification(final String message, final String url, final Type type) {
-		this.message = message;
-		this.url = url;
-		this.type = type;
+	public Notification(JsonObject json) {
+		this.message = json.get("message").getAsString();
+		this.url = json.get("url").getAsString();
+		this.type = Type.fromString(json.get("type").getAsString());
 	}
 
 	public String message() {

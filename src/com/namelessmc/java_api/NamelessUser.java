@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.namelessmc.java_api.Notification.Type;
 import com.namelessmc.java_api.exception.ApiError;
 import com.namelessmc.java_api.exception.ApiException;
 import com.namelessmc.java_api.exception.NamelessException;
@@ -223,16 +222,7 @@ public final class NamelessUser implements LanguageEntity {
 
 	public List<Notification> notifications() throws NamelessException {
 		final JsonObject response = this.requests.get("users/" + this.userTransformer + "/notifications");
-
-		final List<Notification> notifications = new ArrayList<>();
-		response.getAsJsonArray("notifications").forEach((element) -> {
-			final String message = element.getAsJsonObject().get("message").getAsString();
-			final String url = element.getAsJsonObject().get("url").getAsString();
-			final Type type = Type.fromString(element.getAsJsonObject().get("type").getAsString());
-			notifications.add(new Notification(message, url, type));
-		});
-
-		return notifications;
+		return GsonHelper.toObjectList(response.getAsJsonArray("notifications"), Notification::new);
 	}
 
 	/**
