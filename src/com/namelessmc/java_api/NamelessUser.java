@@ -319,7 +319,7 @@ public final class NamelessUser implements LanguageEntity {
 							values.get("required").getAsBoolean(),
 							values.get("description").getAsString()
 					),
-					values.get("value").getAsString()
+					GsonHelper.getNullableString(values, "value")
 			));
 		}
 
