@@ -158,6 +158,10 @@ public final class NamelessUser implements LanguageEntity {
 	 * @return True if the user is member of at least one staff group, otherwise false
 	 */
 	public boolean isStaff() throws NamelessException {
+		if (!this.userInfo().has("groups")) {
+			throw new IllegalStateException("Groups array missing: https://github.com/NamelessMC/Nameless/issues/3052");
+		}
+
 		JsonArray groups = this.userInfo().getAsJsonArray("groups");
 		for (JsonElement elem : groups) {
 			JsonObject group = elem.getAsJsonObject();
@@ -173,6 +177,9 @@ public final class NamelessUser implements LanguageEntity {
 	 * @return List of the user's groups, sorted from low order to high order.
 	 */
 	public @NonNull List<@NonNull Group> groups() throws NamelessException {
+		if (!this.userInfo().has("groups")) {
+			throw new IllegalStateException("Groups array missing: https://github.com/NamelessMC/Nameless/issues/3052");
+		}
 		return GsonHelper.toObjectList(this.userInfo().getAsJsonArray("groups"), Group::new);
 	}
 
@@ -184,6 +191,9 @@ public final class NamelessUser implements LanguageEntity {
 	 * @return Player's group with the lowest order
 	 */
 	public @Nullable Group primaryGroup() throws NamelessException {
+		if (!this.userInfo().has("groups")) {
+			throw new IllegalStateException("Groups array missing: https://github.com/NamelessMC/Nameless/issues/3052");
+		}
 		final JsonArray groups = this.userInfo().getAsJsonArray("groups");
 		if (groups.size() > 0) {
 			// Website group response is ordered, first group is primary group.
