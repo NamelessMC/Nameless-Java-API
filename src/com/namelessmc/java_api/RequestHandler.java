@@ -1,7 +1,5 @@
 package com.namelessmc.java_api;
 
-import com.github.mizosoft.methanol.Methanol;
-import com.github.mizosoft.methanol.MutableRequest;
 import com.google.common.base.Ascii;
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
@@ -18,13 +16,14 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -33,18 +32,24 @@ import java.util.stream.Collectors;
 public class RequestHandler {
 
 	private final @NonNull URL apiUrl;
-	private final @NonNull Methanol httpClient;
+	private final String apiKey;
+	private final String userAgent;
+	private final int timeoutMillis;
 	private final @Nullable ApiLogger debugLogger;
 	private final @NonNull Gson gson;
 	private final int responseLengthLimit;
 
 	RequestHandler(final @NonNull URL apiUrl,
-				   final @NonNull Methanol httpClient,
+				   String apiKey,
+				   String userAgent,
+				   Duration timeout,
 				   final @NonNull Gson gson,
 				   final @Nullable ApiLogger debugLogger,
 				   final int responseLengthLimit) {
 		this.apiUrl = Objects.requireNonNull(apiUrl, "API URL is null");
-		this.httpClient = Objects.requireNonNull(httpClient, "http client is null");
+		this.apiKey = apiKey;
+		this.userAgent = userAgent;
+		this.timeoutMillis = (int) timeout.toMillis();
 		this.gson = gson;
 		this.debugLogger = debugLogger;
 		this.responseLengthLimit = responseLengthLimit;
@@ -108,31 +113,42 @@ public class RequestHandler {
 					"legal in domain names, the Java URI class (and the Java HttpClient) does not accept them, because it uses the specification " +
 					"for 'host names' not 'domain names'.");
 		}
-		final MutableRequest request = MutableRequest.create(uri);
 
-		debug(() -> "Making connection " + (postBody != null ? "POST" : "GET") + " to " + request.uri());
+		debug(() -> "Making connection " + (postBody != null ? "POST" : "GET") + " to " + uri);
 
 		final long requestStartTime = System.currentTimeMillis();
-
-		if (postBody != null) {
-			byte[] postBytes = gson.toJson(postBody).getBytes(StandardCharsets.UTF_8);
-			request.POST(HttpRequest.BodyPublishers.ofByteArray(postBytes));
-			request.header("Content-Type", "application/json");
-
-			debug(() -> "POST request body:\n" + new String(postBytes, StandardCharsets.UTF_8));
-		} else {
-			request.GET();
-		}
-
-		request.header("Accept", "application/json");
 
 		int statusCode;
 		String responseBody;
 		try {
-			HttpResponse<InputStream> httpResponse = httpClient.send(request,
-					HttpResponse.BodyHandlers.ofInputStream());
-			statusCode = httpResponse.statusCode();
-			responseBody = getBodyAsString(httpResponse);
+			HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
+
+			http.setRequestProperty("Accept", "application/json");
+			http.setRequestProperty("Authorization", "Bearer " + this.apiKey);
+			http.setRequestProperty("User-Agent", this.userAgent);
+			http.setConnectTimeout(timeoutMillis);
+			http.setReadTimeout(timeoutMillis);
+
+			if (postBody != null) {
+				http.setRequestMethod("POST");
+				byte[] postBytes = gson.toJson(postBody).getBytes(StandardCharsets.UTF_8);
+				http.setRequestProperty("Content-Type", "application/json");
+				http.setRequestProperty("Content-Length", String.valueOf(postBytes.length));
+				http.setDoOutput(true);
+
+				try (OutputStream output = http.getOutputStream()) {
+					output.write(postBytes);
+				}
+
+				debug(() -> "POST request body:\n" + new String(postBytes, StandardCharsets.UTF_8));
+			} else {
+				http.setRequestMethod("GET");
+			}
+
+			http.setDoInput(true);
+
+			statusCode = http.getResponseCode();
+			responseBody = getBodyAsString(http.getInputStream());
 		} catch (final IOException e) {
 			final @Nullable String exceptionMessage = e.getMessage();
 			final StringBuilder message = new StringBuilder();
@@ -157,8 +173,6 @@ public class RequestHandler {
 			}
 
 			throw new NamelessException(message.toString(), e);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
 		}
 
 		debug(() -> "Website response body, after " + (System.currentTimeMillis() - requestStartTime) + "ms:\n" + regularAsciiOnly(responseBody));
@@ -230,10 +244,9 @@ public class RequestHandler {
 		return json;
 	}
 
-	private String getBodyAsString(HttpResponse<InputStream> response) throws IOException {
-		try (InputStream in = response.body();
-				InputStream limited = ByteStreams.limit(in, this.responseLengthLimit)) {
-			byte[] bytes = limited.readAllBytes();
+	private String getBodyAsString(InputStream in) throws IOException {
+		try (InputStream limited = ByteStreams.limit(in, this.responseLengthLimit)) {
+			byte[] bytes = ByteStreams.toByteArray(limited);
 			if (bytes.length == this.responseLengthLimit) {
 				throw new IOException("Response larger than limit of " + this.responseLengthLimit + " bytes.");
 			}

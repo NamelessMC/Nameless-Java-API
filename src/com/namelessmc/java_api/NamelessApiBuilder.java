@@ -1,6 +1,5 @@
 package com.namelessmc.java_api;
 
-import com.github.mizosoft.methanol.Methanol;
 import com.google.gson.GsonBuilder;
 import com.namelessmc.java_api.logger.ApiLogger;
 import com.namelessmc.java_api.logger.PrintStreamLogger;
@@ -8,11 +7,8 @@ import com.namelessmc.java_api.logger.Slf4jLogger;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.net.Authenticator;
 import java.net.MalformedURLException;
-import java.net.ProxySelector;
 import java.net.URL;
-import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.Objects;
 
@@ -25,9 +21,6 @@ public class NamelessApiBuilder {
 	private int responseSizeLimit = 32*1024*1024;
 	private String userAgent = "Nameless-Java-API";
 	private @Nullable ApiLogger debugLogger = null;
-	private @Nullable ProxySelector proxy = null;
-	private @Nullable Authenticator authenticator = null;
-	private HttpClient.@Nullable Version httpVersion = null;
 
 	private boolean pettyJsonRequests = false;
 
@@ -66,16 +59,6 @@ public class NamelessApiBuilder {
 		return this;
 	}
 
-	public NamelessApiBuilder withProxy(final @Nullable ProxySelector proxy) {
-		this.proxy = proxy;
-		return this;
-	}
-
-	public NamelessApiBuilder authenticator(final @Nullable Authenticator authenticator) {
-		this.authenticator = authenticator;
-		return this;
-	}
-
 	public NamelessApiBuilder pettyJsonRequests() {
 		this.pettyJsonRequests = true;
 		return this;
@@ -86,30 +69,7 @@ public class NamelessApiBuilder {
 		return this;
 	}
 
-	public NamelessApiBuilder httpversion(final HttpClient. @Nullable Version httpVersion) {
-		this.httpVersion = httpVersion;
-		return this;
-	}
-
 	public NamelessAPI build() {
-		final Methanol.Builder methanolBuilder = Methanol.newBuilder()
-				.defaultHeader("Authorization", "Bearer " + this.apiKey)
-				.userAgent(this.userAgent)
-				.autoAcceptEncoding(true)
-				.readTimeout(this.timeout)
-				.requestTimeout(this.timeout)
-				.connectTimeout(this.timeout)
-				.headersTimeout(this.timeout);
-		if (this.proxy != null) {
-			methanolBuilder.proxy(this.proxy);
-		}
-		if (this.authenticator != null) {
-			methanolBuilder.authenticator(this.authenticator);
-		}
-		if (this.httpVersion != null) {
-			methanolBuilder.version(this.httpVersion);
-		}
-
 		GsonBuilder gsonBuilder = new GsonBuilder()
 				.disableHtmlEscaping();
 
@@ -120,7 +80,9 @@ public class NamelessApiBuilder {
 		return new NamelessAPI(
 				new RequestHandler(
 						this.apiUrl,
-						methanolBuilder.build(),
+						this.apiKey,
+						this.userAgent,
+						this.timeout,
 						gsonBuilder.create(),
 						this.debugLogger,
 						this.responseSizeLimit

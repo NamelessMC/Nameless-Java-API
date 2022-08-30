@@ -7,7 +7,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.namelessmc</groupId>
 	<artifactId>java-api</artifactId>
-	<version>canary</version>
+	<version>jdk8</version>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,38 +22,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.10.1</version>
 				<configuration>
-					<source>11</source>
-					<target>11</target>
-					<fork>true</fork> <!-- Must fork or else JVM arguments are ignored. -->
-					<compilerArguments>
-						<Xmaxerrs>100</Xmaxerrs>
-						<Xmaxwarns>100</Xmaxwarns>
-					</compilerArguments>
-					<annotationProcessorPaths>
-						<path>
-							<groupId>org.checkerframework</groupId>
-							<artifactId>checker</artifactId>
-							<version>3.21.4</version>
-						</path>
-					</annotationProcessorPaths>
-					<annotationProcessors>
-						<annotationProcessor>org.checkerframework.checker.nullness.NullnessChecker</annotationProcessor>
-						<annotationProcessor>org.checkerframework.checker.optional.OptionalChecker</annotationProcessor>
-						<annotationProcessor>org.checkerframework.checker.regex.RegexChecker</annotationProcessor>
-						<annotationProcessor>org.checkerframework.checker.formatter.FormatterChecker</annotationProcessor>
-					</annotationProcessors>
-					<compilerArgs>
-					 	<arg>-Awarns</arg>
-						<arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
-						<arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
-						<arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
-						<arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
-						<arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
-						<arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-						<arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-						<arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
-						<arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-					</compilerArgs>
+					<source>8</source>
+					<target>8</target>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -84,12 +54,6 @@
 			<groupId>org.checkerframework</groupId>
 			<artifactId>checker-qual</artifactId>
 			<version>3.24.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.github.mizosoft.methanol</groupId>
-			<artifactId>methanol</artifactId>
-			<version>1.7.0</version>
 		</dependency>
 
 	</dependencies>
