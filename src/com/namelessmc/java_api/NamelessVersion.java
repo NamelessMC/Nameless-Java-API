@@ -24,27 +24,23 @@ public enum NamelessVersion {
 			V2_0
 	);
 
-	private final @Nullable String name; // Only for pre-releases that use literal name matching
+	private final @Nullable String exactMatchName; // Only for pre-releases
 	private final @NonNull String friendlyName;
 	private final int major;
 	private final int minor;
 	private final boolean preRelease;
 
 	@SuppressWarnings("SameParameterValue")
-	NamelessVersion(final @Nullable String name,
+	NamelessVersion(final @Nullable String exactMatchName,
 					final @NonNull String friendlyName,
 					final int major,
 					final int minor,
 					final boolean preRelease) {
-		this.name = name;
+		this.exactMatchName = exactMatchName;
 		this.friendlyName = friendlyName;
 		this.major = major;
 		this.minor = minor;
 		this.preRelease = preRelease;
-	}
-
-	public @Nullable String preReleaseName() {
-		return this.name;
 	}
 
 	public @NonNull String friendlyName() {
@@ -77,8 +73,8 @@ public enum NamelessVersion {
 
 	static {
 		for (final NamelessVersion version : allVersions()) {
-			if (version.isPreRelease()) {
-				BY_NAME.put(version.preReleaseName(), version);
+			if (version.exactMatchName != null) {
+				BY_NAME.put(version.exactMatchName, version);
 			}
 		}
 	}
