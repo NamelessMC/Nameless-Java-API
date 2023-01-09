@@ -129,8 +129,20 @@ public class RequestHandler {
 		int statusCode;
 		String responseBody;
 		try {
-			HttpResponse<InputStream> httpResponse = httpClient.send(request,
-					HttpResponse.BodyHandlers.ofInputStream());
+			HttpResponse<InputStream> httpResponse;
+			try {
+				httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+			} catch (final IOException e) {
+				// Receiving a GOAWAY means the connection should be retried. For some reason, the Java
+				// HTTP client doesn't. See also: https://stackoverflow.com/a/55092354
+				if (e.getMessage() != null && e.getMessage().contains("GOAWAY received")) {
+					// Manually retry, once
+					debug(() -> "Retrying after receiving GOAWAY");
+					httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+				} else {
+					throw e;
+				}
+			}
 			statusCode = httpResponse.statusCode();
 			responseBody = getBodyAsString(httpResponse);
 		} catch (final IOException e) {
