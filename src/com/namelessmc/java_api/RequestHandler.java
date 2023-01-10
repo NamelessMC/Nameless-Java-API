@@ -170,7 +170,7 @@ public class RequestHandler {
 
 			throw new NamelessException(message.toString(), e);
 		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
+			throw new NamelessException("In-progress request was aborted", e);
 		}
 
 		debug(() -> "Website response body, after " + (System.currentTimeMillis() - requestStartTime) + "ms:\n" + regularAsciiOnly(responseBody));
