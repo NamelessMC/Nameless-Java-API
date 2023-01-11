@@ -8,6 +8,7 @@ import com.namelessmc.java_api.logger.Slf4jLogger;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import javax.net.ssl.SSLParameters;
 import java.net.Authenticator;
 import java.net.MalformedURLException;
 import java.net.ProxySelector;
@@ -17,6 +18,12 @@ import java.time.Duration;
 import java.util.Objects;
 
 public class NamelessApiBuilder {
+
+	private static final SSLParameters SSL_PARAMETERS = new SSLParameters();
+
+	static {
+		SSL_PARAMETERS.setProtocols(new String[]{"TLSv1.3", "TLSv1.2"});
+	}
 
 	private final @NonNull URL apiUrl;
 	private final @NonNull String apiKey;
@@ -86,7 +93,7 @@ public class NamelessApiBuilder {
 		return this;
 	}
 
-	public NamelessApiBuilder httpversion(final HttpClient. @Nullable Version httpVersion) {
+	public NamelessApiBuilder httpVersion(final HttpClient. @Nullable Version httpVersion) {
 		this.httpVersion = httpVersion;
 		return this;
 	}
@@ -109,6 +116,8 @@ public class NamelessApiBuilder {
 		if (this.httpVersion != null) {
 			methanolBuilder.version(this.httpVersion);
 		}
+
+		methanolBuilder.sslParameters(SSL_PARAMETERS);
 
 		GsonBuilder gsonBuilder = new GsonBuilder()
 				.disableHtmlEscaping();
