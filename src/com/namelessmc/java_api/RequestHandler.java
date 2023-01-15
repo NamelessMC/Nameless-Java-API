@@ -18,7 +18,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -54,32 +53,32 @@ public class RequestHandler {
 		return this.gson;
 	}
 
-	public @NonNull JsonObject post(final @NonNull String route,
-									final @NonNull JsonObject postData) throws NamelessException {
+	public  JsonObject post(final String route,
+							final JsonObject postData) throws NamelessException {
 		return makeConnection(route, postData);
 	}
 
-	public @NonNull JsonObject get(final @NonNull String route,
-								   final @NonNull Object @NonNull... parameters) throws NamelessException {
+	public JsonObject get(final String route,
+						  final @Nullable Object... parameters) throws NamelessException {
 		final StringBuilder urlBuilder = new StringBuilder(route);
 
 		if (parameters.length > 0) {
 			if (parameters.length % 2 != 0) {
-				final String paramString = Arrays.stream(parameters).map(Object::toString).collect(Collectors.joining("|"));
+				final String paramString = Arrays.stream(parameters).map(Objects::toString).collect(Collectors.joining("|"));
 				throw new IllegalArgumentException(String.format("Parameter string varargs array length must be even (length is %s - %s)", parameters.length, paramString));
 			}
 
 			for (int i = 0; i < parameters.length; i++) {
+				Object param = parameters[i];
 				if (i % 2 == 0) {
-					urlBuilder.append("&");
-					urlBuilder.append(parameters[i]);
-				} else {
-					urlBuilder.append("=");
-					try {
-						urlBuilder.append(URLEncoder.encode(parameters[i].toString(), StandardCharsets.UTF_8.toString()));
-					} catch (final UnsupportedEncodingException e) {
-						throw new RuntimeException(e);
+					if (param == null) {
+						throw new IllegalArgumentException("Parameter keys must never be null, only values may be null");
 					}
+					urlBuilder.append("&");
+					urlBuilder.append(param);
+				} else if (param != null) {
+					urlBuilder.append("=");
+					urlBuilder.append(URLEncoder.encode(param.toString(), StandardCharsets.UTF_8));
 				}
 			}
 		}
