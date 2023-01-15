@@ -46,8 +46,8 @@ public class FilteredUserListBuilder {
 		final Object[] parameters;
 		if (filters != null) {
 			int filterCount = filters.size();
-			parameters = new Object[4 + filterCount * 2];
-			int i = 0;
+			parameters = new Object[2 + 4 + filterCount * 2];
+			int i = 2;
 			parameters[i++] = "operator";
 			parameters[i++] = operator;
 			parameters[i++] = "limit";
@@ -57,8 +57,10 @@ public class FilteredUserListBuilder {
 				parameters[i++] = filter.getValue();
 			}
 		} else {
-			parameters = new Object[0];
+			parameters = new Object[2];
 		}
+
+		parameters[0] = "groups"; // Request NamelessMC to include groups in response
 
 		return this.api.requests().get("users", parameters);
 	}
@@ -68,7 +70,6 @@ public class FilteredUserListBuilder {
 		final JsonArray array = response.getAsJsonArray("users");
 		final List<NamelessUser> users = new ArrayList<>(array.size());
 		for (final JsonElement e : array) {
-			final JsonObject o = e.getAsJsonObject();
 			users.add(new NamelessUser(this.api, e.getAsJsonObject()));
 		}
 		return Collections.unmodifiableList(users);
