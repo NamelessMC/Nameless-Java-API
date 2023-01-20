@@ -4,6 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.NamelessAPI;
+import com.namelessmc.java_api.util.GsonHelper;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,7 +16,7 @@ public class StorePayment {
 	private final int id;
 	private final int orderId;
 	private final int gatewayId;
-	private final String transaction;
+	private final @Nullable String transaction;
 	private final String amount;
 	private final String currency;
 	private final String fee;
@@ -29,7 +31,7 @@ public class StorePayment {
 		this.id = json.get("id").getAsInt();
 		this.orderId = json.get("order_id").getAsInt();
 		this.gatewayId = json.get("gateway_id").getAsInt();
-		this.transaction = json.get("transaction").getAsString();
+		this.transaction = GsonHelper.getNullableString(json, "transaction");
 		this.amount = json.get("amount").getAsString();
 		this.currency = json.get("currency").getAsString();
 		this.fee = json.get("fee").getAsString();
@@ -58,7 +60,7 @@ public class StorePayment {
 		return gatewayId;
 	}
 
-	public String transaction() {
+	public @Nullable String transaction() {
 		return transaction;
 	}
 
