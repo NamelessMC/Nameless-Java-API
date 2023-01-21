@@ -100,7 +100,10 @@ public class NamelessApiBuilder {
 
 	public NamelessAPI build() {
 		final Methanol.Builder methanolBuilder = Methanol.newBuilder()
-				.defaultHeader("Authorization", "Bearer " + this.apiKey)
+				.defaultHeaders(
+						"Authorization", "Bearer " + this.apiKey,
+						"X-API-Key", this.apiKey
+				)
 				.userAgent(this.userAgent)
 				.autoAcceptEncoding(true)
 				.readTimeout(this.timeout)
