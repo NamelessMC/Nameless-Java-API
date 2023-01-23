@@ -91,7 +91,7 @@ public final class NamelessAPI {
 	 * @param groups
 	 * @throws NamelessException
 	 */
-	public void sendMinecraftGroups(final Map<UUID, Set<String>> groups) throws NamelessException {
+	public void sendMinecraftGroups(final int serverId, final Map<UUID, Set<String>> groups) throws NamelessException {
 		final JsonObject groupsJson = new JsonObject();
 		final Gson gson = this.requests().gson();
 		groups.forEach((uuid, playerGroups) -> {
@@ -101,6 +101,7 @@ public final class NamelessAPI {
 		});
 
 		JsonObject body = new JsonObject();
+		body.addProperty("server_id", serverId);
 		body.add("player_groups", groupsJson);
 
 		this.requests.post("minecraft/update-groups", body);
