@@ -16,6 +16,7 @@ public enum NamelessVersion {
 	V2_0_0_PR_12("2.0.0-pr12", "2.0.0 pre-release 12", 2, 0, true),
 	V2_0_0_PR_13("2.0.0-pr13", "2.0.0 pre-release 13", 2, 0, true),
 	V2_0(null, "2.0.*", 2, 0, false),
+	V2_1(null, "2.1.*", 2, 1, false),
 
 	;
 
