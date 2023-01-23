@@ -1,5 +1,6 @@
 package com.namelessmc.java_api;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -19,10 +20,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.math.BigInteger;
 import java.net.URL;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -86,6 +84,26 @@ public final class NamelessAPI {
 	 */
 	public void submitServerInfo(final @NonNull JsonObject jsonData) throws NamelessException {
 		this.requests.post("minecraft/server-info", jsonData);
+	}
+
+	/**
+	 * Send Minecraft groups to website. Only available in Nameless 2.1.0+
+	 * @param groups
+	 * @throws NamelessException
+	 */
+	public void sendMinecraftGroups(final Map<UUID, Set<String>> groups) throws NamelessException {
+		final JsonObject groupsJson = new JsonObject();
+		final Gson gson = this.requests().gson();
+		groups.forEach((uuid, playerGroups) -> {
+			final JsonObject playerGroupsObject = new JsonObject();
+			playerGroupsObject.add("groups", gson.toJsonTree(playerGroups));
+			groupsJson.add(uuid.toString(), playerGroupsObject);
+		});
+
+		JsonObject body = new JsonObject();
+		body.add("player_groups", groupsJson);
+
+		this.requests.post("minecraft/update-groups", body);
 	}
 
 	/**
