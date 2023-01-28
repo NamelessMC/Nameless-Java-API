@@ -22,7 +22,8 @@ public enum NamelessVersion {
 
 	private static final Set<NamelessVersion> SUPPORTED_VERSIONS = EnumSet.of(
 			V2_0_0_PR_13,
-			V2_0
+			V2_0,
+			V2_1
 	);
 
 	private final @Nullable String exactMatchName; // Only for pre-releases
