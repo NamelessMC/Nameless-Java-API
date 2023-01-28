@@ -97,7 +97,7 @@ public final class NamelessAPI {
 		groups.forEach((uuid, playerGroups) -> {
 			final JsonObject playerGroupsObject = new JsonObject();
 			playerGroupsObject.add("groups", gson.toJsonTree(playerGroups));
-			groupsJson.add(uuid.toString(), playerGroupsObject);
+			groupsJson.add(javaUuidToWebsiteUuid(uuid), playerGroupsObject);
 		});
 
 		JsonObject body = new JsonObject();
