@@ -97,11 +97,11 @@ public final class NamelessAPI {
 		groups.forEach((uuid, playerGroups) -> {
 			final JsonObject playerGroupsObject = new JsonObject();
 			playerGroupsObject.add("groups", gson.toJsonTree(playerGroups));
-			groupsJson.add(uuid.toString().replace('-', ''), playerGroupsObject);
+			groupsJson.add(javaUuidToWebsiteUuid(uuid), playerGroupsObject);
 		});
 
 		JsonObject body = new JsonObject();
-		body.addProperty("server-id", serverId);
+		body.addProperty("server_id", serverId);
 		body.add("player_groups", groupsJson);
 
 		this.requests.post("minecraft/update-groups", body);
