@@ -14,8 +14,6 @@
 	</properties>
 
 	<build>
-		<sourceDirectory>src</sourceDirectory>
-
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -56,6 +54,10 @@
 					</compilerArgs>
 				</configuration>
 			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M9</version>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -90,6 +92,13 @@
 			<groupId>com.github.mizosoft.methanol</groupId>
 			<artifactId>methanol</artifactId>
 			<version>1.7.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>5.9.2</version>
+			<scope>test</scope>
 		</dependency>
 
 	</dependencies>
