@@ -175,7 +175,7 @@ public class RequestHandler {
 		debug(() -> "Website response body, after " + (System.currentTimeMillis() - requestStartTime) + "ms:\n" + regularAsciiOnly(responseBody));
 
 		if (responseBody.length() == 0) {
-			if (statusCode >= 301 && statusCode <= 303) {
+			if (statusCode == 301 || statusCode == 302 || statusCode == 303 || statusCode == 307 || statusCode == 308) {
 				throw new NamelessException("Website returned a redirect. Please ensure your URL is correct, paying attention to whether it should use HTTP or HTTPS, or whether it should or should not contain 'www.'.");
 			}
 			throw new NamelessException("Website returned empty response with status code " + statusCode);
