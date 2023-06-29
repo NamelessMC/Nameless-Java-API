@@ -15,7 +15,7 @@ public class NamelessModule {
 	public static final NamelessModule COOKIE_CONSENT = new NamelessModule("Cookie Consent", true, null);
 
 	public static final NamelessModule STORE = new NamelessModule("Store", false, "https://namelessmc.com/resources/resource/139");
-	public static final NamelessModule WEBSEND = new NamelessModule("Websend", false, "https://github.com/supercrafter100/Nameless-Websend/archive/refs/heads/master.zip");
+	public static final NamelessModule WEBSEND = new NamelessModule("Websend", false, "https://github.com/supercrafter100/Nameless-Websend");
 	public static final NamelessModule SUGGESTIONS = new NamelessModule("Suggestions", false, "https://namelessmc.com/resources/resource/129");
 
 	private final String name;
