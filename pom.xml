@@ -11,6 +11,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<checkerFrameworkVersion>3.36.0</checkerFrameworkVersion>
 	</properties>
 
 	<build>
@@ -31,7 +32,7 @@
 						<path>
 							<groupId>org.checkerframework</groupId>
 							<artifactId>checker</artifactId>
-							<version>3.36.0</version>
+							<version>${checkerFrameworkVersion}</version>
 						</path>
 					</annotationProcessorPaths>
 					<annotationProcessors>
@@ -85,7 +86,7 @@
 		<dependency>
 			<groupId>org.checkerframework</groupId>
 			<artifactId>checker-qual</artifactId>
-			<version>3.36.0</version>
+			<version>${checkerFrameworkVersion}</version>
 		</dependency>
 
 		<dependency>
