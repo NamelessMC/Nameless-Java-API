@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 
 public class RequestHandler {
 
+	private static final int RETRIES = 2;
+
 	private final @NonNull URL apiUrl;
 	private final @NonNull Methanol httpClient;
 	private final @Nullable ApiLogger debugLogger;
@@ -55,7 +57,7 @@ public class RequestHandler {
 
 	public  JsonObject post(final String route,
 							final JsonObject postData) throws NamelessException {
-		return makeConnection(route, postData);
+		return makeConnection(route, postData, RETRIES);
 	}
 
 	public JsonObject get(final String route,
@@ -83,7 +85,7 @@ public class RequestHandler {
 			}
 		}
 
-		return makeConnection(urlBuilder.toString(), null);
+		return makeConnection(urlBuilder.toString(), null, RETRIES);
 	}
 
 	private void debug(final @NonNull String message) {
@@ -99,7 +101,8 @@ public class RequestHandler {
 	}
 
 	private @NonNull JsonObject makeConnection(final @NonNull String route,
-											   final @Nullable JsonObject postBody) throws NamelessException {
+											   final @Nullable JsonObject postBody,
+											   final int retries) throws NamelessException {
 		Preconditions.checkArgument(!route.startsWith("/"), "Route must not start with a slash");
 		final URI uri = URI.create(this.apiUrl + route);
 		if (uri.getHost() == null) {
@@ -125,23 +128,10 @@ public class RequestHandler {
 
 		request.header("Accept", "application/json");
 
-		int statusCode;
-		String responseBody;
+		final int statusCode;
+		final String responseBody;
 		try {
-			HttpResponse<InputStream> httpResponse;
-			try {
-				httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
-			} catch (final IOException e) {
-				// Receiving a GOAWAY means the connection should be retried. For some reason, the Java
-				// HTTP client doesn't. See also: https://stackoverflow.com/a/55092354
-				if (e.getMessage() != null && e.getMessage().contains("GOAWAY received")) {
-					// Manually retry, once
-					debug(() -> "Retrying after receiving GOAWAY");
-					httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
-				} else {
-					throw e;
-				}
-			}
+			HttpResponse<InputStream> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
 			statusCode = httpResponse.statusCode();
 			responseBody = getBodyAsString(httpResponse);
 		} catch (final IOException e) {
@@ -152,7 +142,16 @@ public class RequestHandler {
 			message.append(": ");
 			message.append(exceptionMessage);
 			if (exceptionMessage != null) {
-				if (exceptionMessage.contains("unable to find valid certification path to requested target")) {
+				if (e.getMessage().contains("GOAWAY received")) {
+					// Receiving a GOAWAY means the connection should be retried. For some reason, the Java
+					// HTTP client doesn't seem to. See also: https://stackoverflow.com/a/55092354
+					if (retries > 0) {
+						debug(() -> "Retrying after received GOAWAY");
+						return makeConnection(route, postBody, retries - 1);
+					} else {
+						message.append("Already retried after GOAWAY multiple times, your web server is probably down.");
+					}
+				} else if (exceptionMessage.contains("unable to find valid certification path to requested target")) {
 					message.append("\nHINT: Your HTTPS certificate is probably valid, but is it complete? Ensure your website uses a valid *full chain* SSL/TLS certificate.");
 				} else if (exceptionMessage.contains("No subject alternative DNS name matching")) {
 					message.append("\nHINT: Is your HTTPS certificate valid? Is it for the correct domain?");
