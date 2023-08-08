@@ -55,6 +55,13 @@ public class StoreUser {
 		return response.get("cents").getAsInt();
 	}
 
+	/**
+	 * Credits, formatted as a float string with 2 decimals
+	 */
+	public String creditsDisplay() throws NamelessException {
+		return String.format("%.2f", this.creditsCents() / 100f);
+	}
+
 	public int customerId() throws NamelessException {
 		JsonObject response = this.requests.get("users/" + this.user.userTransformer() + "/credits");
 		return response.get("customer_id").getAsInt();
