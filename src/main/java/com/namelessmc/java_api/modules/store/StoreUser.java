@@ -29,7 +29,7 @@ public class StoreUser {
 
 	public void addCredits(int cents) throws NamelessException {
 		// Module does not support adding cents yet
-		this.addCredits(cents * 100f);
+		this.addCredits(cents / 100f);
 	}
 
 	@Deprecated
@@ -41,7 +41,7 @@ public class StoreUser {
 
 	public void removeCredits(int cents) throws NamelessException {
 		// Module does not support removing cents yet
-		this.removeCredits(cents * 100f);
+		this.removeCredits(cents / 100f);
 	}
 
 	@Deprecated
