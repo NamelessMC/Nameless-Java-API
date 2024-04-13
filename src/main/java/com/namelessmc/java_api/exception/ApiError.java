@@ -50,7 +50,9 @@ public enum ApiError {
 
 	// https://github.com/partydragen/Nameless-Store/blob/master/upload/modules/Store/classes/StoreApiErrors.php
 	STORE_PAYMENT_NOT_FOUND("store", "payment_not_found"),
+	@Deprecated
 	ERROR_INVALID_CREDITS_AMOUNT("store", "invalid_credits_amount"),
+	STORE_INVALID_CREDITS_AMOUNT("store", "invalid_credits_amount"),
 
 	;
 
