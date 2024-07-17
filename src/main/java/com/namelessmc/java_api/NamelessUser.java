@@ -272,6 +272,21 @@ public final class NamelessUser implements LanguageEntity {
 	public void createReport(final @NonNull UUID reportedUuid,
 							 final @NonNull String reportedName,
 							 final @NonNull String reason) throws NamelessException {
+		createReport(reportedUuid, reportedName, reason, 0);
+	}
+	
+	/**
+	 * Create a report for a user who may or may not have a website account
+	 * @param reportedUuid The Mojang UUID of the Minecraft player to report
+	 * @param reportedName The Minecraft username of this player
+	 * @param reason Report reason
+	 * @param serverId Minecraft server id
+	 * @throws IllegalArgumentException Report reason is too long (>255 characters)
+	 */
+	public void createReport(final @NonNull UUID reportedUuid,
+							 final @NonNull String reportedName,
+							 final @NonNull String reason,
+							 final int serverId) throws NamelessException {
 		Objects.requireNonNull(reportedUuid, "Reported uuid is null");
 		Objects.requireNonNull(reportedName, "Reported name is null");
 		Objects.requireNonNull(reason, "Report reason is null");
@@ -282,6 +297,9 @@ public final class NamelessUser implements LanguageEntity {
 		post.addProperty("reported_uid", reportedUuid.toString());
 		post.addProperty("reported_username", reportedName);
 		post.addProperty("content", reason);
+		if (serverId != 0) {
+			post.addProperty("server_id", serverId);
+		}
 		try {
 			this.requests.post("reports/create", post);
 		} catch (final ApiException e) {
