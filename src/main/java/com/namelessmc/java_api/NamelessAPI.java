@@ -1,5 +1,19 @@
 package com.namelessmc.java_api;
 
+import java.math.BigInteger;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -15,14 +29,6 @@ import com.namelessmc.java_api.modules.discord.DiscordAPI;
 import com.namelessmc.java_api.modules.store.StoreAPI;
 import com.namelessmc.java_api.modules.suggestions.SuggestionsAPI;
 import com.namelessmc.java_api.modules.websend.WebsendAPI;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
-import java.math.BigInteger;
-import java.net.URL;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public final class NamelessAPI {
 
@@ -90,7 +96,9 @@ public final class NamelessAPI {
 	 * Send Minecraft groups to website. Only available in Nameless 2.1.0+
 	 * @param groups
 	 * @throws NamelessException
+	 * @deprecated Should use {@link com.namelessmc.java_api.NamelessUser#updateMinecraftGroups} for Nameless 2.2.0+
 	 */
+	@Deprecated
 	public void sendMinecraftGroups(final int serverId, final Map<UUID, Set<String>> groups) throws NamelessException {
 		final JsonObject groupsJson = new JsonObject();
 		final Gson gson = this.requests().gson();
@@ -100,7 +108,7 @@ public final class NamelessAPI {
 			groupsJson.add(javaUuidToWebsiteUuid(uuid), playerGroupsObject);
 		});
 
-		JsonObject body = new JsonObject();
+		final JsonObject body = new JsonObject();
 		body.addProperty("server_id", serverId);
 		body.add("player_groups", groupsJson);
 
@@ -136,7 +144,7 @@ public final class NamelessAPI {
 		try {
 			user.userInfo();
 			return user;
-		} catch (ApiException e) {
+		} catch (final ApiException e) {
 			if (e.apiError() == ApiError.NAMELESS_CANNOT_FIND_USER) {
 				return null;
 			}
@@ -145,27 +153,27 @@ public final class NamelessAPI {
 	}
 
 	public @Nullable NamelessUser user(final int id) throws NamelessException {
-		return userAsNullable(userLazy(id));
+		return this.userAsNullable(this.userLazy(id));
 	}
 
 	public @Nullable NamelessUser userByUsername(final @NonNull String username) throws NamelessException {
-		return userAsNullable(userByUsernameLazy(username));
+		return this.userAsNullable(this.userByUsernameLazy(username));
 	}
 
 	public @Nullable NamelessUser userByMinecraftUuid(final @NonNull UUID uuid) throws NamelessException {
-		return userAsNullable(userByMinecraftUuidLazy(uuid));
+		return this.userAsNullable(this.userByMinecraftUuidLazy(uuid));
 	}
 
 	public @Nullable NamelessUser userByMinecraftUsername(final @NonNull String username) throws NamelessException {
-		return userAsNullable(userByMinecraftUsernameLazy(username));
+		return this.userAsNullable(this.userByMinecraftUsernameLazy(username));
 	}
 
 	public @Nullable NamelessUser userByDiscordId(final long id) throws NamelessException {
-		return userAsNullable(userByDiscordIdLazy(id));
+		return this.userAsNullable(this.userByDiscordIdLazy(id));
 	}
 
 	public @Nullable NamelessUser userByDiscordUsername(final @NonNull String username) throws NamelessException {
-		return userAsNullable(userByDiscordUsernameLazy(username));
+		return this.userAsNullable(this.userByDiscordUsernameLazy(username));
 	}
 
 	/**
@@ -182,31 +190,31 @@ public final class NamelessAPI {
 	}
 
 	public @NonNull NamelessUser userByUsernameLazy(final @NonNull String username) {
-		return userLazy("username:" + username);
+		return this.userLazy("username:" + username);
 	}
 
 	public @NonNull NamelessUser userByMinecraftUuidLazy(final @NonNull UUID uuid) {
-		return byIntegrationIdentifierLazy(StandardIntegrationTypes.MINECRAFT, javaUuidToWebsiteUuid(uuid));
+		return this.byIntegrationIdentifierLazy(StandardIntegrationTypes.MINECRAFT, javaUuidToWebsiteUuid(uuid));
 	}
 
 	public @NonNull NamelessUser userByMinecraftUsernameLazy(final @NonNull String username) {
-		return byIntegrationUsernameLazy(StandardIntegrationTypes.MINECRAFT, username);
+		return this.byIntegrationUsernameLazy(StandardIntegrationTypes.MINECRAFT, username);
 	}
 
 	public @NonNull NamelessUser userByDiscordIdLazy(final long id) {
-		return byIntegrationIdentifierLazy(StandardIntegrationTypes.DISCORD, String.valueOf(id));
+		return this.byIntegrationIdentifierLazy(StandardIntegrationTypes.DISCORD, String.valueOf(id));
 	}
 
 	public @NonNull NamelessUser userByDiscordUsernameLazy(final @NonNull String username) {
-		return byIntegrationUsernameLazy(StandardIntegrationTypes.DISCORD, username);
+		return this.byIntegrationUsernameLazy(StandardIntegrationTypes.DISCORD, username);
 	}
 
 	public NamelessUser byIntegrationIdentifierLazy(String integrationName, String identifier) {
-		return userLazy("integration_id:" + integrationName + ":" + identifier);
+		return this.userLazy("integration_id:" + integrationName + ":" + identifier);
 	}
 
 	public NamelessUser byIntegrationUsernameLazy(String integrationName, String username) {
-		return userLazy("integration_name:" + integrationName + ":" + username);
+		return this.userLazy("integration_name:" + integrationName + ":" + username);
 	}
 
 	/**
@@ -234,7 +242,7 @@ public final class NamelessAPI {
 	public List<Group> group(final @NonNull String name) throws NamelessException {
 		Objects.requireNonNull(name, "Group name is null");
 		final JsonObject response = this.requests.get("groups", "name", name);
-		return groupListFromJsonArray(response.getAsJsonArray("groups"));
+		return this.groupListFromJsonArray(response.getAsJsonArray("groups"));
 	}
 
 	/**
@@ -243,7 +251,7 @@ public final class NamelessAPI {
 	 */
 	public List<Group> getAllGroups() throws NamelessException {
 		final JsonObject response = this.requests.get("groups");
-		return groupListFromJsonArray(response.getAsJsonArray("groups"));
+		return this.groupListFromJsonArray(response.getAsJsonArray("groups"));
 
 	}
 
@@ -285,9 +293,9 @@ public final class NamelessAPI {
 		post.addProperty("username", username);
 		post.addProperty("email", email);
 		if (integrationData != null && integrationData.length > 0) {
-			JsonObject integrationsJson = new JsonObject();
-			for (IntegrationData integration : integrationData) {
-				JsonObject integrationJson = new JsonObject();
+			final JsonObject integrationsJson = new JsonObject();
+			for (final IntegrationData integration : integrationData) {
+				final JsonObject integrationJson = new JsonObject();
 				integrationJson.addProperty("identifier", integration.identifier());
 				integrationJson.addProperty("username", integration.username());
 				integrationsJson.add(integration.type().toString(), integrationJson);
@@ -306,7 +314,7 @@ public final class NamelessAPI {
 
 	public void verifyIntegration(final @NonNull IntegrationData integrationData,
 								   final @NonNull String verificationCode) throws NamelessException {
-		JsonObject data = new JsonObject();
+		final JsonObject data = new JsonObject();
 		data.addProperty("integration", integrationData.type());
 		data.addProperty("identifier", integrationData.identifier());
 		data.addProperty("username", integrationData.username());

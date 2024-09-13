@@ -1,5 +1,21 @@
 package com.namelessmc.java_api;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import com.github.mizosoft.methanol.Methanol;
 import com.github.mizosoft.methanol.MutableRequest;
 import com.google.common.base.Ascii;
@@ -13,21 +29,6 @@ import com.namelessmc.java_api.exception.ApiError;
 import com.namelessmc.java_api.exception.ApiException;
 import com.namelessmc.java_api.exception.NamelessException;
 import com.namelessmc.java_api.logger.ApiLogger;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class RequestHandler {
 
@@ -57,7 +58,7 @@ public class RequestHandler {
 
 	public  JsonObject post(final String route,
 							final JsonObject postData) throws NamelessException {
-		return makeConnection(route, postData, RETRIES);
+		return this.makeConnection(route, postData, RETRIES);
 	}
 
 	public JsonObject get(final String route,
@@ -71,7 +72,7 @@ public class RequestHandler {
 			}
 
 			for (int i = 0; i < parameters.length; i++) {
-				Object param = parameters[i];
+				final Object param = parameters[i];
 				if (i % 2 == 0) {
 					if (param == null) {
 						throw new IllegalArgumentException("Parameter keys must never be null, only values may be null");
@@ -85,13 +86,7 @@ public class RequestHandler {
 			}
 		}
 
-		return makeConnection(urlBuilder.toString(), null, RETRIES);
-	}
-
-	private void debug(final @NonNull String message) {
-		if (this.debugLogger != null) {
-			this.debugLogger.log(message);
-		}
+		return this.makeConnection(urlBuilder.toString(), null, RETRIES);
 	}
 
 	private void debug(final @NonNull Supplier<String> messageSupplier) {
@@ -112,16 +107,16 @@ public class RequestHandler {
 		}
 		final MutableRequest request = MutableRequest.create(uri);
 
-		debug(() -> "Making connection " + (postBody != null ? "POST" : "GET") + " to " + request.uri());
+		this.debug(() -> "Making connection " + (postBody != null ? "POST" : "GET") + " to " + request.uri());
 
 		final long requestStartTime = System.currentTimeMillis();
 
 		if (postBody != null) {
-			byte[] postBytes = gson.toJson(postBody).getBytes(StandardCharsets.UTF_8);
+			final byte[] postBytes = this.gson.toJson(postBody).getBytes(StandardCharsets.UTF_8);
 			request.POST(HttpRequest.BodyPublishers.ofByteArray(postBytes));
 			request.header("Content-Type", "application/json");
 
-			debug(() -> "POST request body:\n" + new String(postBytes, StandardCharsets.UTF_8));
+			this.debug(() -> "POST request body:\n" + new String(postBytes, StandardCharsets.UTF_8));
 		} else {
 			request.GET();
 		}
@@ -131,9 +126,9 @@ public class RequestHandler {
 		final int statusCode;
 		final String responseBody;
 		try {
-			HttpResponse<InputStream> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+			final HttpResponse<InputStream> httpResponse = this.httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
 			statusCode = httpResponse.statusCode();
-			responseBody = getBodyAsString(httpResponse);
+			responseBody = this.getBodyAsString(httpResponse);
 		} catch (final IOException e) {
 			final @Nullable String exceptionMessage = e.getMessage();
 			final StringBuilder message = new StringBuilder();
@@ -142,12 +137,12 @@ public class RequestHandler {
 			message.append(": ");
 			message.append(exceptionMessage);
 			if (exceptionMessage != null) {
-				if (e.getMessage().contains("GOAWAY received")) {
+				if (e.getMessage() != null && e.getMessage().contains("GOAWAY received")) {
 					// Receiving a GOAWAY means the connection should be retried. For some reason, the Java
 					// HTTP client doesn't seem to. See also: https://stackoverflow.com/a/55092354
 					if (retries > 0) {
-						debug(() -> "Retrying after received GOAWAY");
-						return makeConnection(route, postBody, retries - 1);
+						this.debug(() -> "Retrying after received GOAWAY");
+						return this.makeConnection(route, postBody, retries - 1);
 					} else {
 						message.append("Already retried after GOAWAY multiple times, your web server is probably down.");
 					}
@@ -167,11 +162,11 @@ public class RequestHandler {
 			}
 
 			throw new NamelessException(message.toString(), e);
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			throw new NamelessException("In-progress request was aborted", e);
 		}
 
-		debug(() -> "Website response body, after " + (System.currentTimeMillis() - requestStartTime) + "ms:\n" + regularAsciiOnly(responseBody));
+		this.debug(() -> "Website response body, after " + (System.currentTimeMillis() - requestStartTime) + "ms:\n" + regularAsciiOnly(responseBody));
 
 		if (responseBody.length() == 0) {
 			if (statusCode == 301 || statusCode == 302 || statusCode == 303 || statusCode == 307 || statusCode == 308) {
@@ -185,7 +180,7 @@ public class RequestHandler {
 		try {
 			json = JsonParser.parseString(responseBody).getAsJsonObject();
 		} catch (final JsonSyntaxException | IllegalStateException e) {
-			StringBuilder message = new StringBuilder();
+			final StringBuilder message = new StringBuilder();
 			message.append("Website returned invalid response with code ");
 			message.append(statusCode);
 			message.append(".\n");
@@ -208,8 +203,8 @@ public class RequestHandler {
 			message.append(System.currentTimeMillis() - requestStartTime);
 			message.append("ms:\n");
 			message.append("-----------------\n");
-			int totalLengthLimit = 1500; // fit in a Discord message
-			String printableResponse = regularAsciiOnly(responseBody);
+			final int totalLengthLimit = 1500; // fit in a Discord message
+			final String printableResponse = regularAsciiOnly(responseBody);
 			message.append(Ascii.truncate(printableResponse, totalLengthLimit, "[truncated]\n"));
 			if (message.charAt(message.length() - 1) != '\n') {
 				message.append('\n');
@@ -243,7 +238,7 @@ public class RequestHandler {
 	private String getBodyAsString(HttpResponse<InputStream> response) throws IOException {
 		try (InputStream in = response.body();
 				InputStream limited = ByteStreams.limit(in, this.responseLengthLimit)) {
-			byte[] bytes = limited.readAllBytes();
+			final byte[] bytes = limited.readAllBytes();
 			if (bytes.length == this.responseLengthLimit) {
 				throw new IOException("Response larger than limit of " + this.responseLengthLimit + " bytes.");
 			}
@@ -252,9 +247,9 @@ public class RequestHandler {
 	}
 
 	private static @NonNull String regularAsciiOnly(@NonNull String message) {
-		char[] chars = message.toCharArray();
+		final char[] chars = message.toCharArray();
 		for (int i = 0; i < chars.length; i++) {
-			char c = chars[i];
+			final char c = chars[i];
 			// only allow standard symbols, letters, numbers
 			// look up an ascii table if you don't understand this if statement
 			if (c >= ' ' && c <= '~' || c == '\n') {

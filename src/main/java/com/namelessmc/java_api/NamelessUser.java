@@ -1,5 +1,21 @@
 package com.namelessmc.java_api;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+
+import org.checkerframework.checker.index.qual.Positive;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -7,18 +23,17 @@ import com.google.gson.JsonObject;
 import com.namelessmc.java_api.exception.ApiError;
 import com.namelessmc.java_api.exception.ApiException;
 import com.namelessmc.java_api.exception.NamelessException;
-import com.namelessmc.java_api.integrations.*;
+import com.namelessmc.java_api.integrations.DetailedDiscordIntegrationData;
+import com.namelessmc.java_api.integrations.DetailedIntegrationData;
+import com.namelessmc.java_api.integrations.DetailedMinecraftIntegrationData;
+import com.namelessmc.java_api.integrations.IDiscordIntegrationData;
+import com.namelessmc.java_api.integrations.IMinecraftIntegrationData;
+import com.namelessmc.java_api.integrations.IntegrationData;
+import com.namelessmc.java_api.integrations.StandardIntegrationTypes;
 import com.namelessmc.java_api.modules.discord.DiscordUser;
 import com.namelessmc.java_api.modules.store.StoreUser;
 import com.namelessmc.java_api.modules.suggestions.SuggestionsUser;
 import com.namelessmc.java_api.util.GsonHelper;
-import org.checkerframework.checker.index.qual.Positive;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
 
 public final class NamelessUser implements LanguageEntity {
 
@@ -112,7 +127,7 @@ public final class NamelessUser implements LanguageEntity {
 	}
 
 	public void updateUsername(final @NonNull String username) throws NamelessException {
-		JsonObject post = new JsonObject();
+		final JsonObject post = new JsonObject();
 		post.addProperty("username", username);
 		this.requests.post("users/" + this.userTransformer + "/update-username", post);
 	}
@@ -149,7 +164,7 @@ public final class NamelessUser implements LanguageEntity {
 	}
 
 	public @NonNull VerificationInfo verificationInfo() throws NamelessException {
-		final boolean verified = isVerified();
+		final boolean verified = this.isVerified();
 		final JsonObject verification = this.userInfo().getAsJsonObject("verification");
 		return new VerificationInfo(verified, verification);
 	}
@@ -162,9 +177,9 @@ public final class NamelessUser implements LanguageEntity {
 			throw new IllegalStateException("Groups array missing: https://github.com/NamelessMC/Nameless/issues/3052");
 		}
 
-		JsonArray groups = this.userInfo().getAsJsonArray("groups");
-		for (JsonElement elem : groups) {
-			JsonObject group = elem.getAsJsonObject();
+		final JsonArray groups = this.userInfo().getAsJsonArray("groups");
+		for (final JsonElement elem : groups) {
+			final JsonObject group = elem.getAsJsonObject();
 			if (group.has("staff") &&
 					group.get("staff").getAsBoolean()) {
 				return true;
@@ -205,16 +220,23 @@ public final class NamelessUser implements LanguageEntity {
 
 	public void addGroups(final @NonNull Group@NonNull ... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.add("groups", groupsToJsonArray(groups));
+		post.add("groups", this.groupsToJsonArray(groups));
 		this.requests.post("users/" + this.userTransformer + "/groups/add", post);
-		invalidateCache(); // Groups modified, invalidate cache
+		this.invalidateCache(); // Groups modified, invalidate cache
 	}
 
 	public void removeGroups(final @NonNull Group@NonNull... groups) throws NamelessException {
 		final JsonObject post = new JsonObject();
-		post.add("groups", groupsToJsonArray(groups));
+		post.add("groups", this.groupsToJsonArray(groups));
 		this.requests.post("users/" + this.userTransformer + "/groups/remove", post);
-		invalidateCache(); // Groups modified, invalidate cache
+		this.invalidateCache(); // Groups modified, invalidate cache
+	}
+	
+	public void updateMinecraftGroups(final String[] addedGroups, final String[] removedGroups) throws NamelessException {
+		final JsonObject post = new JsonObject();
+		post.add("add", this.requests.gson().toJsonTree(addedGroups));
+		post.add("remove", this.requests.gson().toJsonTree(removedGroups));
+		this.requests.post("minecraft/" + this.userTransformer + "/sync-groups", post);
 	}
 
 	private JsonArray groupsToJsonArray(final @NonNull Group@NonNull [] groups) {
@@ -272,7 +294,7 @@ public final class NamelessUser implements LanguageEntity {
 	public void createReport(final @NonNull UUID reportedUuid,
 							 final @NonNull String reportedName,
 							 final @NonNull String reason) throws NamelessException {
-		createReport(reportedUuid, reportedName, reason, 0);
+		this.createReport(reportedUuid, reportedName, reason, 0);
 	}
 	
 	/**
@@ -336,7 +358,7 @@ public final class NamelessUser implements LanguageEntity {
 		final JsonObject fieldsJson = this.userInfo().getAsJsonObject("profile_fields");
 		final List<CustomProfileFieldValue> fieldValues = new ArrayList<>(fieldsJson.size());
 		for (final Map.Entry<String, JsonElement> e : fieldsJson.entrySet()) {
-			int id = Integer.parseInt(e.getKey());
+			final int id = Integer.parseInt(e.getKey());
 			final JsonObject values = e.getValue().getAsJsonObject();
 			fieldValues.add(new CustomProfileFieldValue(
 					new CustomProfileField(
@@ -361,10 +383,10 @@ public final class NamelessUser implements LanguageEntity {
 
 		final JsonObject userInfo = this.userInfo();
 		final JsonArray integrationsJsonArray = userInfo.getAsJsonArray("integrations");
-		Map<String, DetailedIntegrationData> integrationDataMap = new HashMap<>(integrationsJsonArray.size());
-		for (JsonElement integrationElement : integrationsJsonArray) {
-			JsonObject integrationJson = integrationElement.getAsJsonObject();
-			String integrationName = integrationJson.get("integration").getAsString();
+		final Map<String, DetailedIntegrationData> integrationDataMap = new HashMap<>(integrationsJsonArray.size());
+		for (final JsonElement integrationElement : integrationsJsonArray) {
+			final JsonObject integrationJson = integrationElement.getAsJsonObject();
+			final String integrationName = integrationJson.get("integration").getAsString();
 			DetailedIntegrationData integrationData;
 			switch(integrationName) {
 				case StandardIntegrationTypes.MINECRAFT:
