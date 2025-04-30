@@ -1,12 +1,14 @@
 package com.namelessmc.java_api.modules.suggestions;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Date;
+
 import com.google.gson.JsonObject;
 import com.namelessmc.java_api.NamelessAPI;
 import com.namelessmc.java_api.exception.NamelessException;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Date;
 
 public class Suggestion {
 
@@ -28,8 +30,8 @@ public class Suggestion {
 		this.id = json.get("id").getAsInt();
 		final String urlString = json.get("link").getAsString();
 		try {
-			this.url = new URL(urlString);
-		} catch (MalformedURLException e) {
+			this.url = new URI(urlString).toURL();
+		} catch (MalformedURLException | URISyntaxException e) {
 			throw new NamelessException("Website provided invalid suggestion URL: " + urlString, e);
 		}
 		this.author = new SuggestionUser(api, json.getAsJsonObject("author"));
