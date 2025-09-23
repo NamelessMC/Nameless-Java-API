@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import com.namelessmc.java_api.exception.NamelessException;
 import com.namelessmc.java_api.exception.UnknownNamelessVersionException;
 import com.namelessmc.java_api.modules.NamelessModule;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,7 +13,6 @@ import java.util.stream.StreamSupport;
 public class Website implements LanguageEntity {
 
 	private final String version;
-	private final @Nullable Update update;
 	private final Set<NamelessModule> modules;
 	private final String rawLanguage;
 
@@ -33,20 +31,6 @@ public class Website implements LanguageEntity {
 				.map(NamelessModule::byName)
 				.collect(Collectors.toUnmodifiableSet());
 
-		if (json.has("version_update") && false) {
-			final JsonObject updateJson = json.get("version_update").getAsJsonObject();
-			final boolean updateAvailable = updateJson.get("update").getAsBoolean();
-			if (updateAvailable) {
-				final String updateVersion = updateJson.get("version").getAsString();
-				final boolean isUrgent = updateJson.get("urgent").getAsBoolean();
-				this.update = new Update(isUrgent, updateVersion);
-			} else {
-				this.update = null;
-			}
-		} else {
-			this.update = null;
-		}
-
 		if (json.get("locale").isJsonNull()) {
 			throw new NamelessException("Website returned null locale. This can happen if you upgraded from v2-pr12 to v2-pr13, please try switching the site's language to something else and back.");
 		}
@@ -60,13 +44,6 @@ public class Website implements LanguageEntity {
 
 	public NamelessVersion parsedVersion() throws UnknownNamelessVersionException {
 		return NamelessVersion.parse(this.version);
-	}
-
-	/**
-	 * @return Information about an update, or empty if no update is available.
-	 */
-	public @Nullable Update update() {
-		return this.update;
 	}
 
 	public Set<NamelessModule> modules() {
