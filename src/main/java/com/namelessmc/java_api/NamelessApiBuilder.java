@@ -12,6 +12,7 @@ import javax.net.ssl.SSLParameters;
 import java.net.Authenticator;
 import java.net.MalformedURLException;
 import java.net.ProxySelector;
+import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.time.Duration;
@@ -41,7 +42,7 @@ public class NamelessApiBuilder {
 	NamelessApiBuilder(final @NonNull URL apiUrl,
 					   final @NonNull String apiKey) {
 		try {
-			this.apiUrl = apiUrl.toString().endsWith("/") ? apiUrl : new URL(apiUrl + "/");
+			this.apiUrl = apiUrl.toString().endsWith("/") ? apiUrl : (URI.create(apiUrl + "/").toURL());
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
