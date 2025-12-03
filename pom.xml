@@ -11,7 +11,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<checkerFrameworkVersion>3.52.0</checkerFrameworkVersion>
+		<checkerFrameworkVersion>3.52.1</checkerFrameworkVersion>
 	</properties>
 
 	<build>
